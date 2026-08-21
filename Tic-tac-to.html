@@ -5,7 +5,7 @@
     <title>أكس أو أونلاين 🎮</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; }
-        .scoreboard { display: flex; justify-content: center; gap: 30px; margin: 15px 0; font-size: 18px; background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #38bdf8; max-width: 350px; margin: 0 auto 15px auto; }
+        .scoreboard { display: flex; justify-content: center; gap: 20px; margin: 15px auto; font-size: 18px; background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #38bdf8; max-width: 400px; }
         .score-box { color: #facc15; font-weight: bold; }
         .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 15px; }
         .cell { width: 100px; height: 100px; background: #1e293b; border: 2px solid #38bdf8; font-size: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
@@ -20,21 +20,19 @@
 <body>
     <h1>لعبة أكس أو أونلاين 🎮</h1>
 
-    <!-- واجهة القائمة تظهر للاتنين إجباري في البداية -->
     <div id="menu">
         <p id="status">اكتب اسمك أولاً لتبدأ اللعبة:</p>
         <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value=""><br>
         <div id="actionButtons"></div>
     </div>
 
-    <!-- عداد النقاط -->
+    <!-- عداد النقاط المُصحح بدقة -->
     <div class="scoreboard" id="scoreboard" style="display:none;">
-        <div><span id="p1Label">اللاعب (X)</span>: <span id="score1" class="score-box">0</span></div>
+        <div><span id="nameX">اللاعب X</span> (<span id="scoreX" class="score-box">0</span>)</div>
         <div>-</div>
-        <div><span id="p2Label">اللاعب (O)</span>: <span id="score2" class="score-box">0</span></div>
+        <div><span id="nameO">اللاعب O</span> (<span id="scoreO" class="score-box">0</span>)</div>
     </div>
 
-    <!-- لوحة اللعب مخفية تماماً في الأول -->
     <div class="board" id="board" style="display:none;">
         <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
         <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
@@ -56,8 +54,8 @@
         let myTurn = false;
         let board = Array(9).fill(null);
         let gameActive = false;
-        let score1 = 0;
-        let score2 = 0;
+        let scoreX = 0;
+        let scoreO = 0;
 
         const statusEl = document.getElementById('status');
         const menuEl = document.getElementById('menu');
@@ -66,7 +64,6 @@
         const scoreboardEl = document.getElementById('scoreboard');
         const restartBtn = document.getElementById('restartBtn');
 
-        // تجهيز الزراير حسب مين فاتح الرابط (منشئ ولا منضم)
         if (roomToJoin) {
             statusEl.innerText = "أنت تنضم لصديق، اكتب اسمك واضغط انضمام:";
             actionButtonsEl.innerHTML = `<button class="btn" onclick="joinRoomAction()">انضم للغرفة</button>`;
@@ -77,16 +74,13 @@
 
         function createRoomAction() {
             myName = document.getElementById('playerName').value.trim();
-            if(!myName) {
-                alert("من فضلك اكتب اسمك الأول!");
-                return;
-            }
+            if(!myName) { alert("من فضلك اكتب اسمك الأول!"); return; }
             
             const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
             peer = new Peer(roomId);
 
             peer.on('open', (id) => {
-                const fullLink = window.location.origin + window.location.pathname + '?room=' + id;
+                const fullLink = window.location.origin + window.location.pathname.replace('tic-tac-to.html', 'tic-tac-to.html') + '?room=' + id;
                 navigator.clipboard.writeText(fullLink);
                 
                 statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br><b>ابعت الرابط لأخوك الآن.</b><br><i>في انتظار انضمام الطرف الثاني...</i>";
@@ -104,10 +98,7 @@
 
         function joinRoomAction() {
             myName = document.getElementById('playerName').value.trim();
-            if(!myName) {
-                alert("من فضلك اكتب اسمك الأول!");
-                return;
-            }
+            if(!myName) { alert("من فضلك اكتب اسمك الأول!"); return; }
 
             statusEl.innerText = "جاري الاتصال بالغرفة...";
             actionButtonsEl.style.display = 'none';
@@ -120,7 +111,6 @@
                 myTurn = false;
                 
                 conn.on('open', () => {
-                    // نبعت اسمنا للطرف الأول فوراً
                     conn.send({ type: 'NAME', name: myName });
                     setupConnection();
                 });
@@ -136,7 +126,7 @@
             conn.on('data', (data) => {
                 if (typeof data === 'object' && data.type === 'NAME') {
                     opponentName = data.name;
-                    updateScoreboardLabels();
+                    updateNamesDisplay();
                     return;
                 }
 
@@ -153,23 +143,22 @@
                 checkWin();
             });
 
-            // لو إحنا اللاعب الأول، نبعت اسمنا للثاني
             if (mySymbol === 'X') {
                 setTimeout(() => {
                     conn.send({ type: 'NAME', name: myName });
                 }, 500);
             }
 
-            updateScoreboardLabels();
+            updateNamesDisplay();
         }
 
-        function updateScoreboardLabels() {
+        function updateNamesDisplay() {
             if (mySymbol === 'X') {
-                document.getElementById('p1Label').innerText = myName + " (X)";
-                document.getElementById('p2Label').innerText = opponentName + " (O)";
+                document.getElementById('nameX').innerText = myName;
+                document.getElementById('nameO').innerText = opponentName;
             } else {
-                document.getElementById('p1Label').innerText = opponentName + " (X)";
-                document.getElementById('p2Label').innerText = myName + " (O)";
+                document.getElementById('nameX').innerText = opponentName;
+                document.getElementById('nameO').innerText = myName;
             }
         }
 
@@ -198,14 +187,17 @@
             for (let w of wins) {
                 if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
                     let winnerSymbol = board[w[0]];
+                    if (winnerSymbol === 'X') scoreX++; else scoreO++;
+                    
                     if (winnerSymbol === mySymbol) {
                         statusEl.innerText = "تهانينا! لقد فزت في هذه الجولة 🎉";
-                        if (mySymbol === 'X') score1++; else score2++;
                     } else {
                         statusEl.innerText = "فاز خصمك في هذه الجولة 😢";
-                        if (mySymbol === 'X') score2++; else score1++;
                     }
-                    updateScoresDisplay();
+                    
+                    document.getElementById('scoreX').innerText = scoreX;
+                    document.getElementById('scoreO').innerText = scoreO;
+                    
                     gameActive = false;
                     restartBtn.style.display = 'inline-block';
                     return;
@@ -215,16 +207,6 @@
                 statusEl.innerText = "تعادل في هذه الجولة! 🤝";
                 gameActive = false;
                 restartBtn.style.display = 'inline-block';
-            }
-        }
-
-        function updateScoresDisplay() {
-            if (mySymbol === 'X') {
-                document.getElementById('score1').innerText = score1;
-                document.getElementById('score2').innerText = score2;
-            } else {
-                document.getElementById('score1').innerText = score2;
-                document.getElementById('score2').innerText = score1;
             }
         }
 
