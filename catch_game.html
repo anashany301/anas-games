@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة الصياد - ملء الشاشة 🎮</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            overflow: hidden;
+            touch-action: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .ui {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #38bdf8;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui">النقاط: <span id="score">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreEl = document.getElementById("score");
+
+        // ضبط الـ Canvas لملء الشاشة بالكامل بدقة عالية
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let score = 0;
+        let gameRunning = true;
+
+        // السلة (حجمها متناسب مع الشاشة)
+        const basket = {
+            w: 100,
+            h: 25,
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 80
+        };
+
+        // الشيء الساقط
+        const item = {
+            x: Math.random() * (canvas.width - 30),
+            y: -50,
+            r: 15,
+            speed: 5
+        };
+
+        function draw() {
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // رسم الخلفية بتدرج بسيط أو لون موحد
+            ctx.fillStyle = "#1e293b";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // رسم خط أرضي جمالي
+            ctx.fillStyle = "#0f172a";
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+
+            // رسم السلة (مستطيل سفلي مضيء)
+            ctx.fillStyle = "#38bdf8";
+            ctx.shadowColor = "#38bdf8";
+            ctx.shadowBlur = 15;
+            ctx.fillRect(basket.x, basket.y, basket.w, basket.h);
+            ctx.shadowBlur = 0; // إيقاف الـ glow لباقي العناصر
+
+            // رسم الشيء الساقط (دائرة حمراء)
+            ctx.fillStyle = "#f43f5e";
+            ctx.shadowColor = "#f43f5e";
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, item.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // تحريك الشيء للأسفل
+            item.y += item.speed;
+
+            // إذا سقط على الأرض ولم تلتقطه
+            if (item.y > canvas.height) {
+                gameRunning = false;
+                alert("خلصت اللعبة! مجموع نقاطك: " + score);
+                location.reload();
+            }
+
+            // التصادم مع السلة
+            if (
+                item.y + item.r >= basket.y &&
+                item.y - item.r <= basket.y + basket.h &&
+                item.x >= basket.x &&
+                item.x <= basket.x + basket.w
+            ) {
+                score += 10;
+                scoreEl.textContent = score;
+                item.y = -30;
+                item.x = Math.random() * (canvas.width - 40) + 20;
+                item.speed += 0.3; // تزداد السرعة مع كل نقطة تكسسبها
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // تحكم سلس باللمس أو الماوس في أي مكان بالشاشة
+        function handleMove(e) {
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            if (clientX !== undefined) {
+                basket.x = clientX - (basket.w / 2);
+
+                // منع السلة من الخروج عن حدود الشاشة اليمين أو اليسار
+                if (basket.x < 0) basket.x = 0;
+                if (basket.x > canvas.width - basket.w) basket.x = canvas.width - basket.w;
+            }
+        }
+
+        window.addEventListener("mousemove", handleMove);
+        window.addEventListener("touchmove", handleMove, { passive: true });
+
+        draw();
+    </script>
+</body>
+</html>
+

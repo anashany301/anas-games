@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الذاكرة الذكية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 360px;
+            background-color: #1e293b;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: #38bdf8;
+        }
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            background-color: #0f172a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .card {
+            aspect-ratio: 1;
+            background-color: #334155;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s, background-color 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card.flipped, .card.matched {
+            background-color: #475569;
+            transform: scale(0.98);
+        }
+        .btn-restart {
+            width: 100%;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-restart:hover {
+            background-color: #0369a1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>لعبة الذاكرة</h1>
+        
+        <div class="info-panel">
+            <div>الحركات: <span id="moves">0</span></div>
+            <div>المطابقة: <span id="matches">0</span>/6</div>
+        </div>
+
+        <div class="grid" id="gameGrid"></div>
+
+        <button class="btn-restart" id="restartBtn">إعادة اللعب</button>
+    </div>
+
+    <script>
+        const emojis = ['🚀', '💻', '🎮', '🔥', '⚡', '🤖'];
+        let cards = [...emojis, ...emojis]; // مضاعفة العناصر لتصبح أزواج
+        let gameGrid = document.getElementById('gameGrid');
+        let movesEl = document.getElementById('moves');
+        let matchesEl = document.getElementById('matches');
+        let restartBtn = document.getElementById('restartBtn');
+
+        let flippedCards = [];
+        let matchedCount = 0;
+        let moves = 0;
+        let isLocked = false;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function initGame() {
+            gameGrid.innerHTML = '';
+            flippedCards = [];
+            matchedCount = 0;
+            moves = 0;
+            isLocked = false;
+            movesEl.textContent = moves;
+            matchesEl.textContent = matchedCount;
+
+            let shuffledEmojis = shuffle(cards);
+
+            shuffledEmojis.forEach((emoji, index) => {
+                const card = document.createElement('button');
+                card.classList.add('card');
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.addEventListener('click', flipCard);
+                gameGrid.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (isLocked) return;
+            let clickedCard = this;
+
+            if (clickedCard.classList.contains('flipped') || clickedCard.classList.contains('matched')) {
+                return;
+            }
+
+            clickedCard.textContent = clickedCard.dataset.emoji;
+            clickedCard.classList.add('flipped');
+            flippedCards.push(clickedCard);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesEl.textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            let [card1, card2] = flippedCards;
+            let isMatch = card1.dataset.emoji === card2.dataset.emoji;
+
+            if (isMatch) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedCount++;
+                matchesEl.textContent = matchedCount;
+                flippedCards = [];
+
+                if (matchedCount === emojis.length) {
+                    setTimeout(() => {
+                        alert(`كفو! فزت في ${moves} حركة 🎉`);
+                    }, 300);
+                }
+            } else {
+                isLocked = true;
+                setTimeout(() => {
+                    card1.textContent = '';
+                    card2.textContent = '';
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                    isLocked = false;
+                }, 800);
+            }
+        }
+
+        restartBtn.addEventListener('click', initGame);
+
+        initGame();
+    </script>
+</body>
+</html>
+

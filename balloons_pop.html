@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الـ 100 مرحلة - فرقعة البالونات</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .container {
+            width: 100%;
+            max-width: 360px;
+            background-color: #1e293b;
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #38bdf8;
+        }
+        .stage-title {
+            font-size: 0.95rem;
+            color: #f43f5e;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            background-color: #0f172a;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+        canvas {
+            background-color: #0f172a;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto 10px auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+        .btn-restart {
+            width: 100%;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-restart:hover {
+            background-color: #0369a1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>تحدي الـ 100 مرحلة</h1>
+        <div class="stage-title" id="stageInfo">المرحلة: 1 / 100</div>
+        
+        <div class="info-panel">
+            <div>النقاط: <span id="score">0</span> / <span id="targetScore">15</span></div>
+            <div>الوقت: <span id="timer">15</span>ث</div>
+        </div>
+
+        <canvas id="targetCanvas" width="320" height="360"></canvas>
+
+        <button class="btn-restart" id="restartBtn">ابدأ اللعبة</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('targetCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const targetScoreEl = document.getElementById('targetScore');
+        const timerEl = document.getElementById('timer');
+        const stageInfoEl = document.getElementById('stageInfo');
+        const restartBtn = document.getElementById('restartBtn');
+
+        let level = 1;
+        let score = 0;
+        let targetScore = 15;
+        let timeLeft = 15;
+        let gameInterval;
+        let timerInterval;
+        let balloons = [];
+        let isPlaying = false;
+
+        class Balloon {
+            constructor() {
+                this.x = Math.random() * (canvas.width - 40) + 20;
+                this.y = canvas.height + 30;
+                this.radius = Math.max(12, 20 - Math.floor(level / 10)); // البالونات تصغر كلما تقدمنا لتزيد صعوبة الضغط
+                
+                // السرعة تزيد تدريجياً مع كل مرحلة
+                let speedMultiplier = 1 + (level * 0.03);
+                this.speed = (Math.random() * 1.5 + 1.5) * speedMultiplier;
+                
+                this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+            }
+            update() {
+                this.y -= this.speed;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y + this.radius);
+                ctx.lineTo(this.x, this.y + this.radius + 12);
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        function startGlobalGame() {
+            level = 1;
+            loadLevel();
+        }
+
+        function loadLevel() {
+            score = 0;
+            balloons = [];
+            isPlaying = true;
+            restartBtn.style.display = 'none';
+
+            // معادلة الصعوبة التلقائية لكل مرحلة من الـ 100
+            // المطلوب يرتفع تدريجياً، والوقت يقل تدريجياً
+            targetScore = 10 + Math.floor(level * 2.5); 
+            timeLeft = Math.max(6, 18 - Math.floor(level * 0.1)); // الوقت يقل تدريجياً ليصل لحد أقصى 6 ثوانٍ في المراحل المتقدمة
+
+            stageInfoEl.textContent = `المرحلة: ${level} / 100`;
+            scoreEl.textContent = score;
+            targetScoreEl.textContent = targetScore;
+            timerEl.textContent = timeLeft;
+
+            runIntervals();
+        }
+
+        function runIntervals() {
+            if (gameInterval) clearInterval(gameInterval);
+            if (timerInterval) clearInterval(timerInterval);
+
+            gameInterval = setInterval(updateGame, 1000 / 60);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    checkLevelCompletion();
+                }
+            }, 1000);
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // معدل ظهور البالونات يزداد في المراحل العالية
+            let spawnChance = 0.03 + (level * 0.0005);
+            if (Math.random() < spawnChance) {
+                balloons.push(new Balloon());
+            }
+
+            for (let i = balloons.length - 1; i >= 0; i--) {
+                balloons[i].update();
+                balloons[i].draw();
+
+                if (balloons[i].y + balloons[i].radius < 0) {
+                    balloons.splice(i, 1);
+                }
+            }
+        }
+
+        function popBalloon(x, y) {
+            if (!isPlaying) return;
+
+            for (let i = balloons.length - 1; i >= 0; i--) {
+                let dx = x - balloons[i].x;
+                let dy = y - balloons[i].y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < balloons[i].radius) {
+                    balloons.splice(i, 1);
+                    score += 5;
+                    scoreEl.textContent = score;
+
+                    // إذا حقق المطلوب، ينتقل للمرحلة التالية فوراً دون انتظار انتهاء الوقت
+                    if (score >= targetScore) {
+                        nextLevel();
+                    }
+                    break;
+                }
+            }
+        }
+
+        function nextLevel() {
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+
+            if (level >= 100) {
+                endGame(true); // ختم الـ 100 مرحلة!
+            } else {
+                level++;
+                // رسالة انتقال سريعة
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(`كفو! الدخول للمرحلة ${level}`, canvas.width / 2, canvas.height / 2);
+
+                setTimeout(loadLevel, 900);
+            }
+        }
+
+        function checkLevelCompletion() {
+            if (score >= targetScore) {
+                nextLevel();
+            } else {
+                endGame(false);
+            }
+        }
+
+        function endGame(won) {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = won ? '#10b981' : '#f43f5e';
+            ctx.font = 'bold 22px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(won ? 'أسطورة! ختمت الـ 100 مرحلة! 🏆' : `خسرت في المرحلة ${level} ❌`, canvas.width / 2, canvas.height / 2 - 20);
+
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '15px Segoe UI';
+            ctx.fillText(won ? 'أنت ملك ألعاب الموبايل!' : `النقاط: ${score} من ${targetScore}`, canvas.width / 2, canvas.height / 2 + 20);
+
+            restartBtn.style.display = 'block';
+            restartBtn.textContent = 'إعادة اللعبة من جديد';
+        }
+
+        canvas.appendEventListener = canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            popBalloon(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            popBalloon(touch.clientX - rect.left, touch.clientY - rect.top);
+        }, { passive: false });
+
+        restartBtn.addEventListener('click', startGlobalGame);
+    </script>
+</body>
+</html>
+

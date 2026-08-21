@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مكتبة ألعاب أنس الذكية 🎮</title>
+    <style>
+        body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        h1 { color: #38bdf8; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .game-btn { background: #1e293b; padding: 15px; border-radius: 10px; border: 2px solid #38bdf8; color: white; text-decoration: none; font-weight: bold; display: block; transition: 0.3s; }
+        .game-btn:active { background: #38bdf8; color: #0f172a; }
+    </style>
+</head>
+<body>
+    <h1>🎮 مكتبة ألعاب أنس</h1>
+    <div class="grid" id="gameList">جاري جلب وترجمة الألعاب أوتوماتيك...</div>
+
+    <script>
+        async function translateText(text) {
+            let cleanText = text.replace('.html', '').replace(/_/g, ' ');
+            try {
+                let response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleanText)}&langpair=en|ar`);
+                let data = await response.json();
+                if (data && data.responseData && data.responseData.translatedText) {
+                    let translated = data.responseData.translatedText;
+                    // تنظيف أي وسوم HTML قد تظهر بالخطأ في الترجمة
+                    let tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = translated;
+                    return tempDiv.textContent || tempDiv.innerText || cleanText.toUpperCase();
+                }
+            } catch (e) {
+                console.log("خطأ في الترجمة");
+            }
+            return cleanText.toUpperCase();
+        }
+
+        fetch('/api/games')
+            .then(res => res.json())
+            .then(async files => {
+                const container = document.getElementById('gameList');
+                container.innerHTML = '';
+                
+                if(files.length === 0) {
+                    container.innerHTML = '<p>مفيش ألعاب حالياً!</p>';
+                    return;
+                }
+
+                for (let file of files) {
+                    let translatedName = await translateText(file);
+                    
+                    let a = document.createElement('a');
+                    a.href = file;
+                    a.className = 'game-btn';
+                    a.textContent = translatedName;
+                    container.appendChild(a);
+                }
+            })
+            .catch(err => {
+                document.getElementById('gameList').innerHTML = '<p>خطأ في الاتصال بالسيرفر</p>';
+            });
+    </script>
+</body>
+</html>
+
