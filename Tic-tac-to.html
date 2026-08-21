@@ -12,22 +12,21 @@
         .cell:hover { background: #334155; }
         .btn { padding: 12px 25px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 10px; }
         .btn:hover { background: #0ea5e9; }
-        input { padding: 10px; border-radius: 5px; border: none; margin: 5px; text-align: center; font-size: 16px; }
+        input { padding: 10px; border-radius: 5px; border: none; margin: 5px; text-align: center; font-size: 16px; width: 200px; }
         #status { font-size: 18px; color: #facc15; margin: 15px; }
         #restartBtn { display: none; background: #22c55e; color: white; }
-        #restartBtn:hover { background: #16a34a; }
     </style>
 </head>
 <body>
     <h1>لعبة أكس أو أونلاين 🎮</h1>
 
-    <!-- شاشة إدخال الاسم والغرفة المشتركة للاتنين -->
+    <!-- شاشة إدخال الاسم (تظهر للاتنين في البداية) -->
     <div id="menu">
+        <p id="status">اكتب اسمك أولاً لتبدأ اللعبة:</p>
         <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value="أنس"><br>
         <div id="actionButtons">
-            <button class="btn" onclick="createRoom()">إنشاء غرفة جديدة ونسخ الرابط</button>
+            <!-- الزرار هيتغير حسب الرابط -->
         </div>
-        <p id="status">اكتب اسمك، ثم اضغط إنشاء غرفة (لو كنت أنت المنشئ) أو افتح رابط صديقك المباشر.</p>
     </div>
 
     <!-- عداد النقاط -->
@@ -37,6 +36,7 @@
         <div><span id="p2Label">اللاعب (O)</span>: <span id="score2" class="score-box">0</span></div>
     </div>
 
+    <!-- لوحة اللعب -->
     <div class="board" id="board" style="display:none;">
         <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
         <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
@@ -68,14 +68,19 @@
         const scoreboardEl = document.getElementById('scoreboard');
         const restartBtn = document.getElementById('restartBtn');
 
-        // لو ده اللاعب الثاني وجاي من رابط، بنخليه يكتب اسمه الأول وبعدين يدوس زرار انضمام
+        // تحديد الزراير حسب نوع الدخول (منشئ أو منضم)
         if (roomToJoin) {
-            statusEl.innerText = "اكتب اسمك ثم اضغط انضمام للغرفة.";
-            actionButtonsEl.innerHTML = `<button class="btn" onclick="joinRoom()">انضم للغرفة الآن</button>`;
+            statusEl.innerText = "أنت تنضم لصديق، اكتب اسمك واضغط انضمام:";
+            actionButtonsEl.innerHTML = `<button class="btn" onclick="startJoinProcess()">انضم للغرفة</button>`;
+        } else {
+            statusEl.innerText = "أنت تنشئ غرفة جديدة، اكتب اسمك واضغط إنشاء:";
+            actionButtonsEl.innerHTML = `<button class="btn" onclick="startCreateProcess()">إنشاء غرفة جديدة ونسخ الرابط</button>`;
         }
 
-        function createRoom() {
+        function startCreateProcess() {
             myName = document.getElementById('playerName').value || "أنس";
+            if(!myName.trim()) { alert("يرجى كتابة الاسم أولاً!"); return; }
+            
             const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
             peer = new Peer(roomId);
 
@@ -83,9 +88,9 @@
                 const fullLink = window.location.origin + window.location.pathname + '?room=' + id;
                 navigator.clipboard.writeText(fullLink);
                 
-                statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br>ابعت الرابط لصديقك.<br><i>في انتظار انضمام اللاعب الثاني...</i>";
+                statusEl.innerHTML = "تم نسخ رابط الغرفة إلى الحافظة! 📋<br><b>ابعت الرابط لصديقك الآن.</b><br><i>في انتظار انضمام الطرف الثاني...</i>";
                 actionButtonsEl.style.display = 'none';
-                document.getElementById('playerName').disabled = true;
+                document.getElementById('playerName').style.display = 'none';
                 mySymbol = 'X';
             });
 
@@ -96,10 +101,14 @@
             });
         }
 
-        function joinRoom() {
+        function startJoinProcess() {
             myName = document.getElementById('playerName').value || "لاعب";
+            if(!myName.trim()) { alert("يرجى كتابة الاسم أولاً!"); return; }
+
             statusEl.innerText = "جاري الاتصال بالغرفة...";
-            
+            actionButtonsEl.style.display = 'none';
+            document.getElementById('playerName').style.display = 'none';
+
             peer = new Peer();
             peer.on('open', () => {
                 conn = peer.connect(roomToJoin);
@@ -107,7 +116,7 @@
                 myTurn = false;
                 
                 conn.on('open', () => {
-                    // نبعت اسمنا لللاعب الأول فور نجاح الاتصال
+                    // نبعت اسمنا للطرف الأول أول ما الاتصال يفتح
                     conn.send({ type: 'NAME', name: myName });
                     setupConnection();
                 });
@@ -148,7 +157,6 @@
             }
 
             updateScoreboardLabels();
-            statusEl.innerText = mySymbol === 'X' ? "دورك أنت (" + myName + ")" : "دور خصمك، انتظر قليلاً...";
         }
 
         function updateScoreboardLabels() {
