@@ -13,9 +13,12 @@
 </head>
 <body>
     <h1>🎮 مكتبة ألعاب أنس</h1>
-    <div class="grid" id="gameList">جاري جلب وترجمة الألعاب أوتوماتيك...</div>
+    <div class="grid" id="gameList">جاري سحب وترجمة الألعاب من جيت هاب...</div>
 
     <script>
+        const GITHUB_USER = "anashany301";
+        const GITHUB_REPO = "anas-games";
+
         async function translateText(text) {
             let cleanText = text.replace('.html', '').replace(/_/g, ' ');
             try {
@@ -23,7 +26,6 @@
                 let data = await response.json();
                 if (data && data.responseData && data.responseData.translatedText) {
                     let translated = data.responseData.translatedText;
-                    // تنظيف أي وسوم HTML قد تظهر بالخطأ في الترجمة
                     let tempDiv = document.createElement('div');
                     tempDiv.innerHTML = translated;
                     return tempDiv.textContent || tempDiv.innerText || cleanText.toUpperCase();
@@ -34,31 +36,36 @@
             return cleanText.toUpperCase();
         }
 
-        fetch('/api/games')
-            .then(res => res.json())
-            .then(async files => {
-                const container = document.getElementById('gameList');
+        async function fetchGamesFromGitHub() {
+            const container = document.getElementById('gameList');
+            try {
+                let res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`);
+                let files = await res.json();
+                
                 container.innerHTML = '';
                 
-                if(files.length === 0) {
-                    container.innerHTML = '<p>مفيش ألعاب حالياً!</p>';
+                let gameFiles = files.filter(file => file.name.endsWith('.html') && file.name !== 'index.html');
+                
+                if (gameFiles.length === 0) {
+                    container.innerHTML = '<p>مفيش ألعاب مضافة حتى الآن!</p>';
                     return;
                 }
 
-                for (let file of files) {
-                    let translatedName = await translateText(file);
+                for (let file of gameFiles) {
+                    let translatedName = await translateText(file.name);
                     
                     let a = document.createElement('a');
-                    a.href = file;
+                    a.href = file.name;
                     a.className = 'game-btn';
                     a.textContent = translatedName;
                     container.appendChild(a);
                 }
-            })
-            .catch(err => {
-                document.getElementById('gameList').innerHTML = '<p>خطأ في الاتصال بالسيرفر</p>';
-            });
+            } catch (err) {
+                container.innerHTML = '<p>فشل في جلب الألعاب من جيت هاب</p>';
+            }
+        }
+
+        fetchGamesFromGitHub();
     </script>
 </body>
 </html>
-
