@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أكس أو أونلاين بضغط زرار 🎮</title>
+    <title>أكس أو أونلاين (غرفة مباشرة) 🎮</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; }
         .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 20px; }
@@ -11,6 +11,8 @@
         .btn { padding: 12px 25px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 10px; }
         .btn:hover { background: #0ea5e9; }
         #status { font-size: 18px; color: #facc15; margin: 15px; }
+        #restartBtn { display: none; background: #22c55e; color: white; }
+        #restartBtn:hover { background: #16a34a; }
     </style>
 </head>
 <body>
@@ -26,6 +28,9 @@
         <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
         <div class="cell" onclick="makeMove(6)"></div><div class="cell" onclick="makeMove(7)"></div><div class="cell" onclick="makeMove(8)"></div>
     </div>
+
+    <!-- زرار إعادة المحاولة -->
+    <button class="btn" id="restartBtn" onclick="restartGame()">لعب مرة أخرى 🔄</button>
 
     <!-- مكتبة الاتصال المباشر -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -43,29 +48,25 @@
         const statusEl = document.getElementById('status');
         const menuEl = document.getElementById('menu');
         const boardEl = document.getElementById('board');
+        const restartBtn = document.getElementById('restartBtn');
 
-        // لو الرابط فيه اسم غرفة، ندخلها أوتوماتيك كلاعب تاني (O)
         if (roomToJoin) {
             statusEl.innerText = "جاري الاتصال بالغرفة...";
             peer = new Peer();
             peer.on('open', () => {
                 conn = peer.connect(roomToJoin);
                 mySymbol = 'O';
-                myTurn = false; // اللاعب الثاني ينتظر دور الأول
+                myTurn = false; 
                 setupConnection();
             });
         }
 
-        // إنشاء غرفة جديدة كلاعب أول (X)
         function createRoom() {
-            // توليد رقم عشوائي قصير للغرفة
             const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
             peer = new Peer(roomId);
 
             peer.on('open', (id) => {
                 const fullLink = window.location.origin + window.location.pathname + '?room=' + id;
-                
-                // نسخ الرابط أوتوماتيك للحافظة
                 navigator.clipboard.writeText(fullLink);
                 
                 statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br>ابعت الرابط لأخوك عشان يدخل معاك فوراً.<br><i>في انتظار انضمام اللاعب الثاني...</i>";
@@ -75,7 +76,7 @@
 
             peer.on('connection', (connection) => {
                 conn = connection;
-                myTurn = true; // اللاعب الأول يبدأ دورة
+                myTurn = true; 
                 setupConnection();
             });
         }
@@ -86,9 +87,15 @@
             boardEl.style.display = 'grid';
             statusEl.innerText = mySymbol === 'X' ? "دورك أنت (X)" : "دور خصمك، انتظر قليلاً...";
 
-            conn.on('data', (index) => {
+            conn.on('data', (data) => {
+                if (data === 'RESTART') {
+                    // لو الخصم طلب إعادة المحاولة
+                    resetBoardState();
+                    return;
+                }
+
                 let opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
-                board[index] = opponentSymbol;
+                board[data] = opponentSymbol;
                 updateBoard();
                 myTurn = true;
                 statusEl.innerText = "دورك الآن (" + mySymbol + ")";
@@ -122,12 +129,36 @@
                 if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
                     statusEl.innerText = "الفائز هو: " + board[w[0]] + " 🎉";
                     gameActive = false;
+                    restartBtn.style.display = 'inline-block';
                     return;
                 }
             }
             if (!board.includes(null)) {
                 statusEl.innerText = "تعادل! 🤝";
                 gameActive = false;
+                restartBtn.style.display = 'inline-block';
+            }
+        }
+
+        function restartGame() {
+            // نبلغ الخصم إننا دوسنا إعادة محاولة
+            conn.send('RESTART');
+            resetBoardState();
+        }
+
+        function resetBoardState() {
+            board = Array(9).fill(null);
+            updateBoard();
+            gameActive = true;
+            restartBtn.style.display = 'none';
+            
+            // اللاعب X يبدأ الأول دايمًا في الجيم الجديد، أو بنبدل الأدوار حسب مين أنشأ
+            if (mySymbol === 'X') {
+                myTurn = true;
+                statusEl.innerText = "دورك أنت (X)";
+            } else {
+                myTurn = false;
+                statusEl.innerText = "دور خصمك، انتظر قليلاً...";
             }
         }
     </script>
