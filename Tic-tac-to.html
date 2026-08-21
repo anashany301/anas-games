@@ -2,65 +2,133 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أكس أو أونلاين 🎮</title>
+    <title>أكس أو أونلاين بضغط زرار 🎮</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; }
+        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; }
         .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 20px; }
-        .cell { width: 100px; height: 100px; background: #1e293b; border: 2px solid #38bdf8; font-size: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        #controls { margin-top: 20px; }
-        input { padding: 10px; border-radius: 5px; border: none; }
-        button { padding: 10px 20px; background: #38bdf8; border: none; border-radius: 5px; cursor: pointer; }
+        .cell { width: 100px; height: 100px; background: #1e293b; border: 2px solid #38bdf8; font-size: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
+        .cell:hover { background: #334155; }
+        .btn { padding: 12px 25px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 10px; }
+        .btn:hover { background: #0ea5e9; }
+        #status { font-size: 18px; color: #facc15; margin: 15px; }
     </style>
 </head>
 <body>
-    <h1>لعبة أكس أو أونلاين 🎮</h1>
-    <div id="controls">
-        <p>الـ ID الخاص بك: <b id="myId">جاري التحميل...</b></p>
-        <input type="text" id="targetId" placeholder="ضع ID صديقك هنا">
-        <button onclick="connectToPeer()">اتصال بصديق</button>
+    <h1>لعبة أكس أو أونلاين (غرفة مباشرة) 🎮</h1>
+    
+    <div id="menu">
+        <button class="btn" onclick="createRoom()">إنشاء غرفة جديدة ونسخ الرابط</button>
+        <p id="status">اضغط على إنشاء غرفة لتبدأ أو افتح رابط صديقك المباشر.</p>
     </div>
 
-    <div class="board" id="board">
+    <div class="board" id="board" style="display:none;">
         <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
         <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
         <div class="cell" onclick="makeMove(6)"></div><div class="cell" onclick="makeMove(7)"></div><div class="cell" onclick="makeMove(8)"></div>
     </div>
 
+    <!-- مكتبة الاتصال المباشر -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script>
-        const peer = new Peer();
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomToJoin = urlParams.get('room');
+        
+        let peer;
         let conn;
-        let mySymbol = 'X';
+        let mySymbol = '';
+        let myTurn = false;
         let board = Array(9).fill(null);
+        let gameActive = false;
 
-        peer.on('open', id => document.getElementById('myId').innerText = id);
+        const statusEl = document.getElementById('status');
+        const menuEl = document.getElementById('menu');
+        const boardEl = document.getElementById('board');
 
-        function connectToPeer() {
-            const targetId = document.getElementById('targetId').value;
-            conn = peer.connect(targetId);
-            mySymbol = 'O'; // اللي بيتصل هو O
-            setupConnection();
+        // لو الرابط فيه اسم غرفة، ندخلها أوتوماتيك كلاعب تاني (O)
+        if (roomToJoin) {
+            statusEl.innerText = "جاري الاتصال بالغرفة...";
+            peer = new Peer();
+            peer.on('open', () => {
+                conn = peer.connect(roomToJoin);
+                mySymbol = 'O';
+                myTurn = false; // اللاعب الثاني ينتظر دور الأول
+                setupConnection();
+            });
         }
 
-        peer.on('connection', c => { conn = c; setupConnection(); });
+        // إنشاء غرفة جديدة كلاعب أول (X)
+        function createRoom() {
+            // توليد رقم عشوائي قصير للغرفة
+            const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
+            peer = new Peer(roomId);
+
+            peer.on('open', (id) => {
+                const fullLink = window.location.origin + window.location.pathname + '?room=' + id;
+                
+                // نسخ الرابط أوتوماتيك للحافظة
+                navigator.clipboard.writeText(fullLink);
+                
+                statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br>ابعت الرابط لأخوك عشان يدخل معاك فوراً.<br><i>في انتظار انضمام اللاعب الثاني...</i>";
+                menuEl.querySelector('button').style.display = 'none';
+                mySymbol = 'X';
+            });
+
+            peer.on('connection', (connection) => {
+                conn = connection;
+                myTurn = true; // اللاعب الأول يبدأ دورة
+                setupConnection();
+            });
+        }
 
         function setupConnection() {
-            conn.on('data', data => {
-                board[data] = mySymbol === 'X' ? 'O' : 'X';
+            gameActive = true;
+            menuEl.style.display = 'none';
+            boardEl.style.display = 'grid';
+            statusEl.innerText = mySymbol === 'X' ? "دورك أنت (X)" : "دور خصمك، انتظر قليلاً...";
+
+            conn.on('data', (index) => {
+                let opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
+                board[index] = opponentSymbol;
                 updateBoard();
+                myTurn = true;
+                statusEl.innerText = "دورك الآن (" + mySymbol + ")";
+                checkWin();
             });
         }
 
         function makeMove(index) {
-            if (!conn || board[index]) return;
+            if (!gameActive || !myTurn || board[index]) return;
+
             board[index] = mySymbol;
             conn.send(index);
             updateBoard();
+            myTurn = false;
+            statusEl.innerText = "دور خصمك...";
+            checkWin();
         }
 
         function updateBoard() {
             const cells = document.querySelectorAll('.cell');
             board.forEach((val, i) => cells[i].innerText = val || '');
+        }
+
+        function checkWin() {
+            const wins = [
+                [0,1,2], [3,4,5], [6,7,8],
+                [0,3,6], [1,4,7], [2,5,8],
+                [0,4,8], [2,4,6]
+            ];
+            for (let w of wins) {
+                if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
+                    statusEl.innerText = "الفائز هو: " + board[w[0]] + " 🎉";
+                    gameActive = false;
+                    return;
+                }
+            }
+            if (!board.includes(null)) {
+                statusEl.innerText = "تعادل! 🤝";
+                gameActive = false;
+            }
         }
     </script>
 </body>
