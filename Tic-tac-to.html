@@ -2,25 +2,37 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أكس أو أونلاين (غرفة مباشرة) 🎮</title>
+    <title>أكس أو أونلاين مع عداد النقاط 🎮</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 20px; }
+        .scoreboard { display: flex; justify-content: center; gap: 30px; margin: 15px 0; font-size: 18px; background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #38bdf8; max-width: 350px; margin: 0 auto 15px auto; }
+        .score-box { color: #facc15; font-weight: bold; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 15px; }
         .cell { width: 100px; height: 100px; background: #1e293b; border: 2px solid #38bdf8; font-size: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
         .cell:hover { background: #334155; }
         .btn { padding: 12px 25px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 10px; }
         .btn:hover { background: #0ea5e9; }
+        input { padding: 10px; border-radius: 5px; border: none; margin: 5px; text-align: center; }
         #status { font-size: 18px; color: #facc15; margin: 15px; }
         #restartBtn { display: none; background: #22c55e; color: white; }
         #restartBtn:hover { background: #16a34a; }
     </style>
 </head>
 <body>
-    <h1>لعبة أكس أو أونلاين (غرفة مباشرة) 🎮</h1>
-    
+    <h1>لعبة أكس أو أونلاين 🎮</h1>
+
+    <!-- شاشة إدخال الأسماء والغرفة -->
     <div id="menu">
+        <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value="أنس"><br>
         <button class="btn" onclick="createRoom()">إنشاء غرفة جديدة ونسخ الرابط</button>
-        <p id="status">اضغط على إنشاء غرفة لتبدأ أو افتح رابط صديقك المباشر.</p>
+        <p id="status">أو افتح رابط الغرفة المباشر الذي أرسله لك صديقك.</p>
+    </div>
+
+    <!-- عداد النقاط (يظهر أثناء اللعب) -->
+    <div class="scoreboard" id="scoreboard" style="display:none;">
+        <div><span id="p1Label">أنس (X)</span>: <span id="score1" class="score-box">0</span></div>
+        <div>-</div>
+        <div><span id="p2Label">الخصم (O)</span>: <span id="score2" class="score-box">0</span></div>
     </div>
 
     <div class="board" id="board" style="display:none;">
@@ -29,10 +41,8 @@
         <div class="cell" onclick="makeMove(6)"></div><div class="cell" onclick="makeMove(7)"></div><div class="cell" onclick="makeMove(8)"></div>
     </div>
 
-    <!-- زرار إعادة المحاولة -->
-    <button class="btn" id="restartBtn" onclick="restartGame()">لعب مرة أخرى 🔄</button>
+    <button class="btn" id="restartBtn" onclick="restartGame()">لعب جولة جديدة 🔄</button>
 
-    <!-- مكتبة الاتصال المباشر -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -41,13 +51,18 @@
         let peer;
         let conn;
         let mySymbol = '';
+        let myName = '';
+        let opponentName = 'الخصم';
         let myTurn = false;
         let board = Array(9).fill(null);
         let gameActive = false;
+        let score1 = 0;
+        let score2 = 0;
 
         const statusEl = document.getElementById('status');
         const menuEl = document.getElementById('menu');
         const boardEl = document.getElementById('board');
+        const scoreboardEl = document.getElementById('scoreboard');
         const restartBtn = document.getElementById('restartBtn');
 
         if (roomToJoin) {
@@ -56,12 +71,20 @@
             peer.on('open', () => {
                 conn = peer.connect(roomToJoin);
                 mySymbol = 'O';
-                myTurn = false; 
+                myTurn = false;
+                
+                // نبعت اسمنا لللاعب الأول أول ما نتصل
+                setTimeout(() => {
+                    myName = document.getElementById('playerName').value || "لاعب";
+                    conn.send({ type: 'NAME', name: myName });
+                }, 500);
+
                 setupConnection();
             });
         }
 
         function createRoom() {
+            myName = document.getElementById('playerName').value || "أنس";
             const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
             peer = new Peer(roomId);
 
@@ -69,14 +92,15 @@
                 const fullLink = window.location.origin + window.location.pathname + '?room=' + id;
                 navigator.clipboard.writeText(fullLink);
                 
-                statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br>ابعت الرابط لأخوك عشان يدخل معاك فوراً.<br><i>في انتظار انضمام اللاعب الثاني...</i>";
+                statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br>ابعت الرابط لأخوك.<br><i>في انتظار انضمام اللاعب الثاني...</i>";
                 menuEl.querySelector('button').style.display = 'none';
+                document.getElementById('playerName').style.display = 'none';
                 mySymbol = 'X';
             });
 
             peer.on('connection', (connection) => {
                 conn = connection;
-                myTurn = true; 
+                myTurn = true;
                 setupConnection();
             });
         }
@@ -84,23 +108,49 @@
         function setupConnection() {
             gameActive = true;
             menuEl.style.display = 'none';
+            scoreboardEl.style.display = 'flex';
             boardEl.style.display = 'grid';
-            statusEl.innerText = mySymbol === 'X' ? "دورك أنت (X)" : "دور خصمك، انتظر قليلاً...";
 
             conn.on('data', (data) => {
+                if (typeof data === 'object' && data.type === 'NAME') {
+                    opponentName = data.name;
+                    updateScoreboardLabels();
+                    return;
+                }
+
                 if (data === 'RESTART') {
-                    // لو الخصم طلب إعادة المحاولة
                     resetBoardState();
                     return;
                 }
 
+                // استقبال حركة اللعب
                 let opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
                 board[data] = opponentSymbol;
                 updateBoard();
                 myTurn = true;
-                statusEl.innerText = "دورك الآن (" + mySymbol + ")";
+                statusEl.innerText = "دورك الآن (" + myName + ")";
                 checkWin();
             });
+
+            // لو إحنا اللاعب الأول، نبعت اسمنا للثاني أول ما يتصل
+            if (mySymbol === 'X') {
+                setTimeout(() => {
+                    conn.send({ type: 'NAME', name: myName });
+                }, 500);
+            }
+
+            updateScoreboardLabels();
+            statusEl.innerText = mySymbol === 'X' ? "دورك أنت (" + myName + ")" : "دور خصمك، انتظر قليلاً...";
+        }
+
+        function updateScoreboardLabels() {
+            if (mySymbol === 'X') {
+                document.getElementById('p1Label').innerText = myName + " (X)";
+                document.getElementById('p2Label').innerText = opponentName + " (O)";
+            } else {
+                document.getElementById('p1Label').innerText = opponentName + " (X)";
+                document.getElementById('p2Label').innerText = myName + " (O)";
+            }
         }
 
         function makeMove(index) {
@@ -127,21 +177,38 @@
             ];
             for (let w of wins) {
                 if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
-                    statusEl.innerText = "الفائز هو: " + board[w[0]] + " 🎉";
+                    let winnerSymbol = board[w[0]];
+                    if (winnerSymbol === mySymbol) {
+                        statusEl.innerText = "تهانينا! لقد فزت في هذه الجولة 🎉";
+                        if (mySymbol === 'X') score1++; else score2++;
+                    } else {
+                        statusEl.innerText = "فاز خصمك في هذه الجولة 😢";
+                        if (mySymbol === 'X') score2++; else score1++;
+                    }
+                    updateScoresDisplay();
                     gameActive = false;
                     restartBtn.style.display = 'inline-block';
                     return;
                 }
             }
             if (!board.includes(null)) {
-                statusEl.innerText = "تعادل! 🤝";
+                statusEl.innerText = "تعادل في هذه الجولة! 🤝";
                 gameActive = false;
                 restartBtn.style.display = 'inline-block';
             }
         }
 
+        function updateScoresDisplay() {
+            if (mySymbol === 'X') {
+                document.getElementById('score1').innerText = score1;
+                document.getElementById('score2').innerText = score2;
+            } else {
+                document.getElementById('score1').innerText = score2;
+                document.getElementById('score2').innerText = score1;
+            }
+        }
+
         function restartGame() {
-            // نبلغ الخصم إننا دوسنا إعادة محاولة
             conn.send('RESTART');
             resetBoardState();
         }
@@ -151,11 +218,9 @@
             updateBoard();
             gameActive = true;
             restartBtn.style.display = 'none';
-            
-            // اللاعب X يبدأ الأول دايمًا في الجيم الجديد، أو بنبدل الأدوار حسب مين أنشأ
             if (mySymbol === 'X') {
                 myTurn = true;
-                statusEl.innerText = "دورك أنت (X)";
+                statusEl.innerText = "دورك أنت (" + myName + ")";
             } else {
                 myTurn = false;
                 statusEl.innerText = "دور خصمك، انتظر قليلاً...";
