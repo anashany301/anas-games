@@ -20,13 +20,11 @@
 <body>
     <h1>لعبة أكس أو أونلاين 🎮</h1>
 
-    <!-- شاشة إدخال الاسم (تظهر للاتنين في البداية) -->
+    <!-- واجهة القائمة تظهر للاتنين إجباري في البداية -->
     <div id="menu">
         <p id="status">اكتب اسمك أولاً لتبدأ اللعبة:</p>
-        <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value="أنس"><br>
-        <div id="actionButtons">
-            <!-- الزرار هيتغير حسب الرابط -->
-        </div>
+        <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value=""><br>
+        <div id="actionButtons"></div>
     </div>
 
     <!-- عداد النقاط -->
@@ -36,7 +34,7 @@
         <div><span id="p2Label">اللاعب (O)</span>: <span id="score2" class="score-box">0</span></div>
     </div>
 
-    <!-- لوحة اللعب -->
+    <!-- لوحة اللعب مخفية تماماً في الأول -->
     <div class="board" id="board" style="display:none;">
         <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
         <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
@@ -68,18 +66,21 @@
         const scoreboardEl = document.getElementById('scoreboard');
         const restartBtn = document.getElementById('restartBtn');
 
-        // تحديد الزراير حسب نوع الدخول (منشئ أو منضم)
+        // تجهيز الزراير حسب مين فاتح الرابط (منشئ ولا منضم)
         if (roomToJoin) {
             statusEl.innerText = "أنت تنضم لصديق، اكتب اسمك واضغط انضمام:";
-            actionButtonsEl.innerHTML = `<button class="btn" onclick="startJoinProcess()">انضم للغرفة</button>`;
+            actionButtonsEl.innerHTML = `<button class="btn" onclick="joinRoomAction()">انضم للغرفة</button>`;
         } else {
             statusEl.innerText = "أنت تنشئ غرفة جديدة، اكتب اسمك واضغط إنشاء:";
-            actionButtonsEl.innerHTML = `<button class="btn" onclick="startCreateProcess()">إنشاء غرفة جديدة ونسخ الرابط</button>`;
+            actionButtonsEl.innerHTML = `<button class="btn" onclick="createRoomAction()">إنشاء غرفة جديدة ونسخ الرابط</button>`;
         }
 
-        function startCreateProcess() {
-            myName = document.getElementById('playerName').value || "أنس";
-            if(!myName.trim()) { alert("يرجى كتابة الاسم أولاً!"); return; }
+        function createRoomAction() {
+            myName = document.getElementById('playerName').value.trim();
+            if(!myName) {
+                alert("من فضلك اكتب اسمك الأول!");
+                return;
+            }
             
             const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
             peer = new Peer(roomId);
@@ -88,7 +89,7 @@
                 const fullLink = window.location.origin + window.location.pathname + '?room=' + id;
                 navigator.clipboard.writeText(fullLink);
                 
-                statusEl.innerHTML = "تم نسخ رابط الغرفة إلى الحافظة! 📋<br><b>ابعت الرابط لصديقك الآن.</b><br><i>في انتظار انضمام الطرف الثاني...</i>";
+                statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br><b>ابعت الرابط لأخوك الآن.</b><br><i>في انتظار انضمام الطرف الثاني...</i>";
                 actionButtonsEl.style.display = 'none';
                 document.getElementById('playerName').style.display = 'none';
                 mySymbol = 'X';
@@ -101,9 +102,12 @@
             });
         }
 
-        function startJoinProcess() {
-            myName = document.getElementById('playerName').value || "لاعب";
-            if(!myName.trim()) { alert("يرجى كتابة الاسم أولاً!"); return; }
+        function joinRoomAction() {
+            myName = document.getElementById('playerName').value.trim();
+            if(!myName) {
+                alert("من فضلك اكتب اسمك الأول!");
+                return;
+            }
 
             statusEl.innerText = "جاري الاتصال بالغرفة...";
             actionButtonsEl.style.display = 'none';
@@ -116,7 +120,7 @@
                 myTurn = false;
                 
                 conn.on('open', () => {
-                    // نبعت اسمنا للطرف الأول أول ما الاتصال يفتح
+                    // نبعت اسمنا للطرف الأول فوراً
                     conn.send({ type: 'NAME', name: myName });
                     setupConnection();
                 });
