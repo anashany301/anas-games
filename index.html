@@ -7,17 +7,62 @@
         body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
         h1 { color: #38bdf8; margin-bottom: 20px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .game-btn { background: #1e293b; padding: 15px; border-radius: 10px; border: 2px solid #38bdf8; color: white; text-decoration: none; font-weight: bold; display: block; transition: 0.3s; }
+        .game-btn { background: #1e293b; padding: 15px; border-radius: 10px; border: 2px solid #38bdf8; color: white; text-decoration: none; font-weight: bold; display: block; transition: 0.3s; cursor: pointer; }
         .game-btn:active { background: #38bdf8; color: #0f172a; }
+
+        /* ستايل نافذة الإعلان التجريبي */
+        #adModal {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 9999; 
+            text-align: center; 
+            padding-top: 120px;
+        }
+        .ad-content {
+            background: #1e293b; 
+            color: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            display: inline-block; 
+            border: 2px solid #facc15; 
+            max-width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .btn-ad {
+            background: #475569; 
+            color: #94a3b8; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            cursor: not-allowed;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
     <h1>🎮 مكتبة ألعاب أنس</h1>
     <div class="grid" id="gameList">جاري سحب وترجمة الألعاب من جيت هاب...</div>
 
+    <!-- نافذة الإعلان التجريبي -->
+    <div id="adModal">
+        <div class="ad-content">
+            <h3 style="color: #facc15; margin-top: 0;">📢 إعلان تجريبي</h3>
+            <p>جارٍ تجهيز لعبتك، يرجى الانتظار...</p>
+            <div id="countdown" style="font-size: 28px; font-weight: bold; color: #38bdf8; margin: 15px 0;">3</div>
+            <button id="closeAdBtn" disabled class="btn-ad">انتظر قليلاً...</button>
+        </div>
+    </div>
+
     <script>
         const GITHUB_USER = "anashany301";
         const GITHUB_REPO = "anas-games";
+        let targetGameUrl = ""; // لحفظ رابط اللعبة اللي المستخدم اختارها
 
         async function translateText(text) {
             let cleanText = text.replace('.html', '').replace(/_/g, ' ');
@@ -55,14 +100,64 @@
                     let translatedName = await translateText(file.name);
                     
                     let a = document.createElement('a');
-                    a.href = file.name;
+                    a.href = "#"; // منع الانتقال المباشر
                     a.className = 'game-btn';
                     a.textContent = translatedName;
+                    
+                    // لما المستخدم يضغط على أي لعبة، بنشغل الإعلان الأول
+                    a.onclick = (function(gameFile) {
+                        return function(e) {
+                            e.preventDefault();
+                            targetGameUrl = gameFile;
+                            showInterstitialAd();
+                        };
+                    })(file.name);
+
                     container.appendChild(a);
                 }
             } catch (err) {
                 container.innerHTML = '<p>فشل في جلب الألعاب من جيت هاب</p>';
             }
+        }
+
+        function showInterstitialAd() {
+            const modal = document.getElementById('adModal');
+            const countdownEl = document.getElementById('countdown');
+            const closeBtn = document.getElementById('closeAdBtn');
+            
+            modal.style.display = 'block';
+            let timeLeft = 3; // عدد ثواني الإعلان
+            countdownEl.textContent = timeLeft;
+            
+            // إعادة ضبط الزر ليكون معطلاً
+            closeBtn.disabled = true;
+            closeBtn.style.background = "#475569";
+            closeBtn.style.color = "#94a3b8";
+            closeBtn.style.cursor = "not-allowed";
+            closeBtn.textContent = "انتظر قليلاً...";
+
+            let timer = setInterval(() => {
+                timeLeft--;
+                countdownEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    countdownEl.textContent = "انتهى الإعلان!";
+                    closeBtn.disabled = false;
+                    closeBtn.style.background = "#38bdf8";
+                    closeBtn.style.color = "#0f172a";
+                    closeBtn.style.cursor = "pointer";
+                    closeBtn.textContent = "تخطي والدخول للعبة";
+                }
+            }, 1000);
+
+            // عند الضغط على إغلاق الإعلان
+            closeBtn.onclick = function() {
+                if (!closeBtn.disabled) {
+                    modal.style.display = 'none';
+                    window.location.href = targetGameUrl; // الانتقال للعبة المطلوبة
+                }
+            };
         }
 
         fetchGamesFromGitHub();
