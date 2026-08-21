@@ -2,232 +2,72 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أكس أو أونلاين 🎮</title>
+    <title>مكتبة ألعاب أنس 🎮</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; }
-        .scoreboard { display: flex; justify-content: center; gap: 20px; margin: 15px auto; font-size: 18px; background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #38bdf8; max-width: 400px; }
-        .score-box { color: #facc15; font-weight: bold; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 15px; }
-        .cell { width: 100px; height: 100px; background: #1e293b; border: 2px solid #38bdf8; font-size: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
-        .cell:hover { background: #334155; }
-        .btn { padding: 12px 25px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 10px; }
-        .btn:hover { background: #0ea5e9; }
-        input { padding: 10px; border-radius: 5px; border: none; margin: 5px; text-align: center; font-size: 16px; width: 200px; }
-        #status { font-size: 18px; color: #facc15; margin: 15px; }
-        #restartBtn { display: none; background: #22c55e; color: white; }
+        h1 { color: #38bdf8; margin-bottom: 20px; }
+        
+        /* أزرار التصفية (الذكية) فوق */
+        .filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .filter-btn { padding: 10px 20px; background: #1e293b; border: 2px solid #38bdf8; color: white; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .filter-btn.active, .filter-btn:hover { background: #38bdf8; color: #0f172a; }
+
+        /* شبكة الألعاب */
+        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 500px; margin: 0 auto; }
+        .game-card { padding: 15px; background: #1e293b; border: 2px solid #38bdf8; border-radius: 10px; text-decoration: none; color: white; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .game-card:hover { background: #334155; transform: scale(1.02); }
+        
+        /* إخفاء الألعاب حسب الفلتر */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <h1>لعبة أكس أو أونلاين 🎮</h1>
 
-    <div id="menu">
-        <p id="status">اكتب اسمك أولاً لتبدأ اللعبة:</p>
-        <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value=""><br>
-        <div id="actionButtons"></div>
+    <h1>مكتبة ألعاب أنس 🕹️</h1>
+
+    <!-- زرارين التصفية الذكية -->
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterGames('all', this)">جميع الألعاب</button>
+        <button class="filter-btn" onclick="filterGames('single', this)">👤 ألعاب فردية</button>
+        <button class="filter-btn" onclick="filterGames('multi', this)">👥 ألعاب جماعية</button>
     </div>
 
-    <!-- عداد النقاط المُصحح بدقة -->
-    <div class="scoreboard" id="scoreboard" style="display:none;">
-        <div><span id="nameX">اللاعب X</span> (<span id="scoreX" class="score-box">0</span>)</div>
-        <div>-</div>
-        <div><span id="nameO">اللاعب O</span> (<span id="scoreO" class="score-box">0</span>)</div>
+    <!-- قائمة الألعاب (كل لعبة معها التصنيف بتاعها) -->
+    <div class="games-grid" id="gamesGrid">
+        <!-- ألعاب فردية -->
+        <a href="balloons.html" class="game-card" data-category="single">بالونات بوب</a>
+        <a href="fishing.html" class="game-card" data-category="single">لعبة الصيد</a>
+        <a href="circle.html" class="game-card" data-category="single">تحدي الدائرة</a>
+        <a href="flappy.html" class="game-card" data-category="single">فلابي بيرد</a>
+        <a href="lava.html" class="game-card" data-category="single">فطيرة الحمم البركانية</a>
+        <a href="memory.html" class="game-card" data-category="single">لعبة الذاكرة</a>
+        <a href="2d_box.html" class="game-card" data-category="single">مربع 2d</a>
+        <a href="3d_box.html" class="game-card" data-category="single">مربع ثلاثي الأبعاد</a>
+
+        <!-- ألعاب جماعية (أونلاين) -->
+        <a href="tic-tac-to.html" class="game-card" data-category="multi">Tic - tac - to (أونلاين)</a>
     </div>
 
-    <div class="board" id="board" style="display:none;">
-        <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
-        <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
-        <div class="cell" onclick="makeMove(6)"></div><div class="cell" onclick="makeMove(7)"></div><div class="cell" onclick="makeMove(8)"></div>
-    </div>
-
-    <button class="btn" id="restartBtn" onclick="restartGame()">لعب جولة جديدة 🔄</button>
-
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomToJoin = urlParams.get('room');
-        
-        let peer;
-        let conn;
-        let mySymbol = '';
-        let myName = '';
-        let opponentName = 'الخصم';
-        let myTurn = false;
-        let board = Array(9).fill(null);
-        let gameActive = false;
-        let scoreX = 0;
-        let scoreO = 0;
+        function filterGames(category, btn) {
+            // تغيير لون الزرار النشط
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-        const statusEl = document.getElementById('status');
-        const menuEl = document.getElementById('menu');
-        const actionButtonsEl = document.getElementById('actionButtons');
-        const boardEl = document.getElementById('board');
-        const scoreboardEl = document.getElementById('scoreboard');
-        const restartBtn = document.getElementById('restartBtn');
-
-        if (roomToJoin) {
-            statusEl.innerText = "أنت تنضم لصديق، اكتب اسمك واضغط انضمام:";
-            actionButtonsEl.innerHTML = `<button class="btn" onclick="joinRoomAction()">انضم للغرفة</button>`;
-        } else {
-            statusEl.innerText = "أنت تنشئ غرفة جديدة، اكتب اسمك واضغط إنشاء:";
-            actionButtonsEl.innerHTML = `<button class="btn" onclick="createRoomAction()">إنشاء غرفة جديدة ونسخ الرابط</button>`;
-        }
-
-        function createRoomAction() {
-            myName = document.getElementById('playerName').value.trim();
-            if(!myName) { alert("من فضلك اكتب اسمك الأول!"); return; }
+            // إظهار أو إخفاء الألعاب حسب التصنيف
+            const cards = document.querySelectorAll('.game-card');
+            cards.card = cards;
             
-            const roomId = 'anas_room_' + Math.floor(Math.random() * 10000);
-            peer = new Peer(roomId);
-
-            peer.on('open', (id) => {
-                const fullLink = window.location.origin + window.location.pathname.replace('tic-tac-to.html', 'tic-tac-to.html') + '?room=' + id;
-                navigator.clipboard.writeText(fullLink);
-                
-                statusEl.innerHTML = "تم نسخ رابط الغرفة! 📋<br><b>ابعت الرابط لأخوك الآن.</b><br><i>في انتظار انضمام الطرف الثاني...</i>";
-                actionButtonsEl.style.display = 'none';
-                document.getElementById('playerName').style.display = 'none';
-                mySymbol = 'X';
-            });
-
-            peer.on('connection', (connection) => {
-                conn = connection;
-                myTurn = true;
-                setupConnection();
-            });
-        }
-
-        function joinRoomAction() {
-            myName = document.getElementById('playerName').value.trim();
-            if(!myName) { alert("من فضلك اكتب اسمك الأول!"); return; }
-
-            statusEl.innerText = "جاري الاتصال بالغرفة...";
-            actionButtonsEl.style.display = 'none';
-            document.getElementById('playerName').style.display = 'none';
-
-            peer = new Peer();
-            peer.on('open', () => {
-                conn = peer.connect(roomToJoin);
-                mySymbol = 'O';
-                myTurn = false;
-                
-                conn.on('open', () => {
-                    conn.send({ type: 'NAME', name: myName });
-                    setupConnection();
-                });
-            });
-        }
-
-        function setupConnection() {
-            gameActive = true;
-            menuEl.style.display = 'none';
-            scoreboardEl.style.display = 'flex';
-            boardEl.style.display = 'grid';
-
-            conn.on('data', (data) => {
-                if (typeof data === 'object' && data.type === 'NAME') {
-                    opponentName = data.name;
-                    updateNamesDisplay();
-                    return;
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (category === 'all' || cardCategory === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
                 }
-
-                if (data === 'RESTART') {
-                    resetBoardState();
-                    return;
-                }
-
-                let opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
-                board[data] = opponentSymbol;
-                updateBoard();
-                myTurn = true;
-                statusEl.innerText = "دورك الآن (" + myName + ")";
-                checkWin();
             });
-
-            if (mySymbol === 'X') {
-                setTimeout(() => {
-                    conn.send({ type: 'NAME', name: myName });
-                }, 500);
-            }
-
-            updateNamesDisplay();
-        }
-
-        function updateNamesDisplay() {
-            if (mySymbol === 'X') {
-                document.getElementById('nameX').innerText = myName;
-                document.getElementById('nameO').innerText = opponentName;
-            } else {
-                document.getElementById('nameX').innerText = opponentName;
-                document.getElementById('nameO').innerText = myName;
-            }
-        }
-
-        function makeMove(index) {
-            if (!gameActive || !myTurn || board[index]) return;
-
-            board[index] = mySymbol;
-            conn.send(index);
-            updateBoard();
-            myTurn = false;
-            statusEl.innerText = "دور خصمك...";
-            checkWin();
-        }
-
-        function updateBoard() {
-            const cells = document.querySelectorAll('.cell');
-            board.forEach((val, i) => cells[i].innerText = val || '');
-        }
-
-        function checkWin() {
-            const wins = [
-                [0,1,2], [3,4,5], [6,7,8],
-                [0,3,6], [1,4,7], [2,5,8],
-                [0,4,8], [2,4,6]
-            ];
-            for (let w of wins) {
-                if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
-                    let winnerSymbol = board[w[0]];
-                    if (winnerSymbol === 'X') scoreX++; else scoreO++;
-                    
-                    if (winnerSymbol === mySymbol) {
-                        statusEl.innerText = "تهانينا! لقد فزت في هذه الجولة 🎉";
-                    } else {
-                        statusEl.innerText = "فاز خصمك في هذه الجولة 😢";
-                    }
-                    
-                    document.getElementById('scoreX').innerText = scoreX;
-                    document.getElementById('scoreO').innerText = scoreO;
-                    
-                    gameActive = false;
-                    restartBtn.style.display = 'inline-block';
-                    return;
-                }
-            }
-            if (!board.includes(null)) {
-                statusEl.innerText = "تعادل في هذه الجولة! 🤝";
-                gameActive = false;
-                restartBtn.style.display = 'inline-block';
-            }
-        }
-
-        function restartGame() {
-            conn.send('RESTART');
-            resetBoardState();
-        }
-
-        function resetBoardState() {
-            board = Array(9).fill(null);
-            updateBoard();
-            gameActive = true;
-            restartBtn.style.display = 'none';
-            if (mySymbol === 'X') {
-                myTurn = true;
-                statusEl.innerText = "دورك أنت (" + myName + ")";
-            } else {
-                myTurn = false;
-                statusEl.innerText = "دور خصمك، انتظر قليلاً...";
-            }
         }
     </script>
+
 </body>
 </html>
