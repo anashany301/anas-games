@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>لعبة إكس أو أونلاين 🎮</h1>
+    <p>أرسل هذا الرابط لصديقك ليلعب معك: <span id="myId">...</span></p>
+    <!-- هنا بنحط مكتبة PeerJS -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        // ده كود بسيط بيبدأ اتصال مباشر بين المتصفحين
+        var peer = new Peer(); 
+        peer.on('open', function(id) {
+            document.getElementById('myId').textContent = id;
+        });
+        // اللعبة بتكمل هنا...
+    </script>
+</body>
+</html>
