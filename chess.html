@@ -15,7 +15,6 @@
         
         .scoreboard { font-size: 15px; color: #38bdf8; margin-bottom: 10px; font-weight: bold; background: #0f172a; padding: 8px; border-radius: 5px; border: 1px dashed #38bdf8; }
         
-        /* رقعة الشطرنج المصممة بالسي إس إس */
         #chessBoard {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -75,9 +74,8 @@
         let opponentName = "الخصم";
         let myScore = 0;
         let opponentScore = 0;
-        let myColor = 'white'; // w أو b
+        let myColor = 'white';
 
-        // تمثيل رقعة الشطرنج بقطع حقيقية
         let board = [
             ['r','n','b','q','k','b','n','r'],
             ['p','p','p','p','p','p','p','p'],
@@ -90,12 +88,12 @@
         ];
 
         const piecesUnicode = {
-            'r': '∜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+            'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
             'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',
             '': ''
         };
 
-        let turn = 'white'; // white يبدأ الأول
+        let turn = 'white';
         let selectedSquare = null;
 
         function createRoom() {
@@ -186,6 +184,7 @@
                     let col = isBlackView ? 7 - c : c;
 
                     let square = document.createElement('div');
+                    // تثبيت نمط الألوان للمربعات بغض النظر عن زاوية الرؤية
                     square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
                     
                     let piece = board[row][col];
@@ -204,7 +203,7 @@
         }
 
         function handleSquareClick(r, c) {
-            if (turn !== myColor) return; // مش دورك
+            if (turn !== myColor) return;
 
             let piece = board[r][c];
             let isMyPiece = (myColor === 'white' && piece === piece.toUpperCase() && piece !== '') ||
@@ -214,7 +213,6 @@
                 selectedSquare = {r, c};
                 renderBoard();
             } else if (selectedSquare) {
-                // تحريك القطعة
                 board[r][c] = board[selectedSquare.r][selectedSquare.c];
                 board[selectedSquare.r][selectedSquare.c] = '';
                 
@@ -222,8 +220,6 @@
                 turn = (turn === 'white') ? 'black' : 'white';
 
                 renderBoard();
-
-                // إرسال الحركة للخصم
                 conn.send({ type: 'move', board: board, turn: turn });
             }
         }
