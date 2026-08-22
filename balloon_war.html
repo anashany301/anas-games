@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حرب البالونات - أونلاين 🎈</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; overflow: hidden; }
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        .box { background: #1e293b; border: 1px solid #38bdf8; padding: 20px; border-radius: 10px; max-width: 450px; margin: 20px auto; }
+        input { padding: 10px; width: 80%; border-radius: 5px; border: none; margin-bottom: 10px; text-align: center; font-size: 16px; }
+        button { padding: 10px 20px; background: #38bdf8; color: #0f172a; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        button:hover { background: #0284c7; color: white; }
+        .hidden { display: none !important; }
+        
+        .scoreboard { font-size: 17px; color: #38bdf8; margin-bottom: 15px; font-weight: bold; background: #0f172a; padding: 12px; border-radius: 5px; border: 1px dashed #38bdf8; }
+        
+        #arena {
+            width: 100%;
+            height: 300px;
+            background: #334155;
+            border-radius: 10px;
+            position: relative;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 2px solid #38bdf8;
+        }
+
+        .balloon {
+            position: absolute;
+            width: 50px;
+            height: 65px;
+            background: #ef4444;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
+            animation: float 2s infinite alternate ease-in-out;
+        }
+
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 22px;
+            width: 2px;
+            height: 10px;
+            background: #cbd5e1;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎈 حرب البالونات (أونلاين) 💥</h1>
+
+    <!-- شاشة إدخال الاسم -->
+    <div id="setupScreen" class="box">
+        <p>أنشئ غرفة وتحدى صاحبك في فرقعة البالونات!</p>
+        <input type="text" id="playerName" placeholder="اكتب اسمك هنا..." />
+        <br>
+        <button onclick="createRoom()">إنشاء غرفة ونسخ الرابط 🔗</button>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="gameScreen" class="box hidden" style="max-width: 500px;">
+        
+        <!-- لوحة النتائج العلوية -->
+        <div class="scoreboard" id="scoreboardText">
+            النتيجة: أنت (0 🎈) - (0 🎈) الخصم
+        </div>
+
+        <h2 id="statusText" style="font-size: 15px; color: #cbd5e1;">في انتظار انضمام اللاعب الثاني... ⏳</h2>
+
+        <div id="playArea" class="hidden">
+            <div id="arena"></div>
+            <h2 id="resultText" style="margin-top: 15px; font-size: 16px; color: #38bdf8;">أسرع واحد يفرقع بالونة هياخد النقطة! 🎯</h2>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        let peer, conn;
+        let myName = "";
+        let opponentName = "الخصم";
+        let myScore = 0;
+        let opponentScore = 0;
+        let gameInterval = null;
+
+        function createRoom() {
+            myName = document.getElementById('playerName').value.trim();
+            if(!myName) {
+                alert("من فضلك اكتب اسمك الأول!");
+                return;
+            }
+
+            peer = new Peer();
+            peer.on('open', function(id) {
+                let roomLink = window.location.origin + window.location.pathname + `?room=${id}&hostName=${encodeURIComponent(myName)}`;
+                navigator.clipboard.writeText(roomLink);
+                alert("تم نسخ رابط الغرفة! ابعته لصاحبك 🚀");
+                
+                document.getElementById('setupScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('statusText').innerText = "في انتظار انضمام الخصم... (تم نسخ اللينك)";
+            });
+
+            peer.on('connection', function(connection) {
+                conn = connection;
+                setupConnection();
+            });
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostId = urlParams.get('room');
+        const hostName = urlParams.get('hostName');
+
+        if(hostId) {
+            window.addEventListener('load', () => {
+                let name = prompt("أهلاً بك! اكتب اسمك للانضمام للعبة:");
+                if(!name) return;
+                myName = name;
+
+                document.getElementById('setupScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('statusText').innerText = "جاري الاتصال بصاحبك...";
+
+                peer = new Peer();
+                peer.on('open', function(id) {
+                    conn = peer.connect(hostId);
+                    conn.on('open', function() {
+                        setupConnection();
+                        conn.send({ type: 'join', name: myName });
+                    });
+                });
+            });
+        }
+
+        function setupConnection() {
+            document.getElementById('statusText').innerText = "متصل بنجاح! الحرب بدأت 🎈🔥";
+            document.getElementById('playArea').classList.remove('hidden');
+            startBalloonSpawner();
+
+            conn.on('data', function(data) {
+                if(data.type === 'join') {
+                    opponentName = data.name;
+                    updateScoreboard();
+                    conn.send({ type: 'welcome', name: hostName || "صاحبك" });
+                } else if(data.type === 'welcome') {
+                    opponentName = data.name;
+                    updateScoreboard();
+                } else if(data.type === 'pop') {
+                    // الخصم فرقع بالونة
+                    opponentScore = data.score;
+                    updateScoreboard();
+                }
+            });
+        }
+
+        function updateScoreboard() {
+            document.getElementById('scoreboardText').innerText = `النتيجة: ${myName} (${myScore} 🎈) - (${opponentScore} 🎈) ${opponentName}`;
+        }
+
+        function startBalloonSpawner() {
+            // ظهور بالونة كل ثانية ونصف
+            gameInterval = setInterval(() => {
+                spawnBalloon();
+            }, 1400);
+        }
+
+        function spawnBalloon() {
+            let arena = document.getElementById('arena');
+            // مسح أي بالونة قديمة لسه باقية
+            let oldB = document.getElementById('activeBalloon');
+            if(oldB) oldB.remove();
+
+            let balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            balloon.id = 'activeBalloon';
+            
+            // ألوان عشوائية للبالونة
+            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+            balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+            // أماكن عشوائية جوه الـ arena
+            let maxX = arena.clientWidth - 60;
+            let maxY = arena.clientHeight - 75;
+            let randomX = Math.floor(Math.random() * maxX);
+            let randomY = Math.floor(Math.random() * maxY);
+
+            balloon.style.left = randomX + 'px';
+            balloon.style.top = randomY + 'px';
+            balloon.innerHTML = '🎈';
+
+            // لما تضغط على البالونة
+            balloon.onclick = function() {
+                myScore++;
+                updateScoreboard();
+                balloon.remove();
+                // إبلاغ الخصم بالنتيجة الجديدة
+                conn.send({ type: 'pop', score: myScore });
+            };
+
+            arena.appendChild(balloon);
+
+            // البالونة تختفي لوحدها لو محدش داس عليها بعد ثواني
+            setTimeout(() => {
+                if(balloon.parentElement) {
+                    balloon.remove();
+                }
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
