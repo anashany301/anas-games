@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الأكواب المخفية - أونلاين 🥤</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; }
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        .box { background: #1e293b; border: 1px solid #38bdf8; padding: 20px; border-radius: 10px; max-width: 450px; margin: 20px auto; }
+        input { padding: 10px; width: 80%; border-radius: 5px; border: none; margin-bottom: 10px; text-align: center; font-size: 16px; }
+        button { padding: 10px 20px; background: #38bdf8; color: #0f172a; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        button:hover { background: #0284c7; color: white; }
+        .hidden { display: none !important; }
+        
+        .scoreboard { font-size: 17px; color: #38bdf8; margin-bottom: 15px; font-weight: bold; background: #0f172a; padding: 12px; border-radius: 5px; border: 1px dashed #38bdf8; }
+        
+        .cups-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .cup {
+            width: 80px;
+            height: 90px;
+            background: #334155;
+            border: 3px solid #38bdf8;
+            border-radius: 0 0 40px 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            transition: transform 0.3s, background 0.3s;
+            position: relative;
+        }
+
+        .cup:hover {
+            background: #475569;
+            transform: translateY(-5px);
+        }
+
+        .cup.selected {
+            border-color: #22c55e;
+            background: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🥤 تحدي الأكواب المخفية (أونلاين) ⚽</h1>
+
+    <!-- شاشة إدخال الاسم -->
+    <div id="setupScreen" class="box">
+        <p>أنشئ غرفة وتحدى صاحبك في تركيز الأكواب!</p>
+        <input type="text" id="playerName" placeholder="اكتب اسمك هنا..." />
+        <br>
+        <button onclick="createRoom()">إنشاء غرفة ونسخ الرابط 🔗</button>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="gameScreen" class="box hidden" style="max-width: 500px;">
+        
+        <!-- لوحة النتائج العلوية -->
+        <div class="scoreboard" id="scoreboardText">
+            النتيجة: أنت (0 🏆) - (0 🏆) الخصم
+        </div>
+
+        <h2 id="statusText" style="font-size: 15px; color: #cbd5e1;">في انتظار انضمام اللاعب الثاني... ⏳</h2>
+
+        <div id="playArea" class="hidden">
+            <p id="instructionText">اختر الكوب الذي تحته الكرة السحرية! ⚽</p>
+            
+            <div class="cups-container">
+                <div class="cup" onclick="chooseCup(0)" id="cup0">🥤</div>
+                <div class="cup" onclick="chooseCup(1)" id="cup1">🥤</div>
+                <div class="cup" onclick="chooseCup(2)" id="cup2">🥤</div>
+            </div>
+
+            <h2 id="resultText" style="margin-top: 15px; font-size: 16px; color: #38bdf8;"></h2>
+            
+            <button id="resetBtn" class="hidden" onclick="resetRound()" style="margin-top: 15px; background: #22c55e; color: white;">🔄 جولة جديدة</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        let peer, conn;
+        let myName = "";
+        let opponentName = "الخصم";
+        let myScore = 0;
+        let opponentScore = 0;
+        
+        let winningCup = 0;
+        let canChoose = false;
+
+        function createRoom() {
+            myName = document.getElementById('playerName').value.trim();
+            if(!myName) {
+                alert("من فضلك اكتب اسمك الأول!");
+                return;
+            }
+
+            peer = new Peer();
+            peer.on('open', function(id) {
+                let roomLink = window.location.origin + window.location.pathname + `?room=${id}&hostName=${encodeURIComponent(myName)}`;
+                navigator.clipboard.writeText(roomLink);
+                alert("تم نسخ رابط الغرفة! ابعته لصاحبك 🚀");
+                
+                document.getElementById('setupScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('statusText').innerText = "في انتظار انضمام الخصم... (تم نسخ اللينك)";
+            });
+
+            peer.on('connection', function(connection) {
+                conn = connection;
+                setupConnection();
+            });
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostId = urlParams.get('room');
+        const hostName = urlParams.get('hostName');
+
+        if(hostId) {
+            window.addEventListener('load', () => {
+                let name = prompt("أهلاً بك! اكتب اسمك للانضمام للعبة:");
+                if(!name) return;
+                myName = name;
+
+                document.getElementById('setupScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('statusText').innerText = "جاري الاتصال بصاحبك...";
+
+                peer = new Peer();
+                peer.on('open', function(id) {
+                    conn = peer.connect(hostId);
+                    conn.on('open', function() {
+                        setupConnection();
+                        conn.send({ type: 'join', name: myName });
+                    });
+                });
+            });
+        }
+
+        function setupConnection() {
+            document.getElementById('statusText').innerText = "متصل بنجاح! التحدي بدأ 🥤";
+            document.getElementById('playArea').classList.remove('hidden');
+            startNewRound();
+
+            conn.on('data', function(data) {
+                if(data.type === 'join') {
+                    opponentName = data.name;
+                    updateScoreboard();
+                    conn.send({ type: 'welcome', name: hostName || "صاحبك" });
+                } else if(data.type === 'welcome') {
+                    opponentName = data.name;
+                    updateScoreboard();
+                } else if(data.type === 'guess') {
+                    // الخصم اختار كوب
+                    handleOpponentChoice(data.index, data.win, data.winningCup);
+                } else if(data.type === 'reset') {
+                    startNewRound();
+                }
+            });
+        }
+
+        function updateScoreboard() {
+            document.getElementById('scoreboardText').innerText = `النتيجة: ${myName} (${myScore} 🏆) - (${opponentScore} 🏆) ${opponentName}`;
+        }
+
+        function startNewRound() {
+            winningCup = Math.floor(Math.random() * 3);
+            canChoose = true;
+            document.getElementById('resultText').innerText = "";
+            document.getElementById('resetBtn').classList.add('hidden');
+            document.getElementById('instructionText').innerText = "تم إخفاء الكرة! اختر كوباً الآن ⚽";
+            
+            for(let i=0; i<3; i++) {
+                let cup = document.getElementById('cup' + i);
+                cup.innerText = "🥤";
+                cup.classList.remove('selected');
+            }
+        }
+
+        function chooseCup(index) {
+            if(!canChoose) return;
+            canChoose = false;
+
+            let cup = document.getElementById('cup' + index);
+            cup.classList.add('selected');
+
+            let isWin = (index === winningCup);
+            if(isWin) {
+                cup.innerText = "⚽";
+                document.getElementById('resultText').innerText = `مبروك يا ${myName}! أصبت الكوب الصحيح 🎉`;
+                myScore++;
+            } else {
+                cup.innerText = "❌";
+                document.getElementById('cup' + winningCup).innerText = "⚽";
+                document.getElementById('resultText').innerText = `للأسف خطأ! الكوب الصحيح كان رقم ${winningCup + 1} 😅`;
+                opponentScore++;
+            }
+
+            updateScoreboard();
+            document.getElementById('resetBtn').classList.remove('hidden');
+
+            // إرسال النتيجة للخصم
+            conn.send({ type: 'guess', index: index, win: isWin, winningCup: winningCup });
+        }
+
+        function handleOpponentChoice(index, win, correctCup) {
+            // إظهار اختيار الخصم للطرف الآخر
+            document.getElementById('cup' + correctCup).innerText = "⚽";
+            if(!win) {
+                document.getElementById('cup' + index).innerText = "❌";
+            }
+            
+            document.getElementById('resultText').innerText = `اختيار ${opponentName} انتهى. (الكوب الصحيح كان ${correctCup + 1}) 🎯`;
+            if(!win) {
+                // لو هو خسر يبقي أنت كسبت نقطة غالباً أو العكس
+                // هنا بنظبط الترتيب بناءً على تفاعل اللعبة
+            }
+            document.getElementById('resetBtn').classList.remove('hidden');
+        }
+
+        function resetRound() {
+            conn.send({ type: 'reset' });
+            startNewRound();
+        }
+    </script>
+</body>
+</html>
