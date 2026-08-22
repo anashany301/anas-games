@@ -180,13 +180,13 @@
 
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    // عكس الإحداثيات بالكامل عند اللاعب الأسود لتبدو الرقعة صحيحة من زاويته
+                    // حساب الصف والعمود الحقيقي للرقعة بناءً على المنظور
                     let row = isBlackView ? 7 - r : r;
                     let col = isBlackView ? 7 - c : c;
 
                     let square = document.createElement('div');
-                    // استخدام الإحداثيات المعكوسة لتلوين المربعات بشكل ثابت وسليم
-                    square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                    // تلوين المربعات بانتظام تام بناءً على إحداثيات الشاشة الثابتة (r, c)
+                    square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
                     
                     let piece = board[row][col];
                     square.innerText = piecesUnicode[piece] || "";
