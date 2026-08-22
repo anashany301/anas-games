@@ -180,14 +180,14 @@
 
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    // حساب الصف والعمود الحقيقي للرقعة بناءً على المنظور
+                    // تثبيت إحداثيات المربعات وتلوينها بانتظام تام بناءً على (r, c)
+                    let square = document.createElement('div');
+                    square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    
+                    // عكس مكان القطع فقط بناءً على زاوية رؤية اللاعب الأسود أو الأبيض
                     let row = isBlackView ? 7 - r : r;
                     let col = isBlackView ? 7 - c : c;
 
-                    let square = document.createElement('div');
-                    // تلوين المربعات بانتظام تام بناءً على إحداثيات الشاشة الثابتة (r, c)
-                    square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-                    
                     let piece = board[row][col];
                     square.innerText = piecesUnicode[piece] || "";
 
@@ -206,15 +206,20 @@
         function handleSquareClick(r, c) {
             if (turn !== myColor) return;
 
-            let piece = board[r][c];
+            // تحويل إحداثيات الضغطات للـ matrix الأصلية في حالة كان اللاعب أسود
+            let isBlackView = (myColor === 'black');
+            let row = isBlackView ? 7 - r : r;
+            let col = isBlackView ? 7 - c : c;
+
+            let piece = board[row][col];
             let isMyPiece = (myColor === 'white' && piece === piece.toUpperCase() && piece !== '') ||
                             (myColor === 'black' && piece === piece.toLowerCase() && piece !== '');
 
             if (isMyPiece) {
-                selectedSquare = {r, c};
+                selectedSquare = {r: row, c: col};
                 renderBoard();
             } else if (selectedSquare) {
-                board[r][c] = board[selectedSquare.r][selectedSquare.c];
+                board[row][col] = board[selectedSquare.r][selectedSquare.c];
                 board[selectedSquare.r][selectedSquare.c] = '';
                 
                 selectedSquare = null;
