@@ -76,6 +76,7 @@
         let opponentScore = 0;
         let myColor = 'white';
 
+        // المصفوفة الأساسية المظبوطة من منظور الأبيض
         let board = [
             ['r','n','b','q','k','b','n','r'],
             ['p','p','p','p','p','p','p','p'],
@@ -156,10 +157,13 @@
                 if(data.type === 'join') {
                     opponentName = data.name;
                     updateScoreboard();
-                    conn.send({ type: 'welcome', name: hostName || "صاحبك" });
+                    conn.send({ type: 'welcome', name: hostName || "صاحبك", board: board, turn: turn });
                 } else if(data.type === 'welcome') {
                     opponentName = data.name;
+                    board = data.board; // استقبال المصفوفة مضبوطة
+                    turn = data.turn;
                     updateScoreboard();
+                    renderBoard();
                 } else if(data.type === 'move') {
                     board = data.board;
                     turn = data.turn;
@@ -182,10 +186,10 @@
                 for (let c = 0; c < 8; c++) {
                     let square = document.createElement('div');
                     
-                    // تلوين المربعات بشكل ثابت ومنتظم
+                    // تلوين المربعات بانتظام ثابت
                     square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
                     
-                    // عكس الصفوف والأعمدة معاً لو اللاعب أسود عشان تبان قطعه تحت وبترتيبها الصحيح تماماً
+                    // لو اللاعب أسود، بنعكس الصف والعمود في العرض وفي الضغطات عشان يشوف قطعه تحت وعساكره مظبوطة
                     let row = isBlackView ? 7 - r : r;
                     let col = isBlackView ? 7 - c : c;
 
