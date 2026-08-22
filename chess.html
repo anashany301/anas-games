@@ -155,7 +155,7 @@
             conn.on('data', function(data) {
                 if(data.type === 'join') {
                     opponentName = data.name;
-    updateScoreboard();
+                    updateScoreboard();
                     conn.send({ type: 'welcome', name: hostName || "صاحبك" });
                 } else if(data.type === 'welcome') {
                     opponentName = data.name;
@@ -180,14 +180,14 @@
 
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    // تثبيت إحداثيات الرقعة بناءً على الصف والعمود الحقيقي لكي لا تنعكس الألوان بشكل خاطئ
-                    let square = document.createElement('div');
-                    square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-                    
-                    // تحديد القطعة المعروضة بناءً على زاوية رؤية اللاعب
+                    // تحديد الصف والعمود الفعلي للرقعة بحيث تظل ألوان المربعات ثابتة تماماً ومتناسقة
                     let row = isBlackView ? 7 - r : r;
                     let col = isBlackView ? 7 - c : c;
 
+                    let square = document.createElement('div');
+                    // تثبيت نمط تلوين المربعات بناءً على الإحداثيات الفعلية (r, c) لتجنب أي انعكاس خاطئ
+                    square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    
                     let piece = board[row][col];
                     square.innerText = piecesUnicode[piece] || "";
 
