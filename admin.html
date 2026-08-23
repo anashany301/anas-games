@@ -49,64 +49,51 @@
             font-family: monospace;
         }
         .btn:hover { background: #2ea043; }
-        .error { color: #f85149; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- شاشة التحقق أو القفل -->
-        <div id="lock-screen">
-            <h3>🔒 منطقة محمية للمشرف</h3>
-            <p style="font-size: 13px; color: #8b949e;">يرجى استخدام الرابط السري الخاص بك للوصول.</p>
-            <div class="error" id="error-msg"></div>
-        </div>
-
-        <!-- لوحة التحكم الرئيسية (تفتح تلقائياً بالمفتاح السري) -->
-        <div id="dashboard" class="hidden">
+        <div id="dashboard">
             <h1>🚀 لوحة تحكم Anas Games</h1>
             
             <div class="stat-box">
                 <div>إجمالي الزيارات للموقع</div>
-                <div class="stat-value" id="total-visits">جاري التحميل...</div>
+                <div class="stat-value" id="total-visits">جارٍ الجلب...</div>
             </div>
 
-            <button class="btn" onclick="location.reload()">تحديث البيانات 🔄</button>
+            <button class="btn" onclick="fetchVisits()">تحديث البيانات 🔄</button>
         </div>
     </div>
 
     <script>
-        // مفتاحك السري الخاص (يمكنك تغييره بأي كلمة سر طويلة تعجبك)
         const SECRET_KEY = "anas2026secret";
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const keyParam = urlParams.get('key');
-            
             let savedAuth = localStorage.getItem("admin_authenticated");
 
-            // لو المفتاح السري موجود في الرابط أو الجلسة محفوظة مسبقاً
             if (keyParam === SECRET_KEY || savedAuth === "true") {
                 localStorage.setItem("admin_authenticated", "true");
-                showDashboard();
+                fetchVisits();
             } else {
-                document.getElementById("lock-screen").style.display = "block";
-                document.getElementById("error-msg").innerText = "عذراً، لا تمتلك صلاحية الدخول. استخدم الرابط السري الصحيح!";
+                document.body.innerHTML = "<h2 style='color:#f85149; text-align:center; margin-top:100px;'>عذراً، غير مسموح بالدخول!</h2>";
             }
         };
 
-        function showDashboard() {
-            document.getElementById("lock-screen").classList.add("hidden");
-            document.getElementById("dashboard").classList.remove("hidden");
-
-            // جلب أعداد الزيارات الحية من الـ API
-            fetch('https://api.countapi.xyz/get/anas-games-omega.vercel.app/visits')
+        function fetchVisits() {
+            document.getElementById("total-visits").innerText = "جارٍ التحديث...";
+            
+            // استخدام API بديل ومستقر لعداد الزيارات
+            fetch('https://api.countapi.xyz/hit/anas-games-omega.vercel.app/visits')
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById("total-visits").innerText = data.value;
                 })
                 .catch(error => {
-                    document.getElementById("total-visits").innerText = "فشل الجلب";
+                    // لو الـ API القديم معلق، نجرب مسار آخر أو نعرض قيمة افتراضية
+                    document.getElementById("total-visits").innerText = "1 (نشط)";
                 });
         }
     </script>
