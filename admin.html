@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المشرف - Anas Games</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: monospace;
+            padding: 20px;
+            text-align: center;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: #161b22;
+            border: 1px solid #30363d;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h1 { color: #58a6ff; font-size: 22px; margin-bottom: 20px; }
+        .stat-box {
+            background: #21262d;
+            border: 1px solid #30363d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        .stat-value {
+            color: #3fb950;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .hidden { display: none; }
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-family: monospace;
+        }
+        .btn:hover { background: #2ea043; }
+        .error { color: #f85149; font-size: 14px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- شاشة التحقق أو القفل -->
+        <div id="lock-screen">
+            <h3>🔒 منطقة محمية للمشرف</h3>
+            <p style="font-size: 13px; color: #8b949e;">يرجى استخدام الرابط السري الخاص بك للوصول.</p>
+            <div class="error" id="error-msg"></div>
+        </div>
+
+        <!-- لوحة التحكم الرئيسية (تفتح تلقائياً بالمفتاح السري) -->
+        <div id="dashboard" class="hidden">
+            <h1>🚀 لوحة تحكم Anas Games</h1>
+            
+            <div class="stat-box">
+                <div>إجمالي الزيارات للموقع</div>
+                <div class="stat-value" id="total-visits">جاري التحميل...</div>
+            </div>
+
+            <button class="btn" onclick="location.reload()">تحديث البيانات 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // مفتاحك السري الخاص (يمكنك تغييره بأي كلمة سر طويلة تعجبك)
+        const SECRET_KEY = "anas2026secret";
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const keyParam = urlParams.get('key');
+            
+            let savedAuth = localStorage.getItem("admin_authenticated");
+
+            // لو المفتاح السري موجود في الرابط أو الجلسة محفوظة مسبقاً
+            if (keyParam === SECRET_KEY || savedAuth === "true") {
+                localStorage.setItem("admin_authenticated", "true");
+                showDashboard();
+            } else {
+                document.getElementById("lock-screen").style.display = "block";
+                document.getElementById("error-msg").innerText = "عذراً، لا تمتلك صلاحية الدخول. استخدم الرابط السري الصحيح!";
+            }
+        };
+
+        function showDashboard() {
+            document.getElementById("lock-screen").classList.add("hidden");
+            document.getElementById("dashboard").classList.remove("hidden");
+
+            // جلب أعداد الزيارات الحية من الـ API
+            fetch('https://api.countapi.xyz/get/anas-games-omega.vercel.app/visits')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("total-visits").innerText = data.value;
+                })
+                .catch(error => {
+                    document.getElementById("total-visits").innerText = "فشل الجلب";
+                });
+        }
+    </script>
+</body>
+</html>
