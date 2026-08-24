@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة القفز للموبايل</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        #score {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        canvas {
+            border: 2px solid #4CAF50;
+            background-color: #111;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+            width: 100%;
+            max-width: 360px;
+            height: 250px;
+        }
+        .instructions {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>لعبة القفز 🏃‍♂️</h1>
+    <div id="score">النقاط: 0</div>
+    <canvas id="gameCanvas" width="360" height="250"></canvas>
+    <div class="instructions">اضغط في أي مكان على الشاشة للقفز وتفادي العقبة!</div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+
+        let score = 0;
+        let isGameOver = false;
+
+        // خصائص اللاعب
+        const player = {
+            x: 40,
+            y: 180,
+            width: 25,
+            height: 35,
+            dy: 0,
+            jumpPower: -10,
+            gravity: 0.6,
+            grounded: true,
+            color: "#4CAF50"
+        };
+
+        // خصائص العقبة
+        const obstacle = {
+            x: canvas.width,
+            y: 190,
+            width: 20,
+            height: 30,
+            speed: 5,
+            color: "#FF5722"
+        };
+
+        // التحكم باللمس أو النقر
+        window.addEventListener("touchstart", triggerJump);
+        window.addEventListener("mousedown", triggerJump);
+
+        function triggerJump(e) {
+            e.preventDefault();
+            if (isGameOver) {
+                resetGame();
+            } else if (player.grounded) {
+                player.dy = player.jumpPower;
+                player.grounded = false;
+            }
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            // حركة اللاعب (الجاذبية)
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            // الأرضية
+            if (player.y > 180) {
+                player.y = 180;
+                player.dy = 0;
+                player.grounded = true;
+            }
+
+            // حركة العقبة
+            obstacle.x -= obstacle.speed;
+            if (obstacle.x < -obstacle.width) {
+                obstacle.x = canvas.width;
+                score++;
+                scoreElement.textContent = "النقاط: " + score;
+                // زيادة السرعة تدريجياً مع النقاط
+                if (score % 5 === 0) {
+                    obstacle.speed += 0.5;
+                }
+            }
+
+            // فحص الاصطدام
+            if (
+                player.x < obstacle.x + obstacle.width &&
+                player.x + player.width > obstacle.x &&
+                player.y < obstacle.y + obstacle.height &&
+                player.y + player.height > obstacle.y
+            ) {
+                isGameOver = true;
+            }
+        }
+
+        function draw() {
+            // مسح الشاشة
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // رسم الأرضية
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 215);
+            ctx.lineTo(canvas.width, 215);
+            ctx.stroke();
+
+            // رسم اللاعب
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // رسم العقبة
+            ctx.fillStyle = obstacle.color;
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+            // رسالة انتهاء اللعبة
+            if (isGameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#fff";
+                ctx.font = "20px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("انتهت اللعبة!", canvas.width / 2, canvas.height / 2 - 15);
+                
+                ctx.font = "14px Arial";
+                ctx.fillStyle = "#aaa";
+                ctx.fillText("اضغط هنا لإعادة المحاولة", canvas.width / 2, canvas.height / 2 + 15);
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreElement.textContent = "النقاط: 0";
+            obstacle.x = canvas.width;
+            obstacle.speed = 5;
+            player.y = 180;
+            player.dy = 0;
+            isGameOver = false;
+        }
+
+        loop();
+    </script>
+</body>
+</html>
