@@ -1,4 +1,4 @@
-name: Ultimate Fix for Multiplayer Detection
+name: Super Fast Action Matcher
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Ultimate Detector & Cleaner
+      - name: Run Python Automation
         run: |
           python3 - << 'EOF'
           import os
@@ -56,38 +56,36 @@ jobs:
                   
                   content_lower = content.lower()
                   
-                  # فحص شامل وصريح للألعاب الجماعية بناءً على كلامك
+                  # الفحص الدقيق والنهائي بناءً على طلبك
                   has_peerjs = 'peerjs' in content_lower
                   has_socket = 'socket.io' in content_lower
-                  has_room_text = 'إنشاء غرفة' in content or 'انشاء غرفة' in content or 'create room' in content_lower
-                  has_copy_text = 'نسخ الرابط' in content or 'copy link' in content_lower
+                  has_room_btn = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'create room' in content_lower
 
-                  # اللعبة تعتبر جماعية لو بتستخدم تقنية جماعية أو فيها أزرار الغرف والنسخ
-                  is_multi = has_peerjs or has_socket or (has_room_text and has_copy_text)
+                  # اللعبة تعتبر جماعية حصرياً لو فيها التقنيات أو زرار إنشاء الغرفة الجديد
+                  is_multi = has_peerjs or has_socket or has_room_btn
 
                   if is_multi:
                       clean_name = filename.replace('.html', '').lower().strip()
                       multi_games_list.append(clean_name)
-                      print(f"✅ لعبة جماعية مؤكدة: {filename} (PeerJS: {has_peerjs}, Socket: {has_socket}, RoomText: {has_room_text})")
+                      print(f"[ جماعية ] 👥 -> {filename}")
                       
-                      # وضع زرار النسخ الذكي فوق لو مش موجود
+                      # إضافة زر النسخ الذكي لو مش موجود
                       if "نسخ رابط ذكي للتطبيق" not in content and "smartCopyBtn" not in content:
                           if "</body>" in content:
                               content = content.replace("</body>", smart_button_code + "\n</body>")
                               with open(filename, 'w', encoding='utf-8') as f:
                                   f.write(content)
                   else:
-                      print(f"❌ لعبة فردية: {filename}")
-                      # تنظيف وحذف زرار النسخ الذكي لو اللعبة فردية بالخطأ
+                      print(f"[ فردية ] 👤 -> {filename}")
+                      # تنظيف وحذف زر النسخ الذكي لو موجود بالخطأ في لعبة فردية
                       if "نسخ رابط ذكي للتطبيق" in content or "smartCopyBtn" in content:
                           content = re.sub(r'<script>.*?نسخ رابط ذكي للتطبيق.*?</script>', '', content, flags=r.DOTALL)
                           with open(filename, 'w', encoding='utf-8') as f:
                               f.write(content)
-                              print(f"🧹 تم تنظيف وإزالة الزرار من: {filename}")
 
-          print("📋 القائمة النهائية للألعاب الجماعية:", multi_games_list)
+          print("قائمة الألعاب الجماعية النهائية:", multi_games_list)
 
-          # تحديث ملف index.html أوتوماتيك
+          # تحديث ملف الـ index.html أوتوماتيك بالمصفوفة الصح
           if os.path.exists('index.html'):
               with open('index.html', 'r', encoding='utf-8') as f:
                   index_content = f.read()
@@ -100,7 +98,7 @@ jobs:
                   index_content = re.sub(pattern, new_array_str, index_content)
                   with open('index.html', 'w', encoding='utf-8') as f:
                       f.write(index_content)
-                  print("✨ تم تحديث index.html بنجاح بالأسماء الجديدة!")
+                  print("تم تحديث index.html بنجاح بواسطة البوت!")
           EOF
 
       - name: Commit and push changes
@@ -110,4 +108,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Ultimate fix for multiplayer classification and button cleanup" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Fix multiplayer detection and cleanup via Actions" && git push)
