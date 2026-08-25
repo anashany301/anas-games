@@ -2,12 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>غرفة الألعاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>غرفة الألعاب الذكية</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; color: white; font-family: Tahoma, sans-serif; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .box { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; }
-        input { width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; }
-        button { background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; }
+        .box { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; border: 1px solid #38bdf8; }
+        input { width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold; }
         button:hover { background: #2563eb; }
         #gameFrame { width: 100%; height: 100%; border: none; display: none; position: absolute; top: 0; left: 0; }
     </style>
@@ -15,12 +16,13 @@
 <body>
 
     <div id="ui-container" class="box">
+        <h3 style="color: #38bdf8; margin-top: 0;">غرفة اللعب</h3>
         <input type="text" id="playerName" placeholder="اكتب اسمك هنا">
         <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
-        <button onclick="createRoom()">إنشاء غرفة</button>
-        <div id="codeDisplay" style="color: #38bdf8; font-weight: bold; margin: 10px 0; font-size: 20px;"></div>
-        <input type="text" id="roomCode" placeholder="اكتب كود الغرفة">
-        <button onclick="joinRoom()">دخول</button>
+        <button onclick="createRoom()">إنشاء غرفة جديدة</button>
+        <div id="codeDisplay" style="color: #38bdf8; font-weight: bold; margin: 12px 0; font-size: 22px; letter-spacing: 2px;"></div>
+        <input type="text" id="roomCode" placeholder="أدخل كود الغرفة">
+        <button onclick="joinRoom()" style="background: #10b981;">دخول اللعبة</button>
     </div>
 
     <iframe id="gameFrame"></iframe>
@@ -29,18 +31,28 @@
         const params = new URLSearchParams(window.location.search);
         const gameFile = params.get('game') || 'index.html';
 
+        // استقبال الاسم لو جاي جاهز من اللعبة
+        const presetName = params.get('name');
+        if (presetName) {
+            document.getElementById('playerName').value = decodeURIComponent(presetName);
+        }
+
         function createRoom() {
             const name = document.getElementById('playerName').value.trim();
-            if(!name) { alert('اكتب اسمك الأول'); return; }
+            if(!name) { alert('من فضلك اكتب اسمك الأول!'); return; }
             const code = Math.random().toString(36).substring(2, 6).toUpperCase();
-            document.getElementById('codeDisplay'].innerText = code;
-            setTimeout(() => { loadGame(name, code); }, 2500);
+            document.getElementById('codeDisplay').innerText = code;
+            
+            // الانتظار قليلاً لنسخ الكود وإعطاء فرصة للاعب ثم فتح اللعبة
+            setTimeout(() => {
+                loadGame(name, code);
+            }, 3000);
         }
 
         function joinRoom() {
             const name = document.getElementById('playerName').value.trim();
             const code = document.getElementById('roomCode').value.trim();
-            if(!name || !code) { alert('اكتب الاسم والكود'); return; }
+            if(!name || !code) { alert('اكتب اسمك وكود الغرفة من فضلك!'); return; }
             loadGame(name, code);
         }
 
