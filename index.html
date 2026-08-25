@@ -14,13 +14,8 @@
 
         .games-grid { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto; }
         
-        .game-card-wrapper { background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-        .game-link { text-decoration: none; color: white; font-weight: bold; font-size: 15px; display: block; text-align: right; }
-        .game-link:hover { color: #38bdf8; }
-        
-        /* زرار نسخ الرابط الذكي للألعاب الجماعية من الواجهة برة */
-        .smart-share-btn { background: #0284c7; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: bold; width: 100%; }
-        .smart-share-btn:hover { background: #38bdf8; color: #0f172a; }
+        .game-card { padding: 15px; background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 15px; transition: 0.3s; display: block; text-align: right; }
+        .game-card:hover { background: #334155; }
 
         .hidden { display: none !important; }
         .loading { color: #38bdf8; font-size: 16px; margin-top: 20px; }
@@ -53,59 +48,52 @@
                 grid.innerHTML = ""; 
 
                 for (const file of files) {
-                    // الشرط المحدث لاستبعاد الـ index وأي ملفات مساعدة مثل الـ helper
                     if (file.name.endsWith('.html') && file.name !== 'index.html' && file.name !== 'multiplayer-helper.html') {
                         let category = 'single'; 
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
 
                         try {
                             const fileResponse = await fetch(file.download_url);
-                            const fileContent = await fileResponse.text();
+                            let fileContent = await fileResponse.text();
 
                             const multiKeywords = ['room', 'createroom', 'join', 'socket', 'peer', 'multiplayer', 'online', 'روم'];
                             const isMulti = multiKeywords.some(keyword => fileContent.toLowerCase().includes(keyword));
 
                             if (isMulti) {
                                 category = 'multi';
+                                
+                                // التعديل السحري: حقن سكربت جوه الكود لتعديل زر النسخ أوتوماتيك داخل اللعبة
+                                fileContent = fileContent.replace('</body>', `
+                                    <script>
+                                        window.addEventListener('DOMContentLoaded', () => {
+                                            const buttons = document.querySelectorAll('button');
+                                            buttons.forEach(btn => {
+                                                if(btn.innerText.includes('نسخ') || btn.id.includes('copy')) {
+                                                    btn.onclick = function(e) {
+                                                        e.preventDefault();
+                                                        let roomUrl = window.location.href;
+                                                        navigator.clipboard.writeText(roomUrl).then(() => {
+                                                            alert("تم نسخ رابط الغرفة بنجاح! 🚀 ابعته لصاحبك.");
+                                                        });
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    <\/script>
+                                </body>`);
                             }
                         } catch (err) {
                             console.log("تعذر فحص محتوى الملف:", file.name);
                         }
 
-                        // إنشاء الحاوية الخاصة باللعبة
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'game-card-wrapper';
-                        wrapper.setAttribute('data-category', category);
-
-                        // رابط اللعبة الأساسي
+                        // إنشاء كارت اللعبة النظيف في الواجهة برة (من غير أزرار غريبة)
                         const card = document.createElement('a');
                         card.href = file.name;
-                        card.className = 'game-link';
+                        card.className = 'game-card';
+                        card.setAttribute('data-category', category);
                         card.textContent = `🎮 ${displayName}`;
-                        wrapper.appendChild(card);
 
-                        // لو اللعبة جماعية، نضيف ليها زرار نسخ الرابط الذكي (Deep Link) مباشرة من بره
-                        if (category === 'multi') {
-                            const shareBtn = document.createElement('button');
-                            shareBtn.className = 'smart-share-btn';
-                            shareBtn.textContent = '🔗 نسخ رابط الغرفة الذكي';
-                            
-                            shareBtn.onclick = () => {
-                                // رابط الصفحة المباشر للعبة
-                                let gameUrl = window.location.origin + window.location.pathname.replace('index.html', '') + file.name;
-                                
-                                // تحويله لرابط عميق يفتح التطبيق مباشرة
-                                let smartLink = `flamengogames://open?url=` + encodeURIComponent(gameUrl);
-                                
-                                navigator.clipboard.writeText(smartLink).then(() => {
-                                    alert("تم نسخ رابط الغرفة الذكي بنجاح! 🚀 ابعته لصاحبك.");
-                                });
-                            };
-                            
-                            wrapper.appendChild(shareBtn);
-                        }
-
-                        grid.appendChild(wrapper);
+                        grid.appendChild(card);
                     }
                 }
             } catch (error) {
@@ -118,13 +106,13 @@
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            const wrappers = document.querySelectorAll('.game-card-wrapper');
-            wrappers.forEach(wrapper => {
-                const cardCategory = wrapper.getAttribute('data-category');
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
                 if (category === 'all' || cardCategory === category) {
-                    wrapper.classList.remove('hidden');
+                    card.classList.remove('hidden');
                 } else {
-                    wrapper.classList.add('hidden');
+                    card.classList.add('hidden');
                 }
             });
         }
