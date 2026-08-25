@@ -1,9 +1,9 @@
-name: Auto Add Smart Button to Games
+name: Auto Add Smart Button to Multiplayer Games
 
 on:
   push:
     branches:
-      - main # أو master حسب اسم الفرع الأساسي عندك
+      - main
 
 jobs:
   update-games:
@@ -19,12 +19,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Injection Script
+      - name: Run Smart Injection Script
         run: |
           python3 - << 'EOF'
           import os
 
-          # كود حقن الزرار الذكي
           smart_button_code = """
           <script>
               window.addEventListener('DOMContentLoaded', () => {
@@ -37,7 +36,7 @@ jobs:
                       let smartLink = "https://anas-games-omega.vercel.app/multiplayer-helper.html?url=" + encodeURIComponent(roomUrl);
                       
                       navigator.clipboard.writeText(smartLink).then(() => {
-                          alert("تم نسخ الرابط الذكي بنجاح! 🚀 ابعته لصاحبك في الواتساب.");
+                          alert("تم نسخ الرابط الذكي بنجاح! 🚀 ابعته لصاحبك.");
                       });
                   };
 
@@ -47,18 +46,23 @@ jobs:
           </body>
           """
 
+          # الكلمات المفتاحية اللي تدل إن اللعبة جماعية
+          multi_keywords = ['createroom', 'joingame', 'room_id', 'room', 'multiplayer', 'socket.io', 'peerjs']
+
           for filename in os.listdir('.'):
               if filename.endswith('.html') and filename != 'index.html' and filename != 'multiplayer-helper.html':
                   with open(filename, 'r', encoding='utf-8') as f:
                       content = f.read()
                   
-                  # لو الزرار مش موجود قبل كده، حطه
-                  if "نسخ رابط ذكي للتطبيق" not in content:
+                  content_lower = content.lower()
+                  is_multi = any(kw in content_lower for kw in multi_keywords)
+
+                  if is_multi and "نسخ رابط ذكي للتطبيق" not in content:
                       if "</body>" in content:
                           new_content = content.replace("</body>", smart_button_code)
                           with open(filename, 'w', encoding='utf-8') as f:
                               f.write(new_content)
-                          print(f"تم تحديث: {filename}")
+                          print(f"تم إضافة زرار النسخ الذكي للعبة: {filename}")
           EOF
 
       - name: Commit and push changes
@@ -68,4 +72,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-inject smart copy button to games" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto inject smart button to multiplayer games" && git push)
