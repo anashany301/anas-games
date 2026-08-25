@@ -1,4 +1,4 @@
-name: Auto Add Smart Button to Multiplayer Games
+name: Auto Detect and Update Multiplayer Games
 
 on:
   push:
@@ -19,10 +19,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Smart Injection Script
+      - name: Run Auto Detection & Smart Button Injection
         run: |
           python3 - << 'EOF'
           import os
+          import json
 
           smart_button_code = """
           <script>
@@ -46,8 +47,10 @@ jobs:
           </body>
           """
 
-          # الكلمات المفتاحية اللي تدل إن اللعبة جماعية
-          multi_keywords = ['createroom', 'joingame', 'room_id', 'room', 'multiplayer', 'socket.io', 'peerjs']
+          # الكلمات المفتاحية اللي لو لقناها في أي لعبة نعرف فوراً إنها جماعية
+          multi_keywords = ['createroom', 'joingame', 'room_id', 'room', 'multiplayer', 'socket.io', 'peerjs', 'نسخ رابط ذكي']
+
+          multi_games_list = []
 
           for filename in os.listdir('.'):
               if filename.endswith('.html') and filename != 'index.html' and filename != 'multiplayer-helper.html':
@@ -57,12 +60,17 @@ jobs:
                   content_lower = content.lower()
                   is_multi = any(kw in content_lower for kw in multi_keywords)
 
-                  if is_multi and "نسخ رابط ذكي للتطبيق" not in content:
-                      if "</body>" in content:
-                          new_content = content.replace("</body>", smart_button_code)
-                          with open(filename, 'w', encoding='utf-8') as f:
-                              f.write(new_content)
-                          print(f"تم إضافة زرار النسخ الذكي للعبة: {filename}")
+                  if is_multi:
+                      multi_games_list.append(filename.replace('.html', '').lower())
+                      # إضافة زرار النسخ الذكي لو مش موجود
+                      if "نسخ رابط ذكي للتطبيق" not in content:
+                          if "</body>" in content:
+                              new_content = content.replace("</body>", smart_button_code)
+                              with open(filename, 'w', encoding='utf-8') as f:
+                                  f.write(new_content)
+                              print(f"تم حقن زرار النسخ الذكي في اللعبة الجماعية: {filename}")
+
+          print("الألعاب الجماعية المكتشفة:", multi_games_list)
           EOF
 
       - name: Commit and push changes
@@ -72,4 +80,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto inject smart button to multiplayer games" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto detect multiplayer games and inject smart button" && git push)
