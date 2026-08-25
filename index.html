@@ -19,15 +19,6 @@
 
         .hidden { display: none !important; }
         .loading { color: #38bdf8; font-size: 16px; margin-top: 20px; }
-
-        /* ستايل نافذة إدخال الاسم المباشرة */
-        #modalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-box { background: #1e293b; padding: 25px; border-radius: 12px; border: 2px solid #38bdf8; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .modal-box input { width: 90%; padding: 10px; margin: 15px 0; border-radius: 6px; border: 1px solid #38bdf8; text-align: center; background: #0f172a; color: white; font-size: 16px; outline: none; }
-        .modal-box button { width: 100%; padding: 12px; margin-top: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .btn-copy { background: #10b981; color: white; }
-        .btn-play { background: #38bdf8; color: #0f172a; }
-        .btn-close { background: #ef4444; color: white; margin-top: 12px; font-size: 12px; padding: 8px; }
     </style>
 </head>
 <body>
@@ -44,22 +35,9 @@
         <div class="loading">جاري فحص وتصنيف الألعاب بدقة... ⏳</div>
     </div>
 
-    <!-- نافذة إدخال الاسم ورابط الحاوية المباشر -->
-    <div id="modalOverlay">
-        <div class="modal-box">
-            <h3 id="modalGameTitle" style="color: #38bdf8; margin-top: 0;">غرفة اللعب الجماعي</h3>
-            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 5px;">اكتب اسمك عشان تنسخ رابط الحاوية المباشر:</p>
-            <input type="text" id="modalPlayerName" placeholder="اكتب اسمك هنا...">
-            <button class="btn-copy" onclick="copyHelperLink()">📋 نسخ رابط الحاوية المباشر</button>
-            <button class="btn-play" onclick="playDirectly()">🎮 العب فوراً لوحدك</button>
-            <button class="btn-close" onclick="closeModal()">إلغاء</button>
-        </div>
-    </div>
-
     <script>
         const username = "anashany301"; 
         const repo = "anas-games"; 
-        let selectedGameFile = "";
 
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
@@ -95,12 +73,12 @@
                         card.setAttribute('data-category', category);
                         card.textContent = `🎮 ${displayName} ${category === 'multi' ? '👥' : ''}`;
 
-                        // لو اللعبة جماعية، عند الضغط تفتح نافذة إدخال الاسم بدل فتح اللعبة مباشرة
+                        // لو اللعبة جماعية، توجهه مباشرة لصفحة الحاوية الجديدة بأكواد الغرف
                         if (category === 'multi') {
                             card.href = "#";
                             card.onclick = (e) => {
                                 e.preventDefault();
-                                openModal(file.name, displayName);
+                                window.location.href = `multiplayer-helper.html?game=${file.name}`;
                             };
                         } else {
                             card.href = file.name;
@@ -113,46 +91,6 @@
                 grid.innerHTML = `<p style="color: red;">عذراً، حصل خطأ أثناء جلب الألعاب!</p>`;
                 console.error(error);
             }
-        }
-
-        function openModal(fileName, displayName) {
-            selectedGameFile = fileName;
-            document.getElementById('modalGameTitle').textContent = displayName;
-            document.getElementById('modalOverlay').style.display = 'flex';
-            document.getElementById('modalPlayerName').value = "";
-            document.getElementById('modalPlayerName').focus();
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-        }
-
-        function copyHelperLink() {
-            const playerName = document.getElementById('modalPlayerName').value.trim();
-            if (!playerName) {
-                alert("من فضلك اكتب اسمك الأول يا بطل! 🎮");
-                document.getElementById('modalPlayerName').focus();
-                return;
-            }
-
-            // رابط تطبيق الحاوية الأساسي
-            let helperBaseUrl = "https://anas-games-omega.vercel.app/multiplayer-helper.html";
-            
-            // بناء الرابط المباشر الذي يفتح الحاوية ويسلمها اسم اللعبة واسم اللاعب
-            let directHelperLink = `${helperBaseUrl}?game=${selectedGameFile}&name=${encodeURIComponent(playerName)}`;
-
-            navigator.clipboard.writeText(directHelperLink).then(() => {
-                alert(`تم نسخ رابط الحاوية المباشر يا ${playerName}! 🚀 ابعته لصاحبك هيفتحه يدخله على الحاوية فوراً.`);
-                closeModal();
-            });
-        }
-
-        function playDirectly() {
-            const playerName = document.getElementById('modalPlayerName').value.trim();
-            if (playerName) {
-                localStorage.setItem('multiPlayerName', playerName);
-            }
-            window.location.href = selectedGameFile;
         }
 
         function filterGames(category, btn) {
