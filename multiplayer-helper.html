@@ -31,7 +31,7 @@
         const params = new URLSearchParams(window.location.search);
         const gameFile = params.get('game') || 'index.html';
 
-        // استقبال الاسم لو جاي جاهز من اللعبة
+        // استقبال الاسم لو جاي من رابط سابق
         const presetName = params.get('name');
         if (presetName) {
             document.getElementById('playerName').value = decodeURIComponent(presetName);
@@ -43,10 +43,9 @@
             const code = Math.random().toString(36).substring(2, 6).toUpperCase();
             document.getElementById('codeDisplay').innerText = code;
             
-            // الانتظار قليلاً لنسخ الكود وإعطاء فرصة للاعب ثم فتح اللعبة
             setTimeout(() => {
                 loadGame(name, code);
-            }, 3000);
+            }, 2500);
         }
 
         function joinRoom() {
