@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فتح اللعبة الجماعية 🚀</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 40px 20px; }
+        h2 { color: #38bdf8; }
+        p { color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <h2>جاري توجيهك للعبة الجماعية... 🎮</h2>
+    <p>برجاء الانتظار لحظات فتح الغرفة.</p>
+
+    <script>
+        // استخراج الرابط المرسل في البارامتر وتوجيه التطبيق عليه فوراً
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUrl = urlParams.get('url');
+
+        if (targetUrl) {
+            window.location.href = targetUrl;
+        } else {
+            window.location.href = "https://anas-games-omega.vercel.app";
+        }
+    </script>
+</body>
+</html>
