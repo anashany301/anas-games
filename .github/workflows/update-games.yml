@@ -1,4 +1,4 @@
-name: Precise Room Detection and Smart Button
+name: Ultimate Fix for Multiplayer Detection
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Exact Button Matcher & Injector
+      - name: Run Ultimate Detector & Cleaner
         run: |
           python3 - << 'EOF'
           import os
@@ -54,19 +54,21 @@ jobs:
                   with open(filename, 'r', encoding='utf-8') as f:
                       content = f.read()
                   
-                  # ندور على الجملة بالظبط أو بمعناها الدقيق جوه الكود (بدون حساسية لحالة الأحرف أو المسافات البسيطة)
                   content_lower = content.lower()
                   
-                  # التأكد من وجود أزرار إنشاء غرفة أو نسخ الرابط الخاصة باللعب الجماعي
-                  has_room_button = ('إنشاء غرفة' in content or 'انشاء غرفة' in content or 'create room' in content_lower)
-                  has_copy_button = ('نسخ الرابط' in content or 'copy link' in content_lower or 'نسخ الروابط' in content)
-                  has_multi_tech = ('peerjs' in content_lower or 'socket.io' in content_lower)
+                  # فحص شامل وصريح للألعاب الجماعية بناءً على كلامك
+                  has_peerjs = 'peerjs' in content_lower
+                  has_socket = 'socket.io' in content_lower
+                  has_room_text = 'إنشاء غرفة' in content or 'انشاء غرفة' in content or 'create room' in content_lower
+                  has_copy_text = 'نسخ الرابط' in content or 'copy link' in content_lower
 
-                  # تعتبر اللعبة جماعية لو فيها أزرار الغرف أو تقنيات الربط الجماعي
-                  is_multi = (has_room_button and has_copy_button) or has_multi_tech
+                  # اللعبة تعتبر جماعية لو بتستخدم تقنية جماعية أو فيها أزرار الغرف والنسخ
+                  is_multi = has_peerjs or has_socket or (has_room_text and has_copy_text)
 
                   if is_multi:
-                      multi_games_list.append(filename.replace('.html', '').lower().strip())
+                      clean_name = filename.replace('.html', '').lower().strip()
+                      multi_games_list.append(clean_name)
+                      print(f"✅ لعبة جماعية مؤكدة: {filename} (PeerJS: {has_peerjs}, Socket: {has_socket}, RoomText: {has_room_text})")
                       
                       # وضع زرار النسخ الذكي فوق لو مش موجود
                       if "نسخ رابط ذكي للتطبيق" not in content and "smartCopyBtn" not in content:
@@ -74,16 +76,16 @@ jobs:
                               content = content.replace("</body>", smart_button_code + "\n</body>")
                               with open(filename, 'w', encoding='utf-8') as f:
                                   f.write(content)
-                              print(f"تم اعتمادها كـ 'جماعية' وحقن الزرار في: {filename}")
                   else:
-                      # لو اللعبة فردية، نتأكد إننا شلنا أي زرار نسخ ذكي محطوط بالخطأ
+                      print(f"❌ لعبة فردية: {filename}")
+                      # تنظيف وحذف زرار النسخ الذكي لو اللعبة فردية بالخطأ
                       if "نسخ رابط ذكي للتطبيق" in content or "smartCopyBtn" in content:
                           content = re.sub(r'<script>.*?نسخ رابط ذكي للتطبيق.*?</script>', '', content, flags=r.DOTALL)
                           with open(filename, 'w', encoding='utf-8') as f:
                               f.write(content)
-                          print(f"إزالة الزرار من اللعبة الفردية وتصحيحها: {filename}")
+                              print(f"🧹 تم تنظيف وإزالة الزرار من: {filename}")
 
-          print("قائمة الألعاب الجماعية الدقيقة:", multi_games_list)
+          print("📋 القائمة النهائية للألعاب الجماعية:", multi_games_list)
 
           # تحديث ملف index.html أوتوماتيك
           if os.path.exists('index.html'):
@@ -98,7 +100,7 @@ jobs:
                   index_content = re.sub(pattern, new_array_str, index_content)
                   with open('index.html', 'w', encoding='utf-8') as f:
                       f.write(index_content)
-                  print("تم تحديث index.html بنجاح!")
+                  print("✨ تم تحديث index.html بنجاح بالأسماء الجديدة!")
           EOF
 
       - name: Commit and push changes
@@ -108,4 +110,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Precise multi games detection and cleaning" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Ultimate fix for multiplayer classification and button cleanup" && git push)
