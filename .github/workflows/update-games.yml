@@ -1,4 +1,4 @@
-name: Auto Detect and Update Multiplayer Games
+name: Precise Room Detection and Smart Button
 
 on:
   push:
@@ -19,16 +19,18 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Auto Detection & Smart Button Injection
+      - name: Run Exact Button Matcher & Injector
         run: |
           python3 - << 'EOF'
           import os
+          import re
           import json
 
-          smart_button_code = """
-          <script>
+          smart_button_code = """<script>
               window.addEventListener('DOMContentLoaded', () => {
+                  if (document.getElementById('smartCopyBtn')) return;
                   const smartBtn = document.createElement('button');
+                  smartBtn.id = 'smartCopyBtn';
                   smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
                   smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999; position: relative;";
                   
@@ -43,12 +45,7 @@ jobs:
 
                   document.body.insertBefore(smartBtn, document.body.firstChild);
               });
-          </script>
-          </body>
-          """
-
-          # الكلمات المفتاحية اللي لو لقناها في أي لعبة نعرف فوراً إنها جماعية
-          multi_keywords = ['createroom', 'joingame', 'room_id', 'room', 'multiplayer', 'socket.io', 'peerjs', 'نسخ رابط ذكي']
+          </script>"""
 
           multi_games_list = []
 
@@ -57,20 +54,51 @@ jobs:
                   with open(filename, 'r', encoding='utf-8') as f:
                       content = f.read()
                   
+                  # ندور على الجملة بالظبط أو بمعناها الدقيق جوه الكود (بدون حساسية لحالة الأحرف أو المسافات البسيطة)
                   content_lower = content.lower()
-                  is_multi = any(kw in content_lower for kw in multi_keywords)
+                  
+                  # التأكد من وجود أزرار إنشاء غرفة أو نسخ الرابط الخاصة باللعب الجماعي
+                  has_room_button = ('إنشاء غرفة' in content or 'انشاء غرفة' in content or 'create room' in content_lower)
+                  has_copy_button = ('نسخ الرابط' in content or 'copy link' in content_lower or 'نسخ الروابط' in content)
+                  has_multi_tech = ('peerjs' in content_lower or 'socket.io' in content_lower)
+
+                  # تعتبر اللعبة جماعية لو فيها أزرار الغرف أو تقنيات الربط الجماعي
+                  is_multi = (has_room_button and has_copy_button) or has_multi_tech
 
                   if is_multi:
-                      multi_games_list.append(filename.replace('.html', '').lower())
-                      # إضافة زرار النسخ الذكي لو مش موجود
-                      if "نسخ رابط ذكي للتطبيق" not in content:
+                      multi_games_list.append(filename.replace('.html', '').lower().strip())
+                      
+                      # وضع زرار النسخ الذكي فوق لو مش موجود
+                      if "نسخ رابط ذكي للتطبيق" not in content and "smartCopyBtn" not in content:
                           if "</body>" in content:
-                              new_content = content.replace("</body>", smart_button_code)
+                              content = content.replace("</body>", smart_button_code + "\n</body>")
                               with open(filename, 'w', encoding='utf-8') as f:
-                                  f.write(new_content)
-                              print(f"تم حقن زرار النسخ الذكي في اللعبة الجماعية: {filename}")
+                                  f.write(content)
+                              print(f"تم اعتمادها كـ 'جماعية' وحقن الزرار في: {filename}")
+                  else:
+                      # لو اللعبة فردية، نتأكد إننا شلنا أي زرار نسخ ذكي محطوط بالخطأ
+                      if "نسخ رابط ذكي للتطبيق" in content or "smartCopyBtn" in content:
+                          content = re.sub(r'<script>.*?نسخ رابط ذكي للتطبيق.*?</script>', '', content, flags=r.DOTALL)
+                          with open(filename, 'w', encoding='utf-8') as f:
+                              f.write(content)
+                          print(f"إزالة الزرار من اللعبة الفردية وتصحيحها: {filename}")
 
-          print("الألعاب الجماعية المكتشفة:", multi_games_list)
+          print("قائمة الألعاب الجماعية الدقيقة:", multi_games_list)
+
+          # تحديث ملف index.html أوتوماتيك
+          if os.path.exists('index.html'):
+              with open('index.html', 'r', encoding='utf-8') as f:
+                  index_content = f.read()
+              
+              formatted_list = json.dumps(multi_games_list)
+              pattern = r'const\s+multiGames\s*=\s*\[.*?\];'
+              new_array_str = f'const multiGames = {formatted_list};'
+              
+              if re.search(pattern, index_content):
+                  index_content = re.sub(pattern, new_array_str, index_content)
+                  with open('index.html', 'w', encoding='utf-8') as f:
+                      f.write(index_content)
+                  print("تم تحديث index.html بنجاح!")
           EOF
 
       - name: Commit and push changes
@@ -80,4 +108,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto detect multiplayer games and inject smart button" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Precise multi games detection and cleaning" && git push)
