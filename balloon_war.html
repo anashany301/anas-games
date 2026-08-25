@@ -218,5 +218,25 @@
             }, 1200);
         }
     </script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const smartBtn = document.createElement('button');
+        smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
+        smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999; position: relative;";
+        
+        smartBtn.onclick = function() {
+            let roomUrl = window.location.href; 
+            let smartLink = "https://anas-games-omega.vercel.app/multiplayer-helper.html?url=" + encodeURIComponent(roomUrl);
+            
+            navigator.clipboard.writeText(smartLink).then(() => {
+                alert("تم نسخ الرابط الذكي بنجاح! 🚀 ابعته لصاحبك في الواتساب.");
+            });
+        };
+
+        document.body.insertBefore(smartBtn, document.body.firstChild);
+    });
+</script>
 </body>
+
 </html>
