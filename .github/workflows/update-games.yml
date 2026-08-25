@@ -1,4 +1,4 @@
-name: Clean All Unwanted Buttons
+name: Auto Inject Smart Multiplayer Box
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  clean-games:
+  inject-box:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,11 +19,62 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Remove Smart Button from Single Games
+      - name: Run Auto Injector
         run: |
           python3 - << 'EOF'
           import os
           import re
+
+          # كود صندوق كتابة الاسم وزر النسخ الذكي الموجه لتطبيق الحاوية
+          multiplayer_ui = """
+          <!-- صندوق اللعب الجماعي الذكي الأوتوماتيك -->
+          <div id="multiplayer-box" style="background: #1e293b; padding: 15px; border-radius: 10px; margin: 15px auto; max-width: 320px; border: 1px solid #38bdf8; text-align: center; font-family: sans-serif; z-index: 9999; position: relative;">
+              <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #38bdf8;">👥 غرفة اللعب الجماعي</label>
+              <input type="text" id="playerNameInput" placeholder="اكتب اسمك هنا..." style="width: 80%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; text-align: center; background: #0f172a; color: white; font-size: 14px;">
+              <button id="smartCopyBtn" style="display: block; width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                  📋 نسخ رابط الحاوية الذكي
+              </button>
+          </div>
+
+          <script>
+              window.addEventListener('DOMContentLoaded', () => {
+                  if (document.getElementById('smartCopyBtnAdded')) return;
+                  
+                  // لو البوكس مش موجود أصلاً في الصفحة، بنحقنه فوق خالص
+                  if (!document.getElementById('multiplayer-box')) {
+                      const container = document.createElement('div');
+                      container.id = 'smartCopyBtnAdded';
+                      container.innerHTML = `
+                          <div style="background: #1e293b; padding: 15px; border-radius: 10px; margin: 15px auto; max-width: 320px; border: 1px solid #38bdf8; text-align: center; font-family: sans-serif;">
+                              <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #38bdf8;">👥 غرفة اللعب الجماعي</label>
+                              <input type="text" id="playerNameInput" placeholder="اكتب اسمك هنا..." style="width: 80%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; text-align: center; background: #0f172a; color: white; font-size: 14px;">
+                              <button id="smartCopyBtn" style="display: block; width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                                  📋 نسخ رابط الحاوية الذكي
+                              </button>
+                          </div>
+                      `;
+                      document.body.insertBefore(container, document.body.firstChild);
+                  }
+
+                  document.getElementById('smartCopyBtn').addEventListener('click', function() {
+                      const playerName = document.getElementById('playerNameInput').value.trim();
+                      if (!playerName) {
+                          alert("من فضلك اكتب اسمك الأول يا بطل! 🎮");
+                          document.getElementById('playerNameInput').focus();
+                          return;
+                      }
+
+                      let currentGameUrl = window.location.href.split('?')[0];
+                      let helperUrl = "https://anas-games-omega.vercel.app/multiplayer-helper.html";
+                      let finalDeepLink = `${helperUrl}?url=${encodeURIComponent(currentGameUrl)}&name=${encodeURIComponent(playerName)}`;
+
+                      navigator.clipboard.writeText(finalDeepLink).then(() => {
+                          alert(`تم نسخ الرابط الذكي يا ${playerName}! 🚀 ابعته لصاحبك هيفتح معه الحاوية فوراً.`);
+                      });
+                  });
+              });
+          </script>
+          """
 
           for filename in os.listdir('.'):
               if filename.endswith('.html') and filename != 'index.html' and filename != 'multiplayer-helper.html':
@@ -32,21 +83,21 @@ jobs:
                   
                   content_lower = content.lower()
                   
-                  # هل اللعبة دي جماعية فعلاً؟
+                  # شروط اللعبة الجماعية
                   has_room_btn = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'create room' in content_lower
                   has_tech = 'peerjs' in content_lower or 'socket.io' in content_lower
                   is_multi = has_room_btn or has_tech
 
-                  # لو اللعبة فردية (مش جماعية)، امسح منها أي كود للزرار الذكي ده تماماً
-                  if not is_multi:
-                      # مسح أي سكريبت أو زرار له علاقة بالنسخ الذكي
-                      content = re.sub(r'<script.*?>.*?smartCopyBtn.*?</script>', '', content, flags=re.DOTALL)
-                      content = re.sub(r'<script.*?>.*?نسخ رابط ذكي.*?</script>', '', content, flags=re.DOTALL)
-                      content = re.sub(r'<button[^>]*id="smartCopyBtn"[^>]*>.*?</button>', '', content, flags=re.DOTALL)
-                      
-                      with open(filename, 'w', encoding='utf-8') as f:
-                          f.write(content)
-                      print(f"🧹 تم تنظيف اللعبة الفردية وحذف الزرار منها: {filename}")
+                  # تنظيف أي كود قديم للزرار عشان متكررش
+                  content = re.sub(r'<!-- صندوق اللعب الجماعي الذكي الأوتوماتيك -->.*?</script>', '', content, flags=r.DOTALL)
+
+                  if is_multi:
+                      # لو لعبة جماعية، احقن الكود أوتوماتيك قبل نهاية الـ body
+                      if "</body>" in content:
+                          content = content.replace("</body>", multiplayer_ui + "\n</body>")
+                          with open(filename, 'w', encoding='utf-8') as f:
+                              f.write(content)
+                          print(f"✨ تم حقن صندوق اللعب الجماعي أوتوماتيك في: {filename}")
           EOF
 
       - name: Commit and push changes
@@ -56,4 +107,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Remove smart copy button from all single games" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto inject multiplayer UI box via GitHub Action" && git push)
