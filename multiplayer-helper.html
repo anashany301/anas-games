@@ -13,36 +13,46 @@
 <body>
 
     <div id="loading" class="loading-screen">
-        <p>⏳ جاري تجهيز غرفة اللعب وتحميل اللعبة في الحاوية...</p>
+        <p>⏳ جاري فتح غرفة اللعب داخل الحاوية...</p>
     </div>
 
-    <!-- الإطار الذي سيحتوي على اللعبة الحقيقية -->
     <iframe id="gameFrame" style="display: none;"></iframe>
 
     <script>
-        // قراءة الباراميترات القادمة من الرابط الذكي
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // دعم الطريقتين: سواء ?url= أو ?game= مع ?room=
+        let targetUrl = urlParams.get('url');
         const gameFile = urlParams.get('game');
+        const roomId = urlParams.get('room');
         const playerName = urlParams.get('name');
 
         if (gameFile) {
-            // تخزين اسم اللاعب محلياً عشان اللعبة تقدر تستخدمه
+            targetUrl = `${window.location.origin}/${gameFile}`;
+            if (roomId) {
+                targetUrl += `?room=${roomId}`;
+            }
+        }
+
+        if (targetUrl) {
+            // فك ترميز الرابط لو كان مشفر
+            if (targetUrl.includes('%')) {
+                try { targetUrl = decodeURIComponent(targetUrl); } catch(e){}
+            }
+
             if (playerName) {
                 localStorage.setItem('multiPlayerName', playerName);
             }
 
-            // بناء رابط اللعبة الأساسي بناءً على الدومين الحالي
-            const gameUrl = `${window.location.origin}/${gameFile}`;
-
             const frame = document.getElementById('gameFrame');
-            frame.src = gameUrl;
+            frame.src = targetUrl;
             
             frame.onload = function() {
                 document.getElementById('loading').style.display = 'none';
                 frame.style.display = 'block';
             };
         } else {
-            document.getElementById('loading').innerHTML = `<p style="color: #ef4444;">❌ عذراً، رابط الحاوية غير مكتمل أو مفقود!</p>`;
+            document.getElementById('loading').innerHTML = `<p style="color: #ef4444;">❌ عذراً، رابط الحاوية غير مكتمل!</p>`;
         }
     </script>
 
