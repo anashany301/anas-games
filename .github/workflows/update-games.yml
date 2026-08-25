@@ -25,14 +25,14 @@ jobs:
           import os
           import re
 
-          # كود صندوق اللعب الجماعي وزر النسخ الموجه للحاوية مباشرة
+          # كود صندوق اللعب الجماعي الجديد (يعتمد على الحاوية والأكواد)
           multiplayer_box_code = """
-          <!-- صندوق اللعب الجماعي الذكي الأوتوماتيك -->
+          <!-- صندوق اللعب الجماعي الجديد -->
           <div id="multiplayer-box" style="background: #1e293b; padding: 15px; border-radius: 10px; margin: 15px auto; max-width: 320px; border: 1px solid #38bdf8; text-align: center; font-family: sans-serif; z-index: 9999; position: relative;">
               <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #38bdf8;">👥 غرفة اللعب الجماعي</label>
               <input type="text" id="playerNameInput" placeholder="اكتب اسمك هنا..." style="width: 80%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; text-align: center; background: #0f172a; color: white; font-size: 14px;">
-              <button id="smartCopyBtn" style="display: block; width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
-                  📋 نسخ رابط الحاوية المباشر
+              <button id="smartCopyBtn" style="display: block; width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                  🚀 الانتقال لغرفة الحاوية
               </button>
           </div>
 
@@ -53,9 +53,7 @@ jobs:
                       let helperBaseUrl = "https://anas-games-omega.vercel.app/multiplayer-helper.html";
                       let directHelperLink = `${helperBaseUrl}?game=${currentGameFile}&name=${encodeURIComponent(playerName)}`;
 
-                      navigator.clipboard.writeText(directHelperLink).then(() => {
-                          alert(`تم نسخ رابط الحاوية المباشر يا ${playerName}! 🚀 ابعته لصاحبك هيفتحه يدخله على الحاوية فوراً.`);
-                      });
+                      window.location.href = directHelperLink;
                   });
               });
           </script>
@@ -68,23 +66,21 @@ jobs:
                   
                   content_lower = content.lower()
                   
-                  # شروط كشف الألعاب الجماعية بدقة
                   has_room_btn = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'create room' in content_lower
                   has_tech = 'peerjs' in content_lower or 'socket.io' in content_lower
                   is_multi = has_room_btn or has_tech
 
-                  # تنظيف أي كود قديم للنسخ الذكي عشان متكررش
+                  # تنظيف أي كود قديم للنسخ الذكي
                   content = re.sub(r'<!-- صندوق اللعب الجماعي الذكي الأوتوماتيك -->.*?</script>', '', content, flags=re.DOTALL)
+                  content = re.sub(r'<!-- صندوق اللعب الجماعي الجديد -->.*?</script>', '', content, flags=re.DOTALL)
 
                   if is_multi:
-                      # لو لعبة جماعية، حقن الصندوق والسكربت أوتوماتيك قبل نهاية الـ body
                       if "</body>" in content:
                           content = content.replace("</body>", multiplayer_box_code + "\n</body>")
                           with open(filename, 'w', encoding='utf-8') as f:
                               f.write(content)
-                          print(f"✨ تم حقن صندوق الحاوية أوتوماتيك في اللعبة الجماعية: {filename}")
+                          print(f"✨ تم تحديث وحقن الصندوق الجديد في: {filename}")
                   else:
-                      # لو لعبة فردية، تأكد إنها نضيفة ومفيهاش الكود ده
                       with open(filename, 'w', encoding='utf-8') as f:
                           f.write(content)
           EOF
@@ -96,4 +92,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto inject multiplayer container box via GitHub Action" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update multiplayer box injector to use helper container" && git push)
