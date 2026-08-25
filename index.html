@@ -50,13 +50,13 @@
                 for (const file of files) {
                     if (file.name.endsWith('.html') && file.name !== 'index.html' && file.name !== 'multiplayer-helper.html') {
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
-                        let category = 'single'; // افتراضي
+                        let category = 'single'; // الافتراضي لعبة فردية
 
                         try {
                             const gameRes = await fetch(file.download_url);
                             const gameHtml = await gameRes.text();
                             
-                            // فحص دقيق للألعاب الجماعية بناءً على الشروط الحقيقية
+                            // فحص دقيق للألعاب الجماعية
                             if (
                                 gameHtml.includes('إنشاء غرفة جديدة') || 
                                 gameHtml.includes('انشاء غرفة جديدة') ||
@@ -73,6 +73,8 @@
                         card.href = file.name;
                         card.className = 'game-card';
                         card.setAttribute('data-category', category);
+                        
+                        // وضع علامة جماعية مميزة للألعاب الجماعية
                         card.textContent = `🎮 ${displayName} ${category === 'multi' ? '👥' : ''}`;
 
                         grid.appendChild(card);
