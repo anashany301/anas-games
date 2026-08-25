@@ -2,58 +2,54 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاوية الألعاب الجماعية - فلامينجو 🎮</title>
+    <title>حاوية الألعاب</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; color: white; font-family: sans-serif; overflow: hidden; }
-        #gameFrame { width: 100%; height: 100%; border: none; }
-        .loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 18px; color: #38bdf8; flex-direction: column; gap: 15px; text-align: center; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; color: white; font-family: Tahoma, sans-serif; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .box { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; }
+        input { width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; }
+        button:hover { background: #2563eb; }
+        #gameFrame { width: 100%; height: 100%; border: none; display: none; position: absolute; top: 0; left: 0; }
     </style>
 </head>
 <body>
 
-    <div id="loading" class="loading-screen">
-        <p>⏳ جاري فتح اللعبة داخل الحاوية...</p>
+    <div id="ui-container" class="box">
+        <input type="text" id="playerName" placeholder="اسمك">
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
+        <button onclick="createRoom()">إنشاء غرفة</button>
+        <div id="codeDisplay" style="color: #38bdf8; font-weight: bold; margin: 10px 0; font-size: 18px;"></div>
+        <input type="text" id="roomCode" placeholder="كود الغرفة">
+        <button onclick="joinRoom()">دخول</button>
     </div>
 
-    <iframe id="gameFrame" style="display: none;"></iframe>
+    <iframe id="gameFrame"></iframe>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        let targetUrl = urlParams.get('url');
-        const gameFile = urlParams.get('game');
-        const playerName = urlParams.get('name');
+        const params = new URLSearchParams(window.location.search);
+        const gameFile = params.get('game') || 'index.html';
 
-        // لو جاي اسم ملف مع الباراميترات
-        if (gameFile) {
-            targetUrl = `${window.location.origin}/${gameFile}`;
-            // دمج أي باراميترات إضافية زي الـ room لو موجودة
-            const queryString = window.location.search.replace('?game=' + gameFile, '');
-            if (queryString) {
-                targetUrl += queryString;
-            }
+        function createRoom() {
+            const name = document.getElementById('playerName').value.trim();
+            if(!name) { alert('اكتب اسمك الأول'); return; }
+            const code = Math.random().toString(36).substring(2, 6).toUpperCase();
+            document.getElementById('codeDisplay').innerText = code;
+            setTimeout(() => { loadGame(name, code); }, 2000);
         }
 
-        if (targetUrl) {
-            if (targetUrl.includes('%')) {
-                try { targetUrl = decodeURIComponent(targetUrl); } catch(e){}
-            }
+        function joinRoom() {
+            const name = document.getElementById('playerName').value.trim();
+            const code = document.getElementById('roomCode').value.trim();
+            if(!name || !code) { alert('اكتب الاسم والكود'); return; }
+            loadGame(name, code);
+        }
 
-            if (playerName) {
-                localStorage.setItem('multiPlayerName', playerName);
-            }
-
+        function loadGame(name, code) {
+            document.getElementById('ui-container').style.display = 'none';
             const frame = document.getElementById('gameFrame');
-            frame.src = targetUrl;
-            
-            frame.onload = function() {
-                document.getElementById('loading').style.display = 'none';
-                frame.style.display = 'block';
-            };
-        } else {
-            document.getElementById('loading').innerHTML = `<p style="color: #ef4444;">❌ عذراً، رابط الحاوية غير مكتمل!</p>`;
+            frame.style.display = 'block';
+            frame.src = `${gameFile}?name=${encodeURIComponent(name)}&room=${encodeURIComponent(code)}`;
         }
     </script>
-
 </body>
 </html>
