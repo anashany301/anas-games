@@ -8,7 +8,7 @@
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; direction: rtl; }
         h1 { color: #38bdf8; margin-bottom: 20px; font-size: 24px; }
         
-        .filter-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; direction: rtl; flex-direction: row-reverse; }
+        .filter-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
         .filter-btn { padding: 8px 12px; background: #1e293b; border: 1px solid #38bdf8; color: white; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; }
         .filter-btn.active { background: #38bdf8; color: #0f172a; }
 
@@ -26,21 +26,21 @@
     <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
     <div class="filter-container">
-        <button class="filter-btn active" onclick="filterGames('all', this)">جميع الألعاب</button>
-        <button class="filter-btn" onclick="filterGames('single', this)">👤 ألعاب فردية</button>
         <button class="filter-btn" onclick="filterGames('multi', this)">👥 ألعاب جماعية</button>
+        <button class="filter-btn" onclick="filterGames('single', this)">👤 ألعاب فردية</button>
+        <button class="filter-btn active" onclick="filterGames('all', this)">جميع الألعاب</button>
     </div>
 
     <div class="games-grid" id="gamesGrid">
-        <div class="loading">جاري تحليل وفحص الألعاب أوتوماتيك... ⏳</div>
+        <div class="loading">جاري تحميل الألعاب... ⏳</div>
     </div>
 
     <script>
         const username = "anashany301"; 
         const repo = "anas-games"; 
 
-        // قائمة بأسماء الألعاب الجماعية المعروفة عندك صراحةً لضمان عدم حدوث أي خطأ في الفلترة
-        const multiplayerGames = ['tic-tac-to', 'admin', 'balloon war']; 
+        // حط هنا أسماء ملفات الألعاب الجماعية بالظبط (بدون .html وبحروف صغيرة)
+        const multiGames = ['tic-tac-to', 'admin', 'balloon war'];
 
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
@@ -52,25 +52,11 @@
 
                 for (const file of files) {
                     if (file.name.endsWith('.html') && file.name !== 'index.html' && file.name !== 'multiplayer-helper.html') {
-                        let category = 'single'; 
-                        let fileNameWithoutExt = file.name.replace('.html', '').toLowerCase();
+                        let fileNameWithoutExt = file.name.replace('.html', '').toLowerCase().trim();
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
 
-                        // تحديد الفئة بناءً على القائمة أو محتوى الملف
-                        if (multiplayerGames.includes(fileNameWithoutExt)) {
-                            category = 'multi';
-                        } else {
-                            try {
-                                const fileResponse = await fetch(file.download_url);
-                                let fileContent = await fileResponse.text();
-                                const multiKeywords = ['createroom', 'joingame', 'room_id', 'multiplayer', 'socket.io', 'peerjs'];
-                                if (multiKeywords.some(keyword => fileContent.toLowerCase().includes(keyword))) {
-                                    category = 'multi';
-                                }
-                            } catch (err) {
-                                console.log("تعذر فحص المحتوى:", file.name);
-                            }
-                        }
+                        // تحديد الفئة بشكل صريح ومباشر بدون تخمين
+                        let category = multiGames.includes(fileNameWithoutExt) ? 'multi' : 'single';
 
                         const card = document.createElement('a');
                         card.href = file.name;
