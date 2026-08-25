@@ -41,6 +41,52 @@
 </head>
 <body>
 
+<!-- نظام أكواد الغرف المُحقن أوتوماتيكياً -->
+<div id="room-system-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 99999; display: flex; align-items: center; justify-content: center; font-family: Tahoma, sans-serif; color: white; direction: rtl;">
+    <div style="background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; border: 1px solid #38bdf8;">
+        <h3 style="color: #38bdf8; margin-top: 0;">غرفة الألعاب الذكية</h3>
+        <input type="text" id="autoPlayerName" placeholder="اكتب اسمك هنا" style="width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none;">
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
+        <button onclick="autoCreateRoom()" style="background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold;">إنشاء غرفة جديدة</button>
+        <div id="autoCodeDisplay" style="color: #38bdf8; font-weight: bold; margin: 12px 0; font-size: 22px; letter-spacing: 2px;"></div>
+        <input type="text" id="autoRoomCode" placeholder="أدخل كود الغرفة" style="width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none;">
+        <button onclick="autoJoinRoom()" style="background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold;">دخول اللعبة</button>
+    </div>
+</div>
+
+<script>
+    // جلب الاسم والكود لو موجودين في الرابط مسبقاً
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pName = urlParams.get('name');
+        const pRoom = urlParams.get('room');
+        if (pName) document.getElementById('autoPlayerName').value = decodeURIComponent(pName);
+        if (pRoom) {
+            document.getElementById('autoRoomCode').value = decodeURIComponent(pRoom);
+            // إخفاء الشاشة فوراً والدخول لو الكود والاسم جاهزين
+            if(pName) document.getElementById('room-system-overlay').style.display = 'none';
+        }
+    });
+
+    function autoCreateRoom() {
+        const name = document.getElementById('autoPlayerName').value.trim();
+        if(!name) { alert('من فضلك اكتب اسمك الأول!'); return; }
+        const code = Math.random().toString(36).substring(2, 6).toUpperCase();
+        document.getElementById('autoCodeDisplay').innerText = code;
+        setTimeout(() => {
+            document.getElementById('room-system-overlay').style.display = 'none';
+        }, 2500);
+    }
+
+    function autoJoinRoom() {
+        const name = document.getElementById('autoPlayerName').value.trim();
+        const code = document.getElementById('autoRoomCode').value.trim();
+        if(!name || !code) { alert('اكتب اسمك وكود الغرفة من فضلك!'); return; }
+        document.getElementById('room-system-overlay').style.display = 'none';
+    }
+</script>
+
+
     <h1>♟️ شطرنج الأساطير (أونلاين) 👑</h1>
 
     <!-- شاشة إدخال الاسم -->
