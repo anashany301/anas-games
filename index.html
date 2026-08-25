@@ -39,8 +39,8 @@
         const username = "anashany301"; 
         const repo = "anas-games"; 
 
-        // قائمة الألعاب الجماعية (أي لعبة جماعية عندك ضيف اسمها هنا بحروف صغيرة وبدون .html)
-        const multiGames = ['tic-tac-to', 'admin', 'balloon war', 'rock paper scissors', 'secret number'];
+        // السطر ده مهم جداً: سيبه فاضي كده، وبوت الجيت هب أكشن (GitHub Action) هو اللي هيحدثه أوتوماتيك ويكتب فيه الألعاب الصح!
+        const multiGames = [];
 
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
@@ -55,14 +55,16 @@
                         let fileNameWithoutExt = file.name.replace('.html', '').toLowerCase().trim();
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
 
-                        // تحديد الفئة فوري وسريع من اسم الملف بدون فحص ثقيل
+                        // بما إن البوت حدث قائمة (multiGames) فوق، فالفلترة هنا هتكون في جزء من الثانية ⚡
                         let category = multiGames.includes(fileNameWithoutExt) ? 'multi' : 'single';
 
                         const card = document.createElement('a');
                         card.href = file.name;
                         card.className = 'game-card';
                         card.setAttribute('data-category', category);
-                        card.textContent = `🎮 ${displayName}`;
+                        
+                        // هيحط إيموجي 👥 جنب اسم اللعبة لو هي جماعية عشان شكلها يبقى أحلى
+                        card.textContent = `🎮 ${displayName} ${category === 'multi' ? '👥' : ''}`;
 
                         grid.appendChild(card);
                     }
