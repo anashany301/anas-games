@@ -62,7 +62,7 @@
                             if (isMulti) {
                                 category = 'multi';
                                 
-                                // التعديل السحري: حقن سكربت جوه الكود لتعديل زر النسخ أوتوماتيك داخل اللعبة
+                                // حقن كود الرابط العميق لتعديل زر النسخ داخل الألعاب الجماعية تلقائياً
                                 fileContent = fileContent.replace('</body>', `
                                     <script>
                                         window.addEventListener('DOMContentLoaded', () => {
@@ -71,9 +71,13 @@
                                                 if(btn.innerText.includes('نسخ') || btn.id.includes('copy')) {
                                                     btn.onclick = function(e) {
                                                         e.preventDefault();
-                                                        let roomUrl = window.location.href;
-                                                        navigator.clipboard.writeText(roomUrl).then(() => {
-                                                            alert("تم نسخ رابط الغرفة بنجاح! 🚀 ابعته لصاحبك.");
+                                                        let roomUrl = window.location.href; // رابط الغرفة الكامل
+                                                        
+                                                        // تحويله لرابط عميق متوافق مع تطبيق الحاوية WebintoApp
+                                                        let deepLink = "flamengogames://open?url=" + encodeURIComponent(roomUrl);
+                                                        
+                                                        navigator.clipboard.writeText(deepLink).then(() => {
+                                                            alert("تم نسخ الرابط العميق الذكي بنجاح! 🚀 ابعته لصاحبك.");
                                                         });
                                                     }
                                                 }
@@ -86,7 +90,7 @@
                             console.log("تعذر فحص محتوى الملف:", file.name);
                         }
 
-                        // إنشاء كارت اللعبة النظيف في الواجهة برة (من غير أزرار غريبة)
+                        // إنشاء كارت اللعبة النظيف في الواجهة برة
                         const card = document.createElement('a');
                         card.href = file.name;
                         card.className = 'game-card';
