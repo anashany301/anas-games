@@ -2,18 +2,26 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مكتبة ألعاب فلامينجو 🎮</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; }
+        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; }
         h1 { color: #38bdf8; margin-bottom: 20px; font-size: 24px; }
         
         .filter-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
         .filter-btn { padding: 8px 12px; background: #1e293b; border: 1px solid #38bdf8; color: white; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; }
         .filter-btn.active { background: #38bdf8; color: #0f172a; }
 
-        .games-grid { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto; }
-        .game-card { padding: 15px; background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 15px; transition: 0.3s; display: block; }
-        .game-card:hover { background: #334155; }
+        .games-grid { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto; }
+        
+        .game-card-wrapper { background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .game-link { text-decoration: none; color: white; font-weight: bold; font-size: 15px; display: block; text-align: right; }
+        .game-link:hover { color: #38bdf8; }
+        
+        /* زرار نسخ الرابط الذكي للألعاب الجماعية من الواجهة برة */
+        .smart-share-btn { background: #0284c7; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: bold; width: 100%; }
+        .smart-share-btn:hover { background: #38bdf8; color: #0f172a; }
+
         .hidden { display: none !important; }
         .loading { color: #38bdf8; font-size: 16px; margin-top: 20px; }
     </style>
@@ -45,7 +53,8 @@
                 grid.innerHTML = ""; 
 
                 for (const file of files) {
-                    if (file.name.endsWith('.html') && file.name !== 'index.html') {
+                    // الشرط المحدث لاستبعاد الـ index وأي ملفات مساعدة مثل الـ helper
+                    if (file.name.endsWith('.html') && file.name !== 'index.html' && file.name !== 'multiplayer-helper.html') {
                         let category = 'single'; 
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
 
@@ -63,14 +72,40 @@
                             console.log("تعذر فحص محتوى الملف:", file.name);
                         }
 
-                        // إنشاء كارت اللعبة بالشكل الطبيعي النظيف من غير أي أزرار غريبة بره
+                        // إنشاء الحاوية الخاصة باللعبة
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'game-card-wrapper';
+                        wrapper.setAttribute('data-category', category);
+
+                        // رابط اللعبة الأساسي
                         const card = document.createElement('a');
                         card.href = file.name;
-                        card.className = 'game-card';
-                        card.setAttribute('data-category', category);
-                        card.textContent = displayName;
+                        card.className = 'game-link';
+                        card.textContent = `🎮 ${displayName}`;
+                        wrapper.appendChild(card);
 
-                        grid.appendChild(card);
+                        // لو اللعبة جماعية، نضيف ليها زرار نسخ الرابط الذكي (Deep Link) مباشرة من بره
+                        if (category === 'multi') {
+                            const shareBtn = document.createElement('button');
+                            shareBtn.className = 'smart-share-btn';
+                            shareBtn.textContent = '🔗 نسخ رابط الغرفة الذكي';
+                            
+                            shareBtn.onclick = () => {
+                                // رابط الصفحة المباشر للعبة
+                                let gameUrl = window.location.origin + window.location.pathname.replace('index.html', '') + file.name;
+                                
+                                // تحويله لرابط عميق يفتح التطبيق مباشرة
+                                let smartLink = `flamengogames://open?url=` + encodeURIComponent(gameUrl);
+                                
+                                navigator.clipboard.writeText(smartLink).then(() => {
+                                    alert("تم نسخ رابط الغرفة الذكي بنجاح! 🚀 ابعته لصاحبك.");
+                                });
+                            };
+                            
+                            wrapper.appendChild(shareBtn);
+                        }
+
+                        grid.appendChild(wrapper);
                     }
                 }
             } catch (error) {
@@ -83,13 +118,13 @@
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            const cards = document.querySelectorAll('.game-card');
-            cards.forEach(card => {
-                const cardCategory = card.getAttribute('data-category');
+            const wrappers = document.querySelectorAll('.game-card-wrapper');
+            wrappers.forEach(wrapper => {
+                const cardCategory = wrapper.getAttribute('data-category');
                 if (category === 'all' || cardCategory === category) {
-                    card.classList.remove('hidden');
+                    wrapper.classList.remove('hidden');
                 } else {
-                    card.classList.add('hidden');
+                    wrapper.classList.add('hidden');
                 }
             });
         }
