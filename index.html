@@ -32,15 +32,12 @@
     </div>
 
     <div class="games-grid" id="gamesGrid">
-        <div class="loading">جاري التحميل... ⏳</div>
+        <div class="loading">جاري فحص وتصنيف الألعاب بدقة... ⏳</div>
     </div>
 
     <script>
         const username = "anashany301"; 
         const repo = "anas-games"; 
-
-        // السطر ده مهم جداً: سيبه فاضي كده، وبوت الجيت هب أكشن (GitHub Action) هو اللي هيحدثه أوتوماتيك ويكتب فيه الألعاب الصح!
-        const multiGames = [];
 
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
@@ -52,18 +49,33 @@
 
                 for (const file of files) {
                     if (file.name.endsWith('.html') && file.name !== 'index.html' && file.name !== 'multiplayer-helper.html') {
-                        let fileNameWithoutExt = file.name.replace('.html', '').toLowerCase().trim();
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
+                        let category = 'single'; // الافتراضي لعبة فردية
 
-                        // بما إن البوت حدث قائمة (multiGames) فوق، فالفلترة هنا هتكون في جزء من الثانية ⚡
-                        let category = multiGames.includes(fileNameWithoutExt) ? 'multi' : 'single';
+                        try {
+                            // جلب محتوى ملف اللعبة لفحصه بذكاء
+                            const gameRes = await fetch(file.download_url);
+                            const gameHtml = await gameRes.text();
+                            
+                            // فحص وجود زر إنشاء الغرفة أو تقنيات اللعب الجماعي الحقيقية
+                            if (
+                                gameHtml.includes('إنشاء غرفة جديدة') || 
+                                gameHtml.includes('انشاء غرفة جديدة') ||
+                                gameHtml.toLowerCase().includes('peerjs') || 
+                                gameHtml.toLowerCase().includes('socket.io')
+                            ) {
+                                category = 'multi';
+                            }
+                        } catch (e) {
+                            console.log("خطأ في فحص الملف:", file.name);
+                        }
 
                         const card = document.createElement('a');
                         card.href = file.name;
                         card.className = 'game-card';
                         card.setAttribute('data-category', category);
                         
-                        // هيحط إيموجي 👥 جنب اسم اللعبة لو هي جماعية عشان شكلها يبقى أحلى
+                        // وضع علامة جماعية مميزة للألعاب الجماعية
                         card.textContent = `🎮 ${displayName} ${category === 'multi' ? '👥' : ''}`;
 
                         grid.appendChild(card);
