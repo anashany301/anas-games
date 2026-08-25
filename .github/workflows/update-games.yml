@@ -1,4 +1,4 @@
-name: Precise Button Injection
+name: Clean All Unwanted Buttons
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  update-games:
+  clean-games:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,32 +19,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Strict Injector & Cleaner
+      - name: Remove Smart Button from Single Games
         run: |
           python3 - << 'EOF'
           import os
           import re
-
-          smart_button_code = """<script id="smartCopyScript">
-              window.addEventListener('DOMContentLoaded', () => {
-                  if (document.getElementById('smartCopyBtn')) return;
-                  const smartBtn = document.createElement('button');
-                  smartBtn.id = 'smartCopyBtn';
-                  smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
-                  smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999; position: relative;";
-                  
-                  smartBtn.onclick = function() {
-                      let roomUrl = window.location.href; 
-                      let smartLink = "https://anas-games-omega.vercel.app/multiplayer-helper.html?url=" + encodeURIComponent(roomUrl);
-                      
-                      navigator.clipboard.writeText(smartLink).then(() => {
-                          alert("تم نسخ الرابط الذكي بنجاح! 🚀 ابعته لصاحبك.");
-                      });
-                  };
-
-                  document.body.insertBefore(smartBtn, document.body.firstChild);
-              });
-          </script>"""
 
           for filename in os.listdir('.'):
               if filename.endswith('.html') and filename != 'index.html' and filename != 'multiplayer-helper.html':
@@ -53,28 +32,21 @@ jobs:
                   
                   content_lower = content.lower()
                   
-                  # الشروط الصارمة جداً للألعاب الجماعية
+                  # هل اللعبة دي جماعية فعلاً؟
                   has_room_btn = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'create room' in content_lower
                   has_tech = 'peerjs' in content_lower or 'socket.io' in content_lower
+                  is_multi = has_room_btn or has_tech
 
-                  is_truly_multi = has_room_btn or has_tech
-
-                  # تنظيف أي زرار قديم موجود بالملف أولاً
-                  content = re.sub(r'<script.*?>.*?smartCopyBtn.*?</script>', '', content, flags=r.DOTALL)
-                  content = re.sub(r'<script id="smartCopyScript">.*?</script>', '', content, flags=r.DOTALL)
-
-                  if is_truly_multi:
-                      # لو لعبة جماعية حقن الزرار بداخلها
-                      if "</body>" in content:
-                          content = content.replace("</body>", smart_button_code + "\n</body>")
-                          print(f"✅ حقن زر النسخ الذكي في اللعبة الجماعية: {filename}")
-                      else:
-                          content += "\n" + smart_button_code
-                  else:
-                      print(f"🧹 تنظيف وإزالة زر النسخ من اللعبة الفردية: {filename}")
-
-                  with open(filename, 'w', encoding='utf-8') as f:
-                      f.write(content)
+                  # لو اللعبة فردية (مش جماعية)، امسح منها أي كود للزرار الذكي ده تماماً
+                  if not is_multi:
+                      # مسح أي سكريبت أو زرار له علاقة بالنسخ الذكي
+                      content = re.sub(r'<script.*?>.*?smartCopyBtn.*?</script>', '', content, flags=re.DOTALL)
+                      content = re.sub(r'<script.*?>.*?نسخ رابط ذكي.*?</script>', '', content, flags=re.DOTALL)
+                      content = re.sub(r'<button[^>]*id="smartCopyBtn"[^>]*>.*?</button>', '', content, flags=re.DOTALL)
+                      
+                      with open(filename, 'w', encoding='utf-8') as f:
+                          f.write(content)
+                      print(f"🧹 تم تنظيف اللعبة الفردية وحذف الزرار منها: {filename}")
           EOF
 
       - name: Commit and push changes
@@ -84,4 +56,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Strictly inject smart button only for multi games and cleanup singles" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Remove smart copy button from all single games" && git push)
