@@ -3,27 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فتح اللعبة الجماعية 🚀</title>
+    <title>حاوية الألعاب الجماعية - فلامينجو 🎮</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 40px 20px; }
-        h2 { color: #38bdf8; }
-        p { color: #94a3b8; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; color: white; font-family: sans-serif; overflow: hidden; }
+        #gameFrame { width: 100%; height: 100%; border: none; }
+        .loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 18px; color: #38bdf8; flex-direction: column; gap: 15px; text-align: center; }
     </style>
 </head>
 <body>
-    <h2>جاري توجيهك للعبة الجماعية... 🎮</h2>
-    <p>برجاء الانتظار لحظات فتح الغرفة.</p>
+
+    <div id="loading" class="loading-screen">
+        <p>⏳ جاري تجهيز غرفة اللعب وتحميل اللعبة في الحاوية...</p>
+    </div>
+
+    <!-- الإطار الذي سيحتوي على اللعبة الحقيقية -->
+    <iframe id="gameFrame" style="display: none;"></iframe>
 
     <script>
-        // استخراج الرابط المرسل في البارامتر وتوجيه التطبيق عليه فوراً
+        // قراءة الباراميترات القادمة من الرابط الذكي
         const urlParams = new URLSearchParams(window.location.search);
-        const targetUrl = urlParams.get('url');
+        const gameFile = urlParams.get('game');
+        const playerName = urlParams.get('name');
 
-        if (targetUrl) {
-            window.location.href = targetUrl;
+        if (gameFile) {
+            // تخزين اسم اللاعب محلياً عشان اللعبة تقدر تستخدمه
+            if (playerName) {
+                localStorage.setItem('multiPlayerName', playerName);
+            }
+
+            // بناء رابط اللعبة الأساسي بناءً على الدومين الحالي
+            const gameUrl = `${window.location.origin}/${gameFile}`;
+
+            const frame = document.getElementById('gameFrame');
+            frame.src = gameUrl;
+            
+            frame.onload = function() {
+                document.getElementById('loading').style.display = 'none';
+                frame.style.display = 'block';
+            };
         } else {
-            window.location.href = "https://anas-games-omega.vercel.app";
+            document.getElementById('loading').innerHTML = `<p style="color: #ef4444;">❌ عذراً، رابط الحاوية غير مكتمل أو مفقود!</p>`;
         }
     </script>
+
 </body>
 </html>
