@@ -66,56 +66,7 @@
         </div>
     </div>
 
-    <script>
-        const SECRET_KEY = "anas2026secret";
-
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const keyParam = urlParams.get('key');
-            let savedAuth = localStorage.getItem("admin_authenticated");
-
-            if (keyParam === SECRET_KEY || savedAuth === "true") {
-                localStorage.setItem("admin_authenticated", "true");
-                fetchVisits();
-            } else {
-                document.body.innerHTML = "<h2 style='color:#f85149; text-align:center; margin-top:100px;'>عذراً، غير مسموح بالدخول!</h2>";
-            }
-        };
-
-        function fetchVisits() {
-            document.getElementById("total-visits").innerText = "جارٍ التحديث...";
-            
-            // استخدام API بديل ومستقر لعداد الزيارات
-            fetch('https://api.countapi.xyz/hit/anas-games-omega.vercel.app/visits')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("total-visits").innerText = data.value;
-                })
-                .catch(error => {
-                    // لو الـ API القديم معلق، نجرب مسار آخر أو نعرض قيمة افتراضية
-                    document.getElementById("total-visits").innerText = "1 (نشط)";
-                });
-        }
-    </script>
-
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const smartBtn = document.createElement('button');
-        smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
-        smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999; position: relative;";
-        
-        smartBtn.onclick = function() {
-            let roomUrl = window.location.href; 
-            let smartLink = "https://anas-games-omega.vercel.app/multiplayer-helper.html?url=" + encodeURIComponent(roomUrl);
-            
-            navigator.clipboard.writeText(smartLink).then(() => {
-                alert("تم نسخ الرابط الذكي بنجاح! 🚀 ابعته لصاحبك في الواتساب.");
-            });
-        };
-
-        document.body.insertBefore(smartBtn, document.body.firstChild);
-    });
-</script>
+    
 </body>
 
 </html>
