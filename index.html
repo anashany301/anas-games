@@ -40,7 +40,7 @@
         const repo = "anas-games"; 
 
         async function fetchAndAnalyzeGames() {
-            const grid =, document.getElementById('gamesGrid');
+            const grid = document.getElementById('gamesGrid');
             try {
                 const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
                 const files = await response.json();
@@ -62,19 +62,15 @@
                             if (isMulti) {
                                 category = 'multi';
                                 
-                                // الحقن الذكي: إضافة زرار "نسخ رابط ذكي" وتنسيقه جوه اللعبة قرب حقل كتابة الاسم أو الأزرار أوتوماتيك
                                 fileContent = fileContent.replace('</body>', `
                                     <script>
                                         window.addEventListener('DOMContentLoaded', () => {
-                                            // إنشاء زرار جديد لنسخ الرابط الذكي
                                             const smartBtn = document.createElement('button');
                                             smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
                                             smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
                                             
                                             smartBtn.onclick = function() {
-                                                let roomUrl = window.location.href; // رابط الغرفة الحالي
-                                                
-                                                // نحطه في رابط المساعد أو رابط مباشر يقبله التطبيق
+                                                let roomUrl = window.location.href; 
                                                 let smartLink = "https://anas-games-omega.vercel.app/multiplayer-helper.html?url=" + encodeURIComponent(roomUrl);
                                                 
                                                 navigator.clipboard.writeText(smartLink).then(() => {
@@ -82,7 +78,6 @@
                                                 });
                                             };
 
-                                            // محاولة إيجاد مكان مناسب (جانب حقل الادخال أو زر الانضمام) وإدراج الزرار تحته
                                             const inputField = document.querySelector('input') || document.querySelector('button');
                                             if (inputField && inputField.parentNode) {
                                                 inputField.parentNode.insertBefore(smartBtn, inputField.nextSibling);
