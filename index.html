@@ -23,7 +23,7 @@
 </head>
 <body>
 
-    <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
+    <h1>مكتبة ألعاب أنس 🕹️</h1>
 
     <div class="filter-container">
         <button class="filter-btn active" onclick="filterGames('all', this)">جميع الألعاب</button>
@@ -62,27 +62,17 @@
                             if (isMulti) {
                                 category = 'multi';
                                 
-                                // حقن كود الرابط العميق لتعديل زر النسخ داخل الألعاب الجماعية تلقائياً
+                                // حقن سكربت تحويل الرابط إلى رابط عميق (Deep Link) بالاعتماد على موقعك Vercel
                                 fileContent = fileContent.replace('</body>', `
                                     <script>
-                                        window.addEventListener('DOMContentLoaded', () => {
-                                            const buttons = document.querySelectorAll('button');
-                                            buttons.forEach(btn => {
-                                                if(btn.innerText.includes('نسخ') || btn.id.includes('copy')) {
-                                                    btn.onclick = function(e) {
-                                                        e.preventDefault();
-                                                        let roomUrl = window.location.href; // رابط الغرفة الكامل
-                                                        
-                                                        // تحويله لرابط عميق متوافق مع تطبيق الحاوية WebintoApp
-                                                        let deepLink = "flamengogames://open?url=" + encodeURIComponent(roomUrl);
-                                                        
-                                                        navigator.clipboard.writeText(deepLink).then(() => {
-                                                            alert("تم نسخ الرابط العميق الذكي بنجاح! 🚀 ابعته لصاحبك.");
-                                                        });
-                                                    }
-                                                }
-                                            });
-                                        });
+                                        const originalClipboard = navigator.clipboard.writeText;
+                                        navigator.clipboard.writeText = function(text) {
+                                            if (text && text.includes('http')) {
+                                                // استخدام Scheme التطبيق مع موقعك Vercel
+                                                text = "anasgames://open?url=" + encodeURIComponent(text);
+                                            }
+                                            return originalClipboard.call(navigator.clipboard, text);
+                                        };
                                     <\/script>
                                 </body>`);
                             }
@@ -90,7 +80,6 @@
                             console.log("تعذر فحص محتوى الملف:", file.name);
                         }
 
-                        // إنشاء كارت اللعبة النظيف في الواجهة برة
                         const card = document.createElement('a');
                         card.href = file.name;
                         card.className = 'game-card';
