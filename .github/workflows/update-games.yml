@@ -1,0 +1,71 @@
+name: Auto Add Smart Button to Games
+
+on:
+  push:
+    branches:
+      - main # أو master حسب اسم الفرع الأساسي عندك
+
+jobs:
+  update-games:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Injection Script
+        run: |
+          python3 - << 'EOF'
+          import os
+
+          # كود حقن الزرار الذكي
+          smart_button_code = """
+          <script>
+              window.addEventListener('DOMContentLoaded', () => {
+                  const smartBtn = document.createElement('button');
+                  smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
+                  smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999; position: relative;";
+                  
+                  smartBtn.onclick = function() {
+                      let roomUrl = window.location.href; 
+                      let smartLink = "https://anas-games-omega.vercel.app/multiplayer-helper.html?url=" + encodeURIComponent(roomUrl);
+                      
+                      navigator.clipboard.writeText(smartLink).then(() => {
+                          alert("تم نسخ الرابط الذكي بنجاح! 🚀 ابعته لصاحبك في الواتساب.");
+                      });
+                  };
+
+                  document.body.insertBefore(smartBtn, document.body.firstChild);
+              });
+          </script>
+          </body>
+          """
+
+          for filename in os.listdir('.'):
+              if filename.endswith('.html') and filename != 'index.html' and filename != 'multiplayer-helper.html':
+                  with open(filename, 'r', encoding='utf-8') as f:
+                      content = f.read()
+                  
+                  # لو الزرار مش موجود قبل كده، حطه
+                  if "نسخ رابط ذكي للتطبيق" not in content:
+                      if "</body>" in content:
+                          new_content = content.replace("</body>", smart_button_code)
+                          with open(filename, 'w', encoding='utf-8') as f:
+                              f.write(new_content)
+                          print(f"تم تحديث: {filename}")
+          EOF
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "action@github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-inject smart copy button to games" && git push)
