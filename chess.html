@@ -274,12 +274,15 @@
 
 
 
-<!-- صندوق اللعب الجماعي الذكي الأوتوماتيك -->
+
+
+
+<!-- صندوق اللعب الجماعي الجديد -->
 <div id="multiplayer-box" style="background: #1e293b; padding: 15px; border-radius: 10px; margin: 15px auto; max-width: 320px; border: 1px solid #38bdf8; text-align: center; font-family: sans-serif; z-index: 9999; position: relative;">
     <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #38bdf8;">👥 غرفة اللعب الجماعي</label>
     <input type="text" id="playerNameInput" placeholder="اكتب اسمك هنا..." style="width: 80%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; text-align: center; background: #0f172a; color: white; font-size: 14px;">
-    <button id="smartCopyBtn" style="display: block; width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
-        📋 نسخ رابط الحاوية المباشر
+    <button id="smartCopyBtn" style="display: block; width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
+        🚀 الانتقال لغرفة الحاوية
     </button>
 </div>
 
@@ -300,9 +303,7 @@
             let helperBaseUrl = "https://anas-games-omega.vercel.app/multiplayer-helper.html";
             let directHelperLink = `${helperBaseUrl}?game=${currentGameFile}&name=${encodeURIComponent(playerName)}`;
 
-            navigator.clipboard.writeText(directHelperLink).then(() => {
-                alert(`تم نسخ رابط الحاوية المباشر يا ${playerName}! 🚀 ابعته لصاحبك هيفتحه يدخله على الحاوية فوراً.`);
-            });
+            window.location.href = directHelperLink;
         });
     });
 </script>
