@@ -1,4 +1,4 @@
-name: Pure In-Game Room Codes Injection
+name: Permanent Room Code System
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  inject-pure-code:
+  permanent-injection:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,14 +19,14 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Inject Clean Room Code UI directly into games
+      - name: Clean and Inject Pure Room Codes UI
         run: |
           python3 - << 'EOF'
           import os
           import re
 
-          # واجهة نظيفة بالكامل تظهر جوه اللعبة مباشرة بأكواد الغرف بدون أي لينكات أو واجهات قديمة
-          pure_room_ui = """
+          # واجهة أكواد الغرف المباشرة والصافية تماماً
+          pure_ui = """
           <!-- واجهة أكواد الغرف المباشرة -->
           <div id="pure-room-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 999999; display: flex; align-items: center; justify-content: center; font-family: Tahoma, sans-serif; color: white; direction: rtl;">
               <div style="background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; border: 1px solid #38bdf8;">
@@ -61,30 +61,23 @@ jobs:
           """
 
           for filename in os.listdir('.'):
-              if filename.endswith('.html') and filename != 'index.html' and filename != 'multiplayer-helper.html':
+              if filename.endswith('.html') and filename not in ['index.html', 'multiplayer-helper.html']:
                   with open(filename, 'r', encoding='utf-8') as f:
                       content = f.read()
                   
                   content_lower = content.lower()
-                  has_room_btn = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'create room' in content_lower
-                  has_tech = 'peerjs' in content_lower or 'socket.io' in content_lower
-                  is_multi = has_room_btn or has_tech
+                  is_multi = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'peerjs' in content_lower or 'socket.io' in content_lower
 
-                  # مسح أي واجهات أو أكواد قديمة محقونة مسبقاً بالكامل
-                  content = re.sub(r'<!-- نظام أكواد الغرف المُحقن أوتوماتيكياً -->.*?</script>', '', content, flags=root_flags := re.DOTALL)
-                  content = re.sub(r'<!-- واجهة أكواد الغرف المباشرة -->.*?</script>', '', content, flags=re.DOTALL)
-                  content = re.sub(r'<!-- صندوق اللعب الجماعي.*?</script>', '', content, flags=re.DOTALL)
+                  # مسح أي قديم تماماً من جذوره
+                  content = re.sub(r'<!-- (نظام أكواد الغرف المُحقن أوتوماتيكياً|واجهة أكواد الغرف المباشرة|صندوق اللعب الجماعي).*?</script>', '', content, flags=re.DOTALL)
 
-                  # إذا كانت اللعبة جماعية، احقن الواجهة النظيفة الجديدة مباشرة أول الـ body
-                  if is_multi:
-                      if "<body>" in content:
-                          content = content.replace("<body>", "<body>\n" + pure_room_ui)
-                          with open(filename, 'w', encoding='utf-8') as f:
-                              f.write(content)
-                          print(f"✨ تم حقن واجهة الأكواد المباشرة في: {filename}")
-                  else:
-                      with open(filename, 'w', encoding='utf-8') as f:
-                          f.write(content)
+                  # الحقن في الألعاب الجماعية فقط
+                  if is_multi and "<body>" in content:
+                      content = content.replace("<body>", "<body>\n" + pure_ui)
+                  
+                  with open(filename, 'w', encoding='utf-8') as f:
+                      f.write(content)
+                  print(f"تمت معالجة الملف بنجاح: {filename}")
           EOF
 
       - name: Commit and push changes
@@ -94,4 +87,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Inject pure in-game room codes UI" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Permanent clean and inject pure room code system" && git push)
