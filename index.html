@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة ألعاب أنس 🎮</title>
+    <title>مكتبة ألعاب فلامينجو 🎮</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; }
         h1 { color: #38bdf8; margin-bottom: 20px; font-size: 24px; }
@@ -23,7 +23,7 @@
 </head>
 <body>
 
-    <h1>مكتبة ألعاب أنس 🕹️</h1>
+    <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
     <div class="filter-container">
         <button class="filter-btn active" onclick="filterGames('all', this)">جميع الألعاب</button>
@@ -67,7 +67,7 @@
                                         window.addEventListener('DOMContentLoaded', () => {
                                             const smartBtn = document.createElement('button');
                                             smartBtn.innerHTML = "📋 نسخ رابط ذكي للتطبيق";
-                                            smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
+                                            smartBtn.style.cssText = "display: block; margin: 15px auto; padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999; position: relative;";
                                             
                                             smartBtn.onclick = function() {
                                                 let roomUrl = window.location.href; 
@@ -78,12 +78,7 @@
                                                 });
                                             };
 
-                                            const inputField = document.querySelector('input') || document.querySelector('button');
-                                            if (inputField && inputField.parentNode) {
-                                                inputField.parentNode.insertBefore(smartBtn, inputField.nextSibling);
-                                            } else {
-                                                document.body.appendChild(smartBtn);
-                                            }
+                                            document.body.insertBefore(smartBtn, document.body.firstChild);
                                         });
                                     <\/script>
                                 </body>`);
