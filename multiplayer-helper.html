@@ -13,29 +13,28 @@
 <body>
 
     <div id="loading" class="loading-screen">
-        <p>⏳ جاري فتح غرفة اللعب داخل الحاوية...</p>
+        <p>⏳ جاري فتح اللعبة داخل الحاوية...</p>
     </div>
 
     <iframe id="gameFrame" style="display: none;"></iframe>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // دعم الطريقتين: سواء ?url= أو ?game= مع ?room=
         let targetUrl = urlParams.get('url');
         const gameFile = urlParams.get('game');
-        const roomId = urlParams.get('room');
         const playerName = urlParams.get('name');
 
+        // لو جاي اسم ملف مع الباراميترات
         if (gameFile) {
             targetUrl = `${window.location.origin}/${gameFile}`;
-            if (roomId) {
-                targetUrl += `?room=${roomId}`;
+            // دمج أي باراميترات إضافية زي الـ room لو موجودة
+            const queryString = window.location.search.replace('?game=' + gameFile, '');
+            if (queryString) {
+                targetUrl += queryString;
             }
         }
 
         if (targetUrl) {
-            // فك ترميز الرابط لو كان مشفر
             if (targetUrl.includes('%')) {
                 try { targetUrl = decodeURIComponent(targetUrl); } catch(e){}
             }
