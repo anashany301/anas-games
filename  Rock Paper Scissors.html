@@ -20,37 +20,52 @@
 </head>
 <body>
 
-<!-- واجهة أكواد الغرف المباشرة -->
-<div id="pure-room-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 999999; display: flex; align-items: center; justify-content: center; font-family: Tahoma, sans-serif; color: white; direction: rtl;">
+<!-- واجهة أكواد الغرف التي تظهر مرة واحدة -->
+<div id="oneTimeOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 999999; display: flex; align-items: center; justify-content: center; font-family: Tahoma, sans-serif; color: white; direction: rtl;">
     <div style="background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; border: 1px solid #38bdf8;">
-        <h3 style="color: #38bdf8; margin-top: 0;">غرفة اللعب الذكية</h3>
-        <input type="text" id="pPlayerName" placeholder="اكتب اسمك هنا" style="width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none;">
+        <h3 style="color: #38bdf8; margin-top: 0;">غرفة اللعب الجماعي</h3>
+        <input type="text" id="otName" placeholder="اكتب اسمك هنا" style="width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none;">
         <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
-        <button onclick="pCreateRoom()" style="background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold;">إنشاء غرفة جديدة</button>
-        <div id="pCodeDisplay" style="color: #38bdf8; font-weight: bold; margin: 12px 0; font-size: 22px; letter-spacing: 2px;"></div>
-        <input type="text" id="pRoomCode" placeholder="أدخل كود الغرفة" style="width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none;">
-        <button onclick="pJoinRoom()" style="background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold;">دخول اللعبة</button>
+        <button onclick="otCreate()" style="background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold;">إنشاء غرفة جديدة</button>
+        <div id="otCodeBox" style="color: #38bdf8; font-weight: bold; margin: 12px 0; font-size: 20px; letter-spacing: 2px; display:none;">
+            كود الغرفة: <span id="otGeneratedCode" style="color: #10b981;"></span>
+            <p style="font-size: 11px; color: #cbd5e1; margin: 5px 0 0 0;">انسخ الكود وابعت لصاحبك، جاري دخول اللعبة...</p>
+        </div>
+        <div id="otJoinSection" style="margin-top: 10px;">
+            <input type="text" id="otCodeInput" placeholder="أدخل كود صديقك" style="width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none;">
+            <button onclick="otJoin()" style="background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold;">دخول اللعبة</button>
+        </div>
     </div>
 </div>
 
 <script>
-    function pCreateRoom() {
-        const name = document.getElementById('pPlayerName').value.trim();
+    function otCreate() {
+        const name = document.getElementById('otName').value.trim();
         if(!name) { alert('من فضلك اكتب اسمك الأول!'); return; }
         const code = Math.random().toString(36).substring(2, 6).toUpperCase();
-        document.getElementById('pCodeDisplay').innerText = code;
+        
+        document.getElementById('otGeneratedCode').innerText = code;
+        document.getElementById('otCodeBox').style.display = 'block';
+        document.getElementById('otJoinSection').style.display = 'none';
+        
+        // تختفي الواجهة تماماً بعد 3 ثواني وتدخل اللعبة للأبد
         setTimeout(() => {
-            document.getElementById('pure-room-overlay').style.display = 'none';
-        }, 2500);
+            document.getElementById('oneTimeOverlay').style.display = 'none';
+        }, 3500);
     }
 
-    function pJoinRoom() {
-        const name = document.getElementById('pPlayerName').value.trim();
-        const code = document.getElementById('pRoomCode').value.trim();
+    function otJoin() {
+        const name = document.getElementById('otName').value.trim();
+        const code = document.getElementById('otCodeInput').value.trim();
         if(!name || !code) { alert('اكتب اسمك وكود الغرفة من فضلك!'); return; }
-        document.getElementById('pure-room-overlay').style.display = 'none';
+        
+        // تختفي الواجهة فوراً وتدخل اللعبة
+        document.getElementById('oneTimeOverlay').style.display = 'none';
     }
 </script>
+
+
+
 
 
 
