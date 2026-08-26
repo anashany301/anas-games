@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>غرفة اللعب الجماعي</title>
+    <title>غرفة اللعب الجماعي المحصنة</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; color: white; font-family: Tahoma, sans-serif; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .box { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; border: 1px solid #38bdf8; }
+        .box { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 320px; text-align: center; border: 1px solid #38bdf8; z-index: 10; }
         input { width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none; }
         button { background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold; }
         button:hover { background: #2563eb; }
-        #gameFrame { width: 100%; height: 100%; border: none; display: none; position: absolute; top: 0; left: 0; }
+        #gameFrame { width: 100%; height: 100%; border: none; display: none; position: absolute; top: 0; left: 0; z-index: 5; }
     </style>
 </head>
 <body>
@@ -30,7 +30,8 @@
         </div>
     </div>
 
-    <iframe id="gameFrame"></iframe>
+    <!-- استخدام sandbox لمنع أي ملف لعبة من إعادة توجيه الصفحة أو فتح لينكات خارجية خبيثة -->
+    <iframe id="gameFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
 
     <script>
         const params = new URLSearchParams(window.location.search);
@@ -51,10 +52,8 @@
             document.getElementById('codeBox').style.display = 'block';
             document.getElementById('joinSection').style.display = 'none';
             
-            // نسخ الكود للحافظة تلقائياً
             navigator.clipboard.writeText(code).catch(() => {});
 
-            // الانتقال الفعلي للعبة داخل الإطار بعد ظهور الكود بـ 3 ثواني
             setTimeout(() => {
                 loadGame(name, code);
             }, 3000);
@@ -72,8 +71,9 @@
             document.getElementById('ui-container').style.display = 'none';
             const frame = document.getElementById('gameFrame');
             frame.style.display = 'block';
-            // تحميل اللعبة الأساسية ونقل البيانات لها دون أي إعادة توجيه خارجية
-            frame.src = `${gameFile}?name=${encodeURIComponent(name)}&room=${encodeURIComponent(code)}`;
+            
+            // حقن بارامترات منع اللعبة من إظهار أي واجهات قديمة لو وجدت داخلها
+            frame.src = `${gameFile}?name=${encodeURIComponent(name)}&room=${encodeURIComponent(code)}&clean=true`;
         }
     </script>
 </body>
