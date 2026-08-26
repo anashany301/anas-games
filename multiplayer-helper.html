@@ -20,20 +20,7 @@
 </div>
 
 
-    <div id="ui-container" class="box">
-        <h3 style="color: #38bdf8; margin-top: 0;">غرفة اللعب الذكية</h3>
-        <input type="text" id="playerName" placeholder="اكتب اسمك هنا">
-        <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
-        <button onclick="createRoom()">إنشاء غرفة جديدة</button>
-        <div id="codeBox" style="color: #38bdf8; font-weight: bold; margin: 12px 0; font-size: 20px; letter-spacing: 2px; display:none;">
-            الكود: <span id="codeDisplay" style="color: #10b981;"></span>
-            <p style="font-size: 11px; color: #cbd5e1; margin: 5px 0 0 0;">📋 تم نسخ الكود للحافظة! أرسله لصديقك.</p>
-        </div>
-        <div id="joinSection" style="margin-top: 10px;">
-            <input type="text" id="roomCode" placeholder="أدخل كود صديقك">
-            <button onclick="joinRoom()" style="background: #10b981;">دخول اللعبة</button>
-        </div>
-    </div>
+
 
     <!-- استخدام sandbox لمنع أي ملف لعبة من إعادة توجيه الصفحة أو فتح لينكات خارجية خبيثة -->
     <iframe id="gameFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
