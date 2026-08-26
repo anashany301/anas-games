@@ -39,6 +39,17 @@
         const username = "anashany301"; 
         const repo = "anas-games"; 
 
+        // قائمة الملفات أو الأدوات البرمجية المستبعدة تماماً من العرض في الواجهة
+        const excludedFiles = [
+            'index.html', 
+            'multiplayer-helper.html', 
+            'injector.py', 
+            'vercel.json', 
+            'package.json', 
+            'server.js',
+            'README.md'
+        ];
+
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
             try {
@@ -48,7 +59,8 @@
                 grid.innerHTML = ""; 
 
                 for (const file of files) {
-                    if (file.name.endsWith('.html') && file.name !== 'index.html' && file.name !== 'multiplayer-helper.html') {
+                    // التحقق من أن الملف عبارة عن html وغير موجود في قائمة الاستبعاد
+                    if (file.name.endsWith('.html') && !excludedFiles.includes(file.name)) {
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
                         let category = 'single'; 
 
@@ -73,7 +85,7 @@
                         card.setAttribute('data-category', category);
                         card.textContent = `🎮 ${displayName} ${category === 'multi' ? '👥' : ''}`;
 
-                        // لو اللعبة جماعية، توجهه مباشرة لصفحة الحاوية الجديدة بأكواد الغرف
+                        // لو اللعبة جماعية، توجهه لصفحة الحاوية، وإلا تفتح اللعبة مباشرة
                         if (category === 'multi') {
                             card.href = "#";
                             card.onclick = (e) => {
@@ -87,6 +99,12 @@
                         grid.appendChild(card);
                     }
                 }
+
+                // لو لم يتم العثور على ألعاب صالحة للعرض
+                if (grid.innerHTML === "") {
+                    grid.innerHTML = `<p style="color: #cbd5e1;">لا توجد ألعاب مضافة حالياً.</p>`;
+                }
+
             } catch (error) {
                 grid.innerHTML = `<p style="color: red;">عذراً، حصل خطأ أثناء جلب الألعاب!</p>`;
                 console.error(error);
