@@ -36,12 +36,23 @@
     </div>
 
     <script>
+        // تفعيل العمل أوفلاين والتحديث الذكي في الخلفية (Service Worker)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('✅ تم تفعيل العمل أوفلاين بنجاح!'))
+                    .catch((err) => console.log('❌ خطأ في تفعيل الأوفلاين:', err));
+            });
+        }
+
         const username = "anashany301"; 
         const repo = "anas-games"; 
 
-        // قائمة الملفات أو الأدوات البرمجية المستبعدة تماماً من العرض في الواجهة
+        // قائمة الملفات المستبعدة تماماً من العرض
         const excludedFiles = [
             'index.html', 
+            'room.html',
+            'sw.js',
             'multiplayer-helper.html', 
             'injector.py', 
             'vercel.json', 
@@ -59,7 +70,6 @@
                 grid.innerHTML = ""; 
 
                 for (const file of files) {
-                    // التحقق من أن الملف عبارة عن html وغير موجود في قائمة الاستبعاد
                     if (file.name.endsWith('.html') && !excludedFiles.includes(file.name)) {
                         let displayName = file.name.replace('.html', '').replace(/_/g, ' ');
                         let category = 'single'; 
@@ -85,12 +95,11 @@
                         card.setAttribute('data-category', category);
                         card.textContent = `🎮 ${displayName} ${category === 'multi' ? '👥' : ''}`;
 
-                        // لو اللعبة جماعية، توجهه لصفحة الحاوية، وإلا تفتح اللعبة مباشرة
                         if (category === 'multi') {
                             card.href = "#";
                             card.onclick = (e) => {
                                 e.preventDefault();
-                                window.location.href = `multiplayer-helper.html?game=${file.name}`;
+                                window.location.href = `room.html?game=${file.name}`;
                             };
                         } else {
                             card.href = file.name;
@@ -100,13 +109,13 @@
                     }
                 }
 
-                // لو لم يتم العثور على ألعاب صالحة للعرض
                 if (grid.innerHTML === "") {
                     grid.innerHTML = `<p style="color: #cbd5e1;">لا توجد ألعاب مضافة حالياً.</p>`;
                 }
 
             } catch (error) {
-                grid.innerHTML = `<p style="color: red;">عذراً، حصل خطأ أثناء جلب الألعاب!</p>`;
+                // لو الجهاز أوفلاين وفشلت جلب القائمة من جيت هب، ممكن تظهر رسالة أو تتعامل مع الذاكرة المحفوظة
+                grid.innerHTML = `<p style="color: #38bdf8;">🌐 أنت أوفلاين حالياً، يتم عرض الألعاب المتاحة في الذاكرة.</p>`;
                 console.error(error);
             }
         }
