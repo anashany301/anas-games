@@ -1,7 +1,7 @@
 import os
 import re
 
-# واجهة الأكواد الذكية والنهائية
+# واجهة الأكواد الذكية والنهائية (نسخ تلقائي للحافظة + غرفة واحدة نظيفة)
 smart_room_ui = """
 <!-- واجهة الأكواد الذكية والموحدة -->
 <div id="smartRoomOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999999; display: flex; align-items: center; justify-content: center; font-family: Tahoma, sans-serif; color: white; direction: rtl;">
@@ -54,20 +54,24 @@ for filename in os.listdir('.'):
         
         content_lower = content.lower()
         
+        # هل اللعبة تحتوي على أي بقايا أو لينكات قديمة؟
         has_old_links = 'نسخ رابط الحاوية' in content or 'الانتقال لغرفة الحاوية' in content or 'أنت تنضم لصديق' in content or 'multiplayer-helper' in content
         has_native_codes = 'أدخل كود الغرفة' in content or 'رقم الغرفة' in content or 'roomcode' in content_lower
         is_multi = 'إنشاء غرفة جديدة' in content or 'انشاء غرفة جديدة' in content or 'peerjs' in content_lower or 'socket.io' in content_lower or has_old_links
 
         if has_old_links or (is_multi and not has_native_codes):
-            # تنظيف أي واجهات قديمة مسبقة
+            # 1. تنظيف جذري: مسح أي واجهات قديمة (سواء القديمة أو الواجهات المؤقتة) بالكامل من الملف
             content = re.sub(r'<!-- واجهة الأكواد الذكية والموحدة -->.*?</script>', '', content, flags=re.DOTALL)
             content = re.sub(r'<div id="(smartRoomOverlay|modalOverlay|room-system-overlay|pure-room-overlay|oneTimeOverlay|ultimateRoomOverlay)"*?>.*?</div>\s*</div>', '', content, flags=re.DOTALL)
+            content = re.sub(r'<div id="smartRoomOverlay".*?</div>\s*</div>\s*</script>', '', content, flags=re.DOTALL)
             
+            # 2. حقن الواجهة النظيفة الجديدة مرة واحدة فقط تحت الـ body
             if "<body>" in content:
                 content = content.replace("<body>", "<body>\n" + smart_room_ui)
                 with open(filename, 'w', encoding='utf-8') as f:
                     f.write(content)
-                print(f"🔄 تم تحديث اللعبة الجماعية وإزالة اللينكات: {filename}")
+                print(f"🧹 تم تطهير اللعبة وحذف اللينكات القديمة ووضع نظام الأكواد النظيف: {filename}")
+                
         elif has_native_codes:
             print(f"🛡️ اللعبة بها نظام أكواد مسبق، تم تركها كما هي: {filename}")
         else:
