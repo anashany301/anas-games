@@ -26,49 +26,6 @@
 
 
 
-<script>
-    function otCreate() {
-        const name = document.getElementById('otName').value.trim();
-        if(!name) { alert('من فضلك اكتب اسمك الأول!'); return; }
-        const code = Math.random().toString(36).substring(2, 6).toUpperCase();
-        
-        document.getElementById('otGeneratedCode').innerText = code;
-        document.getElementById('otCodeBox').style.display = 'block';
-        document.getElementById('otJoinSection').style.display = 'none';
-        
-        // تختفي الواجهة تماماً بعد 3 ثواني وتدخل اللعبة للأبد
-        setTimeout(() => {
-            document.getElementById('oneTimeOverlay').style.display = 'none';
-        }, 3500);
-    }
-
-    function otJoin() {
-        const name = document.getElementById('otName').value.trim();
-        const code = document.getElementById('otCodeInput').value.trim();
-        if(!name || !code) { alert('اكتب اسمك وكود الغرفة من فضلك!'); return; }
-        
-        // تختفي الواجهة فوراً وتدخل اللعبة
-        document.getElementById('oneTimeOverlay').style.display = 'none';
-    }
-</script>
-
-
-
-
-
-
-
-
-
-
-    <h1>لعبة أكس أو أونلاين 🎮</h1>
-
-    <div id="menu">
-        <p id="status">اكتب اسمك أولاً لتبدأ اللعبة:</p>
-        <input type="text" id="playerName" placeholder="اكتب اسمك هنا" value=""><br>
-        <div id="actionButtons"></div>
-    </div>
-
     
     <div class="scoreboard" id="scoreboard" style="display:none;">
         <div><span id="nameX">اللاعب X</span> (<span id="scoreX" class="score-box">0</span>)</div>
