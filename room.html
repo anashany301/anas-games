@@ -54,7 +54,7 @@
     <div class="card hidden" id="waitingCard">
         <h3>حالة الاتصال باللعبة</h3>
         <div class="status-box" id="statusText">جاري التوصيل... ⏳</div>
-        <button class="secondary-btn" style="background:#ef4444;" onclick="location.reload()">إلغاء الخروج</button>
+        <button class="secondary-btn" style="background:#ef4444;" onclick="location.reload()">إلغاء والرجوع</button>
     </div>
 
     <!-- إطار اللعبة اللي هتفتح جواها -->
@@ -63,7 +63,6 @@
     </div>
 
     <script>
-        // استخراج اسم اللعبة المطلوبة من الـ URL (مثلا: room.html?game=tic-tac-to.html)
         const urlParams = new URLSearchParams(window.location.search);
         const targetGame = urlParams.get('game') || 'index.html';
 
@@ -82,7 +81,6 @@
         let conn = null;
         let myName = "";
 
-        // 1. إنشاء غرفة أونلاين عبر PeerJS والحصول على كود
         function createOnlineRoom() {
             myName = document.getElementById('playerName').value.trim();
             if (!myName) {
@@ -94,28 +92,24 @@
             document.getElementById('waitingCard').classList.remove('hidden');
             document.getElementById('statusText').innerText = "جاري إنشاء الغرفة وتوليد الكود... 🔄";
 
-            // إنشاء معرف عشوائي قصير كود الغرفة
             const randomCode = "flamingo-" + Math.floor(1000 + Math.random() * 9000);
-            
             peer = new Peer(randomCode);
 
             peer.on('open', (id) => {
-                document.getElementById('statusText').innerHTML = `✅ تم إنشاء الغرفة بنجاح!<br><br>🔑 كود غرفتك هو: <span style="color:#10b981; font-size:20px;">${id}</span><br><br>ابعت الكود ده لصاحبِك واصتره لحد ما ينضم... ⏳`;
+                document.getElementById('statusText').innerHTML = `✅ تم إنشاء الغرفة بنجاح!<br><br>🔑 كود غرفتك هو: <span style="color:#10b981; font-size:20px;">${id}</span><br><br>ابعت الكود ده لصاحبِك وانتظره حتى ينضم... ⏳`;
             });
 
-            // استقبال اتصال الصديق
             peer.on('connection', (connection) => {
                 conn = connection;
                 setupConnectionEvents();
             });
 
-            peer.on('error', (err) => {
+            peer.on('error', () => {
                 alert("حدث خطأ في إنشاء الغرفة، جرب مرة أخرى.");
                 location.reload();
             });
         }
 
-        // 2. انضمام لصديق عبر كود الغرفة
         function joinOnlineRoom() {
             myName = document.getElementById('playerName').value.trim();
             const roomCode = document.getElementById('roomCodeInput').value.trim();
@@ -142,7 +136,6 @@
             });
         }
 
-        // 3. الاتصال المحلي عبر الهوتسبوت (بدون إنترنت)
         function connectLocalRoom() {
             myName = document.getElementById('playerName').value.trim();
             const hostIp = document.getElementById('hostIpInput').value.trim();
@@ -151,20 +144,14 @@
                 alert("اكتب اسمك وآيبي المضيف المحلي!");
                 return;
             }
-
-            // في حالة الهوتسبوت المحلي، نقدر نوصل عن طريق WebSocket داخلي أو سيرفر محلي مرفوع على جهاز المضيف
             alert("وضع الهوتسبوت المحلي جاهز للربط عبر الآيبي: " + hostIp);
         }
 
-        // إعداد الأحداث بعد نجاح التوصيل بين الاثنين
         function setupConnectionEvents() {
             conn.on('open', () => {
                 document.getElementById('statusText').innerText = "🎉 تم الاتصال بنجاح بين اللاعبين! جاري فتح اللعبة...";
-                
-                // إرسال الاسم للطرف الآخر
                 conn.send({ type: 'JOIN', name: myName });
 
-                // بعد ثانية، افتح اللعبة الفعلية داخل الإطار
                 setTimeout(() => {
                     document.getElementById('waitingCard').classList.add('hidden');
                     document.getElementById('gameContainer').classList.remove('hidden');
@@ -173,7 +160,6 @@
             });
 
             conn.on('data', (data) => {
-                // هنا بنستقبل بيانات اللعب المشتركة (حركات النرد، X و O، الأماكن، إلخ)
                 if (data.type === 'JOIN') {
                     console.log("انضم اللاعب: " + data.name);
                 }
