@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flamingo-games-auto-sync-v2';
+const CACHE_NAME = 'flamingo-games-auto-sync-v3';
 
 const username = "anashany301"; 
 const repo = "anas-games"; 
@@ -17,11 +17,10 @@ const excludedFiles = [
     'README.md'
 ];
 
-// دالة الفحص والتحميل مع إرسال إشعار للموقع عند تنزيل لعبة جديدة
+// دالة فحص وجلب الألعاب الجديدة في الخلفية وصمت تام
 async function backgroundSyncNewGames() {
     try {
         const cache = await caches.open(CACHE_NAME);
-        
         const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
         if (!response.ok) return;
         
@@ -37,7 +36,7 @@ async function backgroundSyncNewGames() {
                     if (gameResponse.status === 200) {
                         await cache.put(gameUrl, gameResponse);
                         
-                        // إرسال إشعار للمتصفح والموقع
+                        // إرسال إشعار للموقع لو مفتوح
                         const clients = await self.clients.matchAll();
                         clients.forEach(client => {
                             client.postMessage({
@@ -49,12 +48,10 @@ async function backgroundSyncNewGames() {
                 }
             }
         }
-    } catch (error) {
-        // خطأ صامت في حالة عدم وجود إنترنت
-    }
+    } catch (error) {}
 }
 
-// تثبيت الملفات الأساسية
+// 1. التثبيت السريع
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -70,14 +67,14 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// تفعيل وتشغيل الفحص السريع
+// 2. التفعيل ومسح أي كاش قديم فوري
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then(async (cacheNames) => {
             await Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
+                        return caches.delete(cacheName); // مسح النسخ القديمة بالكامل
                     }
                 })
             );
@@ -87,7 +84,7 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// التشغيل الذكي أوفلاين
+// 3. استراتيجية Stale-While-Revalidate (عرض القديم بسرعة، وجلب الجديد وتحديثه في الخلفية لمرة قادمة)
 self.addEventListener('fetch', (event) => {
     if (event.request.url.includes('api.github.com')) {
         return;
@@ -95,31 +92,19 @@ self.addEventListener('fetch', (event) => {
 
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                fetch(event.request).then((networkResponse) => {
-                    if (networkResponse.status === 200) {
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, networkResponse);
-                        });
-                    }
-                }).catch(() => {});
-                
-                return cachedResponse;
-            }
-
-            return fetch(event.request).then((networkResponse) => {
-                const responseClone = networkResponse.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    if (event.request.method === 'GET' && networkResponse.status === 200) {
+            // جلب التحديث من النت في الخلفية بصمت وتحديث الكاش لو فيه تغيير
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseClone);
-                    }
-                });
-                return networkResponse;
-            }).catch(() => {
-                if (event.request.headers.get('accept').includes('text/html')) {
-                    return caches.match('./index.html');
+                    });
                 }
-            });
+                return networkResponse;
+            }).catch(() => {});
+
+            // لو الملف موجود في الكاش رجعه فوراً بسرعة الصاروخ، ولو مش موجود استنى النت
+            return cachedResponse || fetchPromise;
         })
     );
 });
