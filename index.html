@@ -10,7 +10,6 @@
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; direction: rtl; }
         h1 { color: #38bdf8; margin-bottom: 15px; font-size: 24px; }
         
-        /* تصميم زر التثبيت الواضح والبارز */
         #installBox {
             background: #1e293b;
             border: 2px solid #10b981;
@@ -38,7 +37,7 @@
 
     <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
-    <!-- صندوق وزر التثبيت (ظاهر وبارز فوق الألعاب مباشرة) -->
+    <!-- زر التثبيت الواضح والبارز -->
     <div id="installBox">
         <p style="margin: 0 0 10px 0; color: #38bdf8; font-size: 14px; font-weight: bold;">🎮 ثبت تطبيق فلامينجو واستمتع بالألعاب أوفلاين!</p>
         <button id="installBtn" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%;">تثبيت التطبيق الآن 📥</button>
@@ -55,7 +54,6 @@
     </div>
 
     <script>
-        // تسجيل الـ Service Worker لتفعيل الأوفلاين
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -64,7 +62,6 @@
             });
         }
 
-        // كود زر التثبيت الذكي
         let deferredPrompt = null;
         const installBtn = document.getElementById('installBtn');
 
@@ -155,7 +152,7 @@
                     grid.innerHTML = `<p style="color: #cbd5e1;">لا توجد ألعاب مضافة حالياً.</p>`;
                 }
 
-            } colspan (error) {
+            } catch (error) {
                 grid.innerHTML = `<p style="color: #38bdf8;">🌐 أنت أوفلاين حالياً، يتم عرض الألعاب المتاحة في الذاكرة.</p>`;
                 console.error(error);
             }
