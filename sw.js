@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flamingo-games-v2';
+const CACHE_NAME = 'flamingo-games-v5'; // رقم إصدار جديد لضمان التحديث الفوري
 
 // الملفات الأساسية للتطبيق
 const STATIC_ASSETS = [
@@ -31,15 +31,12 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// 3. طريقة جلب الملفات: لو النت قطع، هات من الكاش فوراً
+// 3. طريقة جلب الملفات: لو النت موجود هات الأحدث، لو قطع هات من الكاش فوراً
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            return fetch(event.request).then((networkResponse) => {
-                // تخزين أي ملف يتفتح جديد في الذاكرة تلقائياً
+            // لو الملف موجود في الكاش بنرجعه، وفي الخلفية بنحدثه لو فيه نت
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
                 if (event.request.method === 'GET' && networkResponse.status === 200) {
                     const responseClone = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -47,15 +44,18 @@ self.addEventListener('fetch', (event) => {
                     });
                 }
                 return networkResponse;
+            }).catch(() => {
+                // لو النت فصل، نتجاهل الخطأ ونعتمد على الكاش
             });
+
+            return cachedResponse || fetchPromise;
         }).catch(() => {
-            // لو مفيش نت والملف مش في الكاش
             return caches.match('./index.html');
         })
     );
 });
 
-// 4. الاستماع لأوامر تنزيل الألعاب الجديدة في الخلفية
+// 4. الاستماع لأوامر تجهيز الألعاب الجديدة في الخلفية (مع الإشعار المخصص)
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'CACHE_NEW_GAME') {
         const gameUrl = event.data.url;
@@ -63,8 +63,8 @@ self.addEventListener('message', (event) => {
 
         caches.open(CACHE_NAME).then((cache) => {
             cache.add(gameUrl).then(() => {
-                console.log(`✅ تم تنزيل وحفظ اللعبة: ${gameName}`);
-                // إرسال تنبيه للصفحة الرئيسية بأن اللعبة نزلت
+                console.log(`✅ تم تجهيز اللعبة للعب أوفلاين: ${gameName}`);
+                // إرسال التنبيه للصفحة الرئيسية بالصيغة الذكية اللي طلبناها
                 self.clients.matchAll().then((clients) => {
                     clients.forEach((client) => {
                         client.postMessage({
@@ -73,6 +73,8 @@ self.addEventListener('message', (event) => {
                         });
                     });
                 });
+            }).catch(err => {
+                console.log('خطأ أثناء تخزين اللعبة:', err);
             });
         });
     }
