@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مكتبة ألعاب فلامينجو 🎮</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; direction: rtl; }
         h1 { color: #38bdf8; margin-bottom: 20px; font-size: 24px; }
@@ -27,9 +28,9 @@
     <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
     <!-- زر تثبيت التطبيق الذكي -->
-    <div id="installBox" style="display: none; background: #1e293b; border: 1px solid #38bdf8; padding: 12px; border-radius: 10px; margin: 15px auto; max-width: 350px; text-align: center;">
+    <div id="installBox" style="display: none; background: #1e293b; border: 2px solid #10b981; padding: 12px; border-radius: 10px; margin: 15px auto; max-width: 350px; text-align: center;">
         <p style="margin: 0 0 10px 0; color: #38bdf8; font-size: 14px; font-weight: bold;">🎮 ثبت تطبيق فلامينجو واستمتع بالألعاب أوفلاين!</p>
-        <button id="installBtn" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">تثبيت التطبيق الآن 📥</button>
+        <button id="installBtn" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%;">تثبيت التطبيق الآن 📥</button>
     </div>
 
     <div class="filter-container">
@@ -43,7 +44,7 @@
     </div>
 
     <script>
-        // تفعيل العمل أوفلاين والتحديث الذكي في الخلفية (Service Worker)
+        // تسجيل الـ Service Worker لتفعيل الأوفلاين
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -52,33 +53,38 @@
             });
         }
 
-        // منطق إظهار زر التثبيت الذكي
-        let deferredPrompt;
+        let deferredPrompt = null;
         const installBox = document.getElementById('installBox');
         const installBtn = document.getElementById('installBtn');
 
+        // استقبال حدث التثبيت من متصفح كروم
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBox.style.display = 'block'; // إظهار زر التثبيت للمستخدم
+            // إظهار صندوق التثبيت فوراً للمستخدم
+            installBox.style.display = 'block';
         });
 
+        // تنفيذ أمر التثبيت عند الضغط على الزر
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('تم تثبيت التطبيق بنجاح');
+                    console.log('المستخدم وافق وتم تثبيت التطبيق');
+                } else {
+                    console.log('المستخدم رفض تثبيت التطبيق');
                 }
                 deferredPrompt = null;
                 installBox.style.display = 'none';
+            } else {
+                alert("التطبيق جاهز بالفعل أو متصفحك لا يدعم التثبيت المباشر. يمكنك تثبيته يدوياً من قائمة إعدادات المتصفح (ثلاث نقاط) واختار 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
             }
         });
 
         const username = "anashany301"; 
         const repo = "anas-games"; 
 
-        // قائمة الملفات المستبعدة تماماً من العرض
         const excludedFiles = [
             'index.html', 
             'room.html',
