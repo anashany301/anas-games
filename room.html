@@ -3,148 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>غرفة فلامينجو الذكية (محلي وعن بعد)</title>
+    <title>غرفة اللعب الجماعي - فلامينجو 🎮</title>
+    <!-- استدعاء مكتبة PeerJS للأونلاين عبر الأكواد -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        body {
-            background-color: #0d1b2a;
-            color: #ffffff;
-            font-family: Tahoma, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        .room-box {
-            background: #1b263b;
-            border: 2px solid #415a77;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 400px;
-            margin: 40px auto;
-        }
-        button {
-            background-color: #7209b7;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-        }
-        button.danger {
-            background-color: #f72585;
-        }
-        #status {
-            margin: 15px 0;
-            font-weight: bold;
-            color: #fbbf24;
-        }
+        body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 20px; margin: 0; direction: rtl; }
+        h1 { color: #38bdf8; font-size: 22px; }
+        .card { background: #1e293b; border: 1px solid #38bdf8; padding: 20px; border-radius: 12px; max-width: 400px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: right; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0 15px 0; background: #0f172a; border: 1px solid #64748b; color: white; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        button { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
+        button:hover { background: #059669; }
+        .secondary-btn { background: #3b82f6; margin-top: 10px; }
+        .secondary-btn:hover { background: #2563eb; }
+        .hidden { display: none !important; }
+        .status-box { background: #0f172a; border: 1px dashed #38bdf8; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: center; font-weight: bold; color: #38bdf8; }
     </style>
 </head>
 <body>
 
-    <div class="room-box">
-        <h2>🎮 غرفة فلامينجو الذكية</h2>
-        <div id="status">⏳ جاري اختيار أفضل طريقة اتصال...</div>
-        
-        <p>طريقة اللعب:</p>
-        <button onclick="setMode('local')">📶 وضع محلي (بدون نت - قريبين)</button>
-        <button onclick="setMode('online')">🌐 وضع عن بعد (بالنت - بعيدين)</button>
-        
-        <hr style="border-color: #415a77; margin: 20px 0;">
+    <h1>🕹️ إعدادات الغرفة الجماعية</h1>
 
-        <button id="micBtn" onclick="toggleMic()" disabled>🎤 تفعيل الميكروفون</button>
-        <button class="danger" onclick="leaveRoom()">خروج</button>
+    <div class="card" id="setupCard">
+        <label>👤 اكتب اسمك الكريم:</label>
+        <input type="text" id="playerName" placeholder="مثلاً: أنس البطل">
+
+        <label>🌐 اختر طريقة اللعب:</label>
+        <select id="connectionType" onchange="toggleModeFields()">
+            <option value="online">أونلاين (عبر الإنترنت باستخدام كود)</option>
+            <option value="local">محلي (عبر الهوتسبوت / بدون نت)</option>
+        </select>
+
+        <!-- خيارات الأونلاين -->
+        <div id="onlineModeDiv">
+            <button onclick="createOnlineRoom()">إنشاء غرفة جديدة (الحصول على كود) 🔑</button>
+            <hr style="border:0; border-top:1px solid #334155; margin:15px 0;">
+            <label>أو اكتب كود صديقك للانضمام:</label>
+            <input type="text" id="roomCodeInput" placeholder="أدخل كود الغرفة هنا...">
+            <button class="secondary-btn" onclick="joinOnlineRoom()">انضمام للغرفة 🚀</button>
+        </div>
+
+        <!-- خيارات المحلي (هوتسبوت) -->
+        <div id="localModeDiv" class="hidden">
+            <label>📡 آيبي جهاز المضيف (Host IP):</label>
+            <input type="text" id="hostIpInput" placeholder="مثلاً: 192.168.43.1">
+            <button class="secondary-btn" onclick="connectLocalRoom()">الاتصال بشبكة الهوتسبوت المحلية 📶</button>
+        </div>
+    </div>
+
+    <!-- صندوق عرض الحالة والاتصال -->
+    <div class="card hidden" id="waitingCard">
+        <h3>حالة الاتصال باللعبة</h3>
+        <div class="status-box" id="statusText">جاري التوصيل... ⏳</div>
+        <button class="secondary-btn" style="background:#ef4444;" onclick="location.reload()">إلغاء الخروج</button>
+    </div>
+
+    <!-- إطار اللعبة اللي هتفتح جواها -->
+    <div id="gameContainer" class="hidden" style="width:100%; height:100vh; position:fixed; top:0; left:0; background:#0f172a; z-index:9999;">
+        <iframe id="gameFrame" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
     <script>
-        let ws = null;
-        let peerConnection = null;
-        let dataChannel = null;
-        let localStream = null;
-        let remoteAudio = new Audio();
-        remoteAudio.autoplay = true;
+        // استخراج اسم اللعبة المطلوبة من الـ URL (مثلا: room.html?game=tic-tac-to.html)
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetGame = urlParams.get('game') || 'index.html';
 
-        // إعدادات الربط السريعة
-        const rtcConfig = {
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] // سيرفر مجاني للتعارف فقط
-        };
-
-        function setMode(mode) {
-            const status = document.getElementById('status');
-            document.getElementById('micBtn').removeAttribute('disabled');
-
-            if (mode === 'local') {
-                status.innerText = "📶 تم تفعيل الوضع المحلي (تأكد أنكم على نفس الهوتسبوت)";
-                status.style.color = "#4ade80";
-                // في الوضع المحلي، نقدر نربط الأجهزة عبر الـ IP الداخلي مباشرة
-                initLocalConnection();
+        function toggleModeFields() {
+            const mode = document.getElementById('connectionType').value;
+            if (mode === 'online') {
+                document.getElementById('onlineModeDiv').classList.remove('hidden');
+                document.getElementById('localModeDiv').classList.add('hidden');
             } else {
-                status.innerText = "🌐 جاري الاتصال عبر السيرفر الخارجي...";
-                status.style.color = "#38bdf8";
-                initOnlineConnection();
+                document.getElementById('onlineModeDiv').classList.add('hidden');
+                document.getElementById('localModeDiv').classList.remove('hidden');
             }
         }
 
-        // اتصال عن بعد عبر سيرفر مجاني عام
-        function initOnlineConnection() {
-            ws = new WebSocket('wss://echo.websocket.events');
-            
-            ws.onopen = () => {
-                document.getElementById('status').innerText = "🟢 متصل بالوضع عن بعد بنجاح";
-            };
+        let peer = null;
+        let conn = null;
+        let myName = "";
 
-            ws.onmessage = (event) => {
-                if (event.data instanceof Blob) {
-                    const audioUrl = URL.createObjectURL(event.data);
-                    remoteAudio.src = audioUrl;
-                } else {
-                    console.log("بيانات لعبة مستلمة:", event.data);
+        // 1. إنشاء غرفة أونلاين عبر PeerJS والحصول على كود
+        function createOnlineRoom() {
+            myName = document.getElementById('playerName').value.trim();
+            if (!myName) {
+                alert("من فضلك اكتب اسمك الأول!");
+                return;
+            }
+
+            document.getElementById('setupCard').classList.add('hidden');
+            document.getElementById('waitingCard').classList.remove('hidden');
+            document.getElementById('statusText').innerText = "جاري إنشاء الغرفة وتوليد الكود... 🔄";
+
+            // إنشاء معرف عشوائي قصير كود الغرفة
+            const randomCode = "flamingo-" + Math.floor(1000 + Math.random() * 9000);
+            
+            peer = new Peer(randomCode);
+
+            peer.on('open', (id) => {
+                document.getElementById('statusText').innerHTML = `✅ تم إنشاء الغرفة بنجاح!<br><br>🔑 كود غرفتك هو: <span style="color:#10b981; font-size:20px;">${id}</span><br><br>ابعت الكود ده لصاحبِك واصتره لحد ما ينضم... ⏳`;
+            });
+
+            // استقبال اتصال الصديق
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupConnectionEvents();
+            });
+
+            peer.on('error', (err) => {
+                alert("حدث خطأ في إنشاء الغرفة، جرب مرة أخرى.");
+                location.reload();
+            });
+        }
+
+        // 2. انضمام لصديق عبر كود الغرفة
+        function joinOnlineRoom() {
+            myName = document.getElementById('playerName').value.trim();
+            const roomCode = document.getElementById('roomCodeInput').value.trim();
+
+            if (!myName || !roomCode) {
+                alert("من فضلك اكتب اسمك وكود الغرفة!");
+                return;
+            }
+
+            document.getElementById('setupCard').classList.add('hidden');
+            document.getElementById('waitingCard').classList.remove('hidden');
+            document.getElementById('statusText').innerText = "جاري الاتصال بغرفة صديقك... 🔄";
+
+            peer = new Peer();
+
+            peer.on('open', () => {
+                conn = peer.connect(roomCode);
+                setupConnectionEvents();
+            });
+
+            peer.on('error', () => {
+                alert("فشل العثور على الغرفة، تأكد من صحة الكود أو أن صديقك متصل.");
+                location.reload();
+            });
+        }
+
+        // 3. الاتصال المحلي عبر الهوتسبوت (بدون إنترنت)
+        function connectLocalRoom() {
+            myName = document.getElementById('playerName').value.trim();
+            const hostIp = document.getElementById('hostIpInput').value.trim();
+
+            if (!myName || !hostIp) {
+                alert("اكتب اسمك وآيبي المضيف المحلي!");
+                return;
+            }
+
+            // في حالة الهوتسبوت المحلي، نقدر نوصل عن طريق WebSocket داخلي أو سيرفر محلي مرفوع على جهاز المضيف
+            alert("وضع الهوتسبوت المحلي جاهز للربط عبر الآيبي: " + hostIp);
+        }
+
+        // إعداد الأحداث بعد نجاح التوصيل بين الاثنين
+        function setupConnectionEvents() {
+            conn.on('open', () => {
+                document.getElementById('statusText').innerText = "🎉 تم الاتصال بنجاح بين اللاعبين! جاري فتح اللعبة...";
+                
+                // إرسال الاسم للطرف الآخر
+                conn.send({ type: 'JOIN', name: myName });
+
+                // بعد ثانية، افتح اللعبة الفعلية داخل الإطار
+                setTimeout(() => {
+                    document.getElementById('waitingCard').classList.add('hidden');
+                    document.getElementById('gameContainer').classList.remove('hidden');
+                    document.getElementById('gameFrame').src = targetGame;
+                }, 1500);
+            });
+
+            conn.on('data', (data) => {
+                // هنا بنستقبل بيانات اللعب المشتركة (حركات النرد، X و O، الأماكن، إلخ)
+                if (data.type === 'JOIN') {
+                    console.log("انضم اللاعب: " + data.name);
                 }
-            };
-        }
+            });
 
-        // اتصال محلي (بدون نت - عبر الهوتسبوت)
-        function initLocalConnection() {
-            peerConnection = new RTCPeerConnection(rtcConfig);
-            
-            // إنشاء قناة نقل بيانات اللعبة والصوت محلياً وبسرعة فائقة
-            dataChannel = peerConnection.createDataChannel("gameData");
-            dataChannel.onmessage = (event) => {
-                console.log("بيانات محلية مستلمة:", event.data);
-            };
-
-            document.getElementById('status').innerText = "🟢 الشبكة المحلية جاهزة للأجهزة القريبة";
-        }
-
-        // تشغيل الميكروفون وإرسال الصوت حسب الوضع المختار
-        async function toggleMic() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const mediaRecorder = new MediaRecorder(localStream, { mimeType: 'audio/webm' });
-
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        if (ws && ws.readyState === WebSocket.OPEN) {
-                            ws.send(event.data); // إرسال عبر النت لوضع البعد
-                        } else if (dataChannel && dataChannel.readyState === 'open') {
-                            dataChannel.send(event.data); // إرسال محلي لوضع القرب
-                        }
-                    }
-                };
-
-                mediaRecorder.start(500); // تقطيع الصوت كل نصف ثانية لسرعة النقل
-                document.getElementById('micBtn').innerText = "🎤 الميكروفون يعمل الآن";
-                document.getElementById('micBtn').style.backgroundColor = "#22c55e";
-            } catch (err) {
-                alert("تعذر الوصول للميكروفون، تأكد من الصلاحيات!");
-            }
-        }
-
-        function leaveRoom() {
-            if (ws) ws.close();
-            if (peerConnection) peerConnection.close();
-            window.location.reload();
+            conn.on('close', () => {
+                alert("انقطع الاتصال مع اللاعب الآخر!");
+                location.reload();
+            });
         }
     </script>
 </body>
