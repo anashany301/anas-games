@@ -1,115 +1,79 @@
-const CACHE_NAME = 'flamingo-games-auto-sync-v3';
+const CACHE_NAME = 'flamingo-games-v2';
 
-const username = "anashany301"; 
-const repo = "anas-games"; 
-
-const excludedFiles = [
-    'index.html', 
-    'room.html',
-    'sw.js',
-    'manifest.json',
-    'icon.png',
-    'multiplayer-helper.html', 
-    'injector.py', 
-    'vercel.json', 
-    'package.json', 
-    'server.js',
-    'README.md'
+// الملفات الأساسية للتطبيق
+const STATIC_ASSETS = [
+    './',
+    './index.html',
+    './room.html',
+    './manifest.json'
 ];
 
-// دالة فحص وجلب الألعاب الجديدة في الخلفية وصمت تام
-async function backgroundSyncNewGames() {
-    try {
-        const cache = await caches.open(CACHE_NAME);
-        const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
-        if (!response.ok) return;
-        
-        const files = await response.json();
-        
-        for (const file of files) {
-            if (file.name.endsWith('.html') && !excludedFiles.includes(file.name)) {
-                const gameUrl = `./${file.name}`;
-                const cachedMatch = await cache.match(gameUrl);
-                
-                if (!cachedMatch) {
-                    const gameResponse = await fetch(gameUrl);
-                    if (gameResponse.status === 200) {
-                        await cache.put(gameUrl, gameResponse);
-                        
-                        // إرسال إشعار للموقع لو مفتوح
-                        const clients = await self.clients.matchAll();
-                        clients.forEach(client => {
-                            client.postMessage({
-                                type: 'NEW_GAME_DOWNLOADED',
-                                gameName: file.name
-                            });
-                        });
-                    }
-                }
-            }
-        }
-    } catch (error) {}
-}
-
-// 1. التثبيت السريع
+// 1. عند تثبيت الـ Service Worker، بنحفظ الملفات الأساسية
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll([
-                './',
-                './index.html',
-                './room.html',
-                './manifest.json',
-                './icon.png'
-            ]);
+            console.log('📦 جاري حفظ الملفات الأساسية أوفلاين...');
+            return cache.addAll(STATIC_ASSETS);
         })
     );
     self.skipWaiting();
 });
 
-// 2. التفعيل ومسح أي كاش قديم فوري
+// 2. تنظيف أي كاش قديم عند التحديث
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then(async (cacheNames) => {
-            await Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName); // مسح النسخ القديمة بالكامل
-                    }
-                })
+        caches.keys().then((keys) => {
+            return Promise.all(
+                keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
             );
-            backgroundSyncNewGames();
         })
     );
     self.clients.claim();
 });
 
-// 3. استراتيجية Stale-While-Revalidate (عرض القديم بسرعة، وجلب الجديد وتحديثه في الخلفية لمرة قادمة)
+// 3. طريقة جلب الملفات: لو النت قطع، هات من الكاش فوراً
 self.addEventListener('fetch', (event) => {
-    if (event.request.url.includes('api.github.com')) {
-        return;
-    }
-
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            // جلب التحديث من النت في الخلفية بصمت وتحديث الكاش لو فيه تغيير
-            const fetchPromise = fetch(event.request).then((networkResponse) => {
-                if (networkResponse && networkResponse.status === 200) {
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            return fetch(event.request).then((networkResponse) => {
+                // تخزين أي ملف يتفتح جديد في الذاكرة تلقائياً
+                if (event.request.method === 'GET' && networkResponse.status === 200) {
                     const responseClone = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseClone);
                     });
                 }
                 return networkResponse;
-            }).catch(() => {});
-
-            // لو الملف موجود في الكاش رجعه فوراً بسرعة الصاروخ، ولو مش موجود استنى النت
-            return cachedResponse || fetchPromise;
+            });
+        }).catch(() => {
+            // لو مفيش نت والملف مش في الكاش
+            return caches.match('./index.html');
         })
     );
 });
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (e) => {
-    e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))));
-    self.clients.claim();
+
+// 4. الاستماع لأوامر تنزيل الألعاب الجديدة في الخلفية
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'CACHE_NEW_GAME') {
+        const gameUrl = event.data.url;
+        const gameName = event.data.name;
+
+        caches.open(CACHE_NAME).then((cache) => {
+            cache.add(gameUrl).then(() => {
+                console.log(`✅ تم تنزيل وحفظ اللعبة: ${gameName}`);
+                // إرسال تنبيه للصفحة الرئيسية بأن اللعبة نزلت
+                self.clients.matchAll().then((clients) => {
+                    clients.forEach((client) => {
+                        client.postMessage({
+                            type: 'NEW_GAME_DOWNLOADED',
+                            gameName: gameName
+                        });
+                    });
+                });
+            });
+        });
+    }
 });
