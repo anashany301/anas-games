@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مكتبة ألعاب فلامينجو 🕹️</title>
-    <!-- وضعنا رقم إصدار متغير لمنع الكاش -->
-    <link rel="manifest" href="manifest.json?v=3.0">
+    <link rel="manifest" href="manifest.json?v=3.1">
     <meta name="theme-color" content="#0f172a">
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; direction: rtl; }
@@ -58,13 +57,27 @@
     </div>
 
     <script>
-        // تسجيل الـ Service Worker مع تحديث إجباري
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    reg.update(); // يجبره على البحث عن تحديث فوراً
+                    reg.update();
                 }).catch(() => {});
             });
+
+            // استقبال رسالة التجهيز من الـ Service Worker
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'NEW_GAME_DOWNLOADED') {
+                    showToast(`⚡ تم تجهيز لعبة: "${event.data.gameName.replace('.html', '').replace(/_/g, ' ')}" للعب أوفلاين`);
+                }
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#38bdf8; color:#0f172a; padding:12px 20px; border-radius:10px; font-weight:bold; z-index:10000; box-shadow:0 4px 15px rgba(0,0,0,0.4); text-align:center; font-size:14px;';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4500);
         }
 
         let deferredPrompt = null;
@@ -94,7 +107,6 @@
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
             try {
-                // استخدام بصمة زمنية (Timestamp) لمنع كاش جيت هب ولجلب التحديثات فوراً
                 const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/?t=${new Date().getTime()}`);
                 const files = await response.json();
                 
@@ -118,6 +130,15 @@
                                 category = 'multi';
                             }
                         } catch (e) {}
+
+                        // إرسال طلب للـ Service Worker لتجهيز اللعبة في الخلفية بصمت
+                        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({
+                                type: 'CACHE_NEW_GAME',
+                                url: `./${file.name}`,
+                                name: file.name
+                            });
+                        }
 
                         const card = document.createElement('a');
                         card.className = 'game-card';
