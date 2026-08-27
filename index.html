@@ -27,8 +27,8 @@
 
     <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
-    <!-- زر تثبيت التطبيق الذكي -->
-    <div id="installBox" style="display: none; background: #1e293b; border: 2px solid #10b981; padding: 12px; border-radius: 10px; margin: 15px auto; max-width: 350px; text-align: center;">
+    <!-- زر تثبيت التطبيق الذكي (ظاهر ودائم) -->
+    <div id="installBox" style="background: #1e293b; border: 2px solid #10b981; padding: 12px; border-radius: 10px; margin: 15px auto 25px auto; max-width: 350px; text-align: center;">
         <p style="margin: 0 0 10px 0; color: #38bdf8; font-size: 14px; font-weight: bold;">🎮 ثبت تطبيق فلامينجو واستمتع بالألعاب أوفلاين!</p>
         <button id="installBtn" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%;">تثبيت التطبيق الآن 📥</button>
     </div>
@@ -53,32 +53,29 @@
             });
         }
 
+        // كود زر التثبيت الذكي
         let deferredPrompt = null;
         const installBox = document.getElementById('installBox');
         const installBtn = document.getElementById('installBtn');
 
-        // استقبال حدث التثبيت من متصفح كروم
+        // التقاط الحدث لو متاح من المتصفح
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // إظهار صندوق التثبيت فوراً للمستخدم
-            installBox.style.display = 'block';
         });
 
-        // تنفيذ أمر التثبيت عند الضغط على الزر
+        // لما المستخدم يدوس على الزر في أي وقت
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('المستخدم وافق وتم تثبيت التطبيق');
-                } else {
-                    console.log('المستخدم رفض تثبيت التطبيق');
+                    console.log('تم تثبيت التطبيق');
                 }
                 deferredPrompt = null;
-                installBox.style.display = 'none';
             } else {
-                alert("التطبيق جاهز بالفعل أو متصفحك لا يدعم التثبيت المباشر. يمكنك تثبيته يدوياً من قائمة إعدادات المتصفح (ثلاث نقاط) واختار 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
+                // لو الحدث مش جاهز، نفتح للمستخدم دليل التثبيت السريع من قائمة كروم
+                alert("لتثبيت التطبيق فوراً:\nاضغط على الثلاث نقاط (⋮) أعلى اليمين في متصفح كروم، ثم اختر:\n👉 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
             }
         });
 
@@ -102,7 +99,7 @@
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
             try {
-                const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
+                const response = all = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
                 const files = await response.json();
                 
                 grid.innerHTML = ""; 
