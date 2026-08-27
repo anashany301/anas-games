@@ -10,7 +10,6 @@
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; direction: rtl; }
         h1 { color: #38bdf8; margin-bottom: 15px; font-size: 24px; }
         
-        /* صندوق تثبيت واضح ومريح للعين */
         .install-banner {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px dashed #38bdf8;
@@ -20,22 +19,10 @@
             max-width: 380px;
             text-align: center;
         }
-        .install-banner p {
-            margin: 0 0 8px 0;
-            color: #38bdf8;
-            font-size: 13px;
-            font-weight: bold;
-        }
+        .install-banner p { margin: 0 0 8px 0; color: #38bdf8; font-size: 13px; font-weight: bold; }
         .install-banner button {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            width: 100%;
+            background: #10b981; color: white; border: none; padding: 8px 16px;
+            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%;
         }
 
         .filter-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
@@ -43,7 +30,6 @@
         .filter-btn.active { background: #38bdf8; color: #0f172a; }
 
         .games-grid { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto; }
-        
         .game-card { padding: 15px; background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 15px; transition: 0.3s; display: block; text-align: right; cursor: pointer; }
         .game-card:hover { background: #334155; }
 
@@ -53,9 +39,8 @@
 </head>
 <body>
 
-    <h1> مكتبة ألعاب فلامينجو 🕹️</h1>
+    <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
-    <!-- صندوق التثبيت السريع والمضمون 100% -->
     <div class="install-banner">
         <p>📱 تبغى تثبيت الموقع كـ تطبيق أوفلاين؟</p>
         <button onclick="showInstallHelp()">اضغط هنا لمعرفة طريقة التثبيت السريعة 📥</button>
@@ -68,39 +53,34 @@
     </div>
 
     <div class="games-grid" id="gamesGrid">
-        <div class="loading">جاري فحص وتصنيف الألعاب بدقة... ⏳</div>
+        <div class="loading">جاري فحص وتنزيل الألعاب بدقة... ⏳</div>
     </div>
 
     <script>
+        let swRegistration = null;
+
+        // تسجيل الـ Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    swRegistration = reg;
+                }).catch(() => {});
             });
 
-            // استقبال التنبيهات من الـ Service Worker عند تنزيل لعبة جديدة في الخلفية
+            // إظهار اشعار عند تنزيل لعبة جديدة
             navigator.serviceWorker.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'NEW_GAME_DOWNLOADED') {
-                    const toast = document.createElement('div');
-                    toast.style.position = 'fixed';
-                    toast.style.bottom = '20px';
-                    toast.style.left = '50%';
-                    toast.style.transform = 'translateX(-50%)';
-                    toast.style.background = '#00f2fe';
-                    toast.style.color = '#0f172a';
-                    toast.style.padding = '10px 20px';
-                    toast.style.borderRadius = '8px';
-                    toast.style.fontWeight = 'bold';
-                    toast.style.zIndex = '10000';
-                    toast.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
-                    toast.innerText = `🎮 تم تنزيل لعبة جديدة في الخلفية: ${event.data.gameName.replace('.html', '')}`;
-                    
-                    document.body.appendChild(toast);
-                    
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 4000);
+                    showToast(`🎮 تم تنزيل لعبة جديدة أوفلاين: ${event.data.gameName.replace('.html', '')}`);
                 }
             });
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#38bdf8; color:#0f172a; padding:10px 20px; border-radius:8px; font-weight:bold; z-index:10000; box-shadow:0 4px 10px rgba(0,0,0,0.3);';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
         let deferredPrompt = null;
@@ -115,7 +95,7 @@
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             } else {
-                alert("طريقة التثبيت السريعة:\n\n1. اضغط على زر القائمة (الثلاث نقاط ⋮) أعلى يمين متصفح كروم.\n2. اختر من القائمة: \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".\n\nومبروك عليك اللعبة بتشتغل أوفلاين كأنها تطبيق حقيقي! 🎮🚀");
+                alert("طريقة التثبيت السريعة:\n\n1. اضغط على زر القائمة (⋮) أعلى يمين متصفح كروم.\n2. اختر \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".\n\nومبروك عليك الألعاب بتشتغل أوفلاين! 🎮🚀");
             }
         }
 
@@ -123,17 +103,8 @@
         const repo = "anas-games"; 
 
         const excludedFiles = [
-            'index.html', 
-            'room.html',
-            'sw.js',
-            'manifest.json',
-            'icon.png',
-            'multiplayer-helper.html', 
-            'injector.py', 
-            'vercel.json', 
-            'package.json', 
-            'server.js',
-            'README.md'
+            'index.html', 'room.html', 'sw.js', 'manifest.json', 'icon.png',
+            'multiplayer-helper.html', 'injector.py', 'vercel.json', 'package.json', 'server.js', 'README.md'
         ];
 
         async function fetchAndAnalyzeGames() {
@@ -163,6 +134,15 @@
                             }
                         } catch (e) {}
 
+                        // أمر الـ Service Worker لتنزيل اللعبة وتخزينها للعمل أوفلاين
+                        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({
+                                type: 'CACHE_NEW_GAME',
+                                url: `./${file.name}`,
+                                name: file.name
+                            });
+                        }
+
                         const card = document.createElement('a');
                         card.className = 'game-card';
                         card.setAttribute('data-category', category);
@@ -187,7 +167,32 @@
                 }
 
             } catch (error) {
-                grid.innerHTML = `<p style="color: #38bdf8;">🌐 أنت أوفلاين حالياً، يتم عرض الألعاب المتاحة في الذاكرة.</p>`;
+                grid.innerHTML = `<p style="color: #38bdf8;">🌐 أنت أوفلاين حالياً، جاري عرض الألعاب المحفوظة في الموبايل.</p>`;
+                loadOfflineGames();
+            }
+        }
+
+        // عرض الألعاب من الكاش لو الجهاز أوفلاين
+        async function loadOfflineGames() {
+            const grid = document.getElementById('gamesGrid');
+            if ('caches' in window) {
+                const cache = await caches.open('flamingo-games-v2');
+                const keys = await cache.keys();
+                grid.innerHTML = "";
+                
+                keys.forEach(request => {
+                    const url = request.url;
+                    if (url.endsWith('.html') && !url.includes('index.html') && !url.includes('room.html')) {
+                        const fileName = url.split('/').pop();
+                        const displayName = fileName.replace('.html', '').replace(/_/g, ' ');
+                        
+                        const card = document.createElement('a');
+                        card.className = 'game-card';
+                        card.href = fileName;
+                        card.textContent = `🎮 ${displayName} (أوفلاين ⚡)`;
+                        grid.appendChild(card);
+                    }
+                });
             }
         }
 
@@ -208,6 +213,5 @@
 
         fetchAndAnalyzeGames();
     </script>
-
 </body>
 </html>
