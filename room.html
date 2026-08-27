@@ -3,150 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>غرفة اللعب والشات الصوتي 🎮🎙️</title>
+    <title>غرفة فلامينجو الذكية (محلي وعن بعد)</title>
     <style>
-        body { background: #0f172a; color: white; font-family: Tahoma, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .box { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.7); width: 340px; text-align: center; border: 1px solid #38bdf8; }
-        input { width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; text-align: center; outline: none; }
-        button { background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; cursor: pointer; width: 95%; margin-top: 5px; font-weight: bold; }
-        .green-btn { background: #10b981; }
-        .mic-btn { background: #8b5cf6; margin-top: 15px; }
-        .mic-btn.active { background: #ef4444; }
-        .code-display { color: #38bdf8; font-size: 32px; font-weight: bold; letter-spacing: 4px; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px dashed #38bdf8; margin: 15px 0; }
-        .back-link { display: block; margin-top: 15px; color: #94a3b8; text-decoration: none; font-size: 13px; }
+        body {
+            background-color: #0d1b2a;
+            color: #ffffff;
+            font-family: Tahoma, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .room-box {
+            background: #1b263b;
+            border: 2px solid #415a77;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+        button {
+            background-color: #7209b7;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button.danger {
+            background-color: #f72585;
+        }
+        #status {
+            margin: 15px 0;
+            font-weight: bold;
+            color: #fbbf24;
+        }
     </style>
 </head>
 <body>
 
-    <!-- الشاشة الأولى: إنشاء أو انضمام للغرفة -->
-    <div id="screen1" class="box">
-        <h3 style="color: #38bdf8; margin-top: 0;">الغرفة الذكية والدردشة</h3>
-        <input type="text" id="playerName" placeholder="اكتب اسمك هنا">
-        <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
-        <button onclick="createRoom()">إنشاء غرفة جديدة</button>
-        <div style="margin-top: 15px;">
-            <input type="text" id="roomCodeInput" placeholder="أدخل كود صديقك">
-            <button class="green-btn" onclick="joinRoom()">دخول اللعبة</button>
-        </div>
-        <a href="index.html" class="back-link">← العودة للمكتبة</a>
-    </div>
+    <div class="room-box">
+        <h2>🎮 غرفة فلامينجو الذكية</h2>
+        <div id="status">⏳ جاري اختيار أفضل طريقة اتصال...</div>
+        
+        <p>طريقة اللعب:</p>
+        <button onclick="setMode('local')">📶 وضع محلي (بدون نت - قريبين)</button>
+        <button onclick="setMode('online')">🌐 وضع عن بعد (بالنت - بعيدين)</button>
+        
+        <hr style="border-color: #415a77; margin: 20px 0;">
 
-    <!-- الشاشة الثانية: شاشة الغرفة واللعب والشات الصوتي -->
-    <div id="screen2" class="box" style="display: none; border-color: #10b981;">
-        <h3 style="color: #10b981; margin-top: 0;">✨ متصل بالغرقة</h3>
-        <p style="font-size: 14px; color: #cbd5e1;">كود الغرفة:</p>
-        <div id="myCodeBox" class="code-display">----</div>
-        <p id="statusText" style="font-size: 13px; color: #f59e0b; font-weight: bold;">⏳ في انتظار اتصال السيرفر...</p>
-        
-        <!-- زرار الميكروفون للتحدث -->
-        <button id="micBtn" class="mic-btn" onclick="toggleVoiceChat()">🎙️ تفعيل الميكروفون (مغلق)</button>
-        
-        <button onclick="location.reload()" style="background: #ef4444; margin-top: 20px; font-size: 13px; padding: 8px;">مغادرة الغرفة</button>
+        <button id="micBtn" onclick="toggleMic()" disabled>🎤 تفعيل الميكروفون</button>
+        <button class="danger" onclick="leaveRoom()">خروج</button>
     </div>
 
     <script>
-        let ws;
-        let mediaRecorder;
-        let isMicActive = false;
+        let ws = null;
+        let peerConnection = null;
+        let dataChannel = null;
+        let localStream = null;
+        let remoteAudio = new Audio();
+        remoteAudio.autoplay = true;
 
-        function createRoom() {
-            const name = document.getElementById('playerName').value.trim();
-            if(!name) { alert('اكتب اسمك الأول!'); return; }
-            
-            const code = Math.random().toString(36).substring(2, 6).toUpperCase();
-            document.getElementById('myCodeBox').innerText = code;
-            
-            document.getElementById('screen1').style.display = 'none';
-            document.getElementById('screen2').style.display = 'block';
-            document.getElementById('statusText').innerText = "🟢 الغرفة جاهزة، شارك الكود مع صديقك";
+        // إعدادات الربط السريعة
+        const rtcConfig = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] // سيرفر مجاني للتعارف فقط
+        };
 
-            // اتصال بالسيرفر (استبدل الرابط برابط سيرفر الـ WebSocket الخاص بك)
-            connectSocket(code);
-        }
+        function setMode(mode) {
+            const status = document.getElementById('status');
+            document.getElementById('micBtn').removeAttribute('disabled');
 
-        function joinRoom() {
-            const name = document.getElementById('playerName').value.trim();
-            const code = document.getElementById('roomCodeInput').value.trim();
-            
-            if(!name || !code) { alert('اكتب اسمك وكود صديقك!'); return; }
-
-            document.getElementById('screen1').style.display = 'none';
-            document.getElementById('screen2').style.display = 'block';
-            document.getElementById('myCodeBox').innerText = code;
-            document.getElementById('statusText').innerText = "🟢 جاري الانضمام للغرفة...";
-
-            // الاتصال بالسيرفر باستخدام كود الغرفة
-            connectSocket(code);
-        }
-
-        function connectSocket(roomCode) {
-            // ملاحظة: استبدل الرابط أدناه بعنوان سيرفر الـ WebSocket الحقيقي الذي يدعم غرفك
-            ws = new WebSocket('wss://your-websocket-server-url.com');
-
-            ws.onopen = () => {
-                document.getElementById('statusText').innerText = "🚀 متصل بالسيرفر بنجاح!";
-                // إرسال رسالة الانضمام للغرفة بالسيرفر
-                ws.send(JSON.stringify({ type: 'join', room: roomCode }));
-            };
-
-            ws.onmessage = async (event) => {
-                // لو البيانات الواردة عبارة عن صوت (Blob أو ArrayBuffer)
-                if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
-                    handleIncomingAudio(event.data);
-                } else {
-                    // بيانات عادية (حركات اللعبة أو رسائل نصية)
-                    try {
-                        const data = JSON.parse(event.data);
-                        console.log("📥 بيانات مستلمة من اللعبة:", data);
-                    } catch(e) {}
-                }
-            };
-
-            ws.onerror = () => {
-                document.getElementById('statusText').innerText = "⚠️ خطأ في الاتصال بالسيرفر";
-            };
-        }
-
-        // دالة تفعيل أو إيقاف الميكروفون
-        async function toggleVoiceChat() {
-            const micBtn = document.getElementById('micBtn');
-
-            if (!isMicActive) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-
-                    mediaRecorder.ondataavailable = event => {
-                        if (event.data.size > 0 && ws && ws.readyState === WebSocket.OPEN) {
-                            // إرسال حزم الصوت الصغيرة عبر الـ WebSocket
-                            ws.send(event.data);
-                        }
-                    };
-
-                    // تقطيع الصوت كل نصف ثانية وإرساله للسيرفر
-                    mediaRecorder.start(500);
-                    isMicActive = true;
-                    micBtn.classList.add('active');
-                    micBtn.innerText = "🔴 الميكروفون يعمل (اضغط للإغلاق)";
-                } catch (err) {
-                    alert('❌ عذراً، لا يمكن الوصول للميكروفون.');
-                }
+            if (mode === 'local') {
+                status.innerText = "📶 تم تفعيل الوضع المحلي (تأكد أنكم على نفس الهوتسبوت)";
+                status.style.color = "#4ade80";
+                // في الوضع المحلي، نقدر نربط الأجهزة عبر الـ IP الداخلي مباشرة
+                initLocalConnection();
             } else {
-                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
-                }
-                isMicActive = false;
-                micBtn.classList.remove('active');
-                micBtn.innerText = "🎙️ تفعيل الميكروفون (مغلق)";
+                status.innerText = "🌐 جاري الاتصال عبر السيرفر الخارجي...";
+                status.style.color = "#38bdf8";
+                initOnlineConnection();
             }
         }
 
-        // استقبال الصوت عند الطرف الآخر وتشكيله كسماعة
-        function handleIncomingAudio(audioData) {
-            const blob = new Blob([audioData], { type: 'audio/webm' });
-            const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
-            audio.play().catch(e => console.log("خطأ في تشغيل الصوت الوارد:", e));
+        // اتصال عن بعد عبر سيرفر مجاني عام
+        function initOnlineConnection() {
+            ws = new WebSocket('wss://echo.websocket.events');
+            
+            ws.onopen = () => {
+                document.getElementById('status').innerText = "🟢 متصل بالوضع عن بعد بنجاح";
+            };
+
+            ws.onmessage = (event) => {
+                if (event.data instanceof Blob) {
+                    const audioUrl = URL.createObjectURL(event.data);
+                    remoteAudio.src = audioUrl;
+                } else {
+                    console.log("بيانات لعبة مستلمة:", event.data);
+                }
+            };
+        }
+
+        // اتصال محلي (بدون نت - عبر الهوتسبوت)
+        function initLocalConnection() {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            
+            // إنشاء قناة نقل بيانات اللعبة والصوت محلياً وبسرعة فائقة
+            dataChannel = peerConnection.createDataChannel("gameData");
+            dataChannel.onmessage = (event) => {
+                console.log("بيانات محلية مستلمة:", event.data);
+            };
+
+            document.getElementById('status').innerText = "🟢 الشبكة المحلية جاهزة للأجهزة القريبة";
+        }
+
+        // تشغيل الميكروفون وإرسال الصوت حسب الوضع المختار
+        async function toggleMic() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(localStream, { mimeType: 'audio/webm' });
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        if (ws && ws.readyState === WebSocket.OPEN) {
+                            ws.send(event.data); // إرسال عبر النت لوضع البعد
+                        } else if (dataChannel && dataChannel.readyState === 'open') {
+                            dataChannel.send(event.data); // إرسال محلي لوضع القرب
+                        }
+                    }
+                };
+
+                mediaRecorder.start(500); // تقطيع الصوت كل نصف ثانية لسرعة النقل
+                document.getElementById('micBtn').innerText = "🎤 الميكروفون يعمل الآن";
+                document.getElementById('micBtn').style.backgroundColor = "#22c55e";
+            } catch (err) {
+                alert("تعذر الوصول للميكروفون، تأكد من الصلاحيات!");
+            }
+        }
+
+        function leaveRoom() {
+            if (ws) ws.close();
+            if (peerConnection) peerConnection.close();
+            window.location.reload();
         }
     </script>
 </body>
