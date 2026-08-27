@@ -27,7 +27,7 @@
 
     <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
 
-    <!-- زر تثبيت التطبيق الذكي (ظاهر ودائم) -->
+    <!-- زر تثبيت التطبيق الذكي (ظاهر ودائم في أعلى الصفحة) -->
     <div id="installBox" style="background: #1e293b; border: 2px solid #10b981; padding: 12px; border-radius: 10px; margin: 15px auto 25px auto; max-width: 350px; text-align: center;">
         <p style="margin: 0 0 10px 0; color: #38bdf8; font-size: 14px; font-weight: bold;">🎮 ثبت تطبيق فلامينجو واستمتع بالألعاب أوفلاين!</p>
         <button id="installBtn" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%;">تثبيت التطبيق الآن 📥</button>
@@ -58,13 +58,11 @@
         const installBox = document.getElementById('installBox');
         const installBtn = document.getElementById('installBtn');
 
-        // التقاط الحدث لو متاح من المتصفح
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
 
-        // لما المستخدم يدوس على الزر في أي وقت
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -74,7 +72,6 @@
                 }
                 deferredPrompt = null;
             } else {
-                // لو الحدث مش جاهز، نفتح للمستخدم دليل التثبيت السريع من قائمة كروم
                 alert("لتثبيت التطبيق فوراً:\nاضغط على الثلاث نقاط (⋮) أعلى اليمين في متصفح كروم، ثم اختر:\n👉 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
             }
         });
@@ -99,7 +96,7 @@
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
             try {
-                const response = all = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
+                const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
                 const files = await response.json();
                 
                 grid.innerHTML = ""; 
