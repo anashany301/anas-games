@@ -14,13 +14,19 @@ for filename in os.listdir('.'):
             content = f.read()
             
         content_lower = content.lower()
-        is_multi = ('إنشاء غرفة' in content or 'انشاء غرفة' in content or 
-                    'peerjs' in content_lower or 'socket.io' in content_lower or 
-                    'multiplayer' in content_lower or 'الرابط' in content or 'غرفة' in content or 'بالونات' in content)
+        
+        # شرط دقيق للألعاب الجماعية الحقيقية فقط (التي تستخدم نظم الغرف أو PeerJS)
+        is_multi = (
+            'إنشاء غرفة' in content or 
+            'انشاء غرفة' in content or 
+            'peerjs' in content_lower or 
+            'socket.io' in content_lower or 
+            'multiplayer' in content_lower
+        )
 
         if is_multi:
             # تنظيف أي زرار أو أكواد قديمة ومزعجة
-            content = re.sub(r'<div id="(perfectRoomOverlay|realRoomSystem|superRoomSystem|smartRoomOverlay|cleanRoomOverlay|fixedRoomLauncher|topRoomBtnContainer).*?</div>\s*</div>', '', content, flags=50) # type: ignore
+            content = re.sub(r'<div id="(perfectRoomOverlay|realRoomSystem|superRoomSystem|smartRoomOverlay|cleanRoomOverlay|fixedRoomLauncher|topRoomBtnContainer).*?</div>\s*</div>', '', content, flags=re.DOTALL)
             content = re.sub(r'<div id="topRoomBtnContainer".*?</div>', '', content, flags=re.DOTALL)
             
             # حقن الزرار العلوي الجديد ببراعة
@@ -28,4 +34,4 @@ for filename in os.listdir('.'):
                 content = content.replace("<body>", "<body>\n" + top_button_code)
                 with open(filename, 'w', encoding='utf-8') as f:
                     f.write(content)
-                print(f"✨ تم إضافة زرار الأكواد العلوي بنجاح في: {filename}")
+                print(f"✨ تم إضافة زرار الأكواد العلوي بنجاح في اللعبة الجماعية: {filename}")
