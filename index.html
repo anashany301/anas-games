@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة ألعاب فلامينجو 🎮</title>
-    <link rel="manifest" href="manifest.json">
+    <title>مكتبة ألعاب فلامينجو 🕹️</title>
+    <!-- وضعنا رقم إصدار متغير لمنع الكاش -->
+    <link rel="manifest" href="manifest.json?v=3.0">
     <meta name="theme-color" content="#0f172a">
     <style>
         body { font-family: sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; margin: 0; direction: rtl; }
@@ -53,34 +54,17 @@
     </div>
 
     <div class="games-grid" id="gamesGrid">
-        <div class="loading">جاري فحص وتنزيل الألعاب بدقة... ⏳</div>
+        <div class="loading">جاري جلب أحدث الألعاب مباشرة من السيرفر... ⏳</div>
     </div>
 
     <script>
-        let swRegistration = null;
-
-        // تسجيل الـ Service Worker
+        // تسجيل الـ Service Worker مع تحديث إجباري
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    swRegistration = reg;
+                navigator.serviceWorker.register('./sw.js').then((reg) => {
+                    reg.update(); // يجبره على البحث عن تحديث فوراً
                 }).catch(() => {});
             });
-
-            // إظهار اشعار عند تنزيل لعبة جديدة
-            navigator.serviceWorker.addEventListener('message', (event) => {
-                if (event.data && event.data.type === 'NEW_GAME_DOWNLOADED') {
-                    showToast(`🎮 تم تنزيل لعبة جديدة أوفلاين: ${event.data.gameName.replace('.html', '')}`);
-                }
-            });
-        }
-
-        function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#38bdf8; color:#0f172a; padding:10px 20px; border-radius:8px; font-weight:bold; z-index:10000; box-shadow:0 4px 10px rgba(0,0,0,0.3);';
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
         }
 
         let deferredPrompt = null;
@@ -95,7 +79,7 @@
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             } else {
-                alert("طريقة التثبيت السريعة:\n\n1. اضغط على زر القائمة (⋮) أعلى يمين متصفح كروم.\n2. اختر \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".\n\nومبروك عليك الألعاب بتشتغل أوفلاين! 🎮🚀");
+                alert("طريقة التثبيت السريعة:\n\n1. اضغط على زر القائمة (⋮) أعلى يمين متصفح كروم.\n2. اختر \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".\n\nومبروك عليك الألعاب بتشتغل أوفلاين تماماً! 🎮🚀");
             }
         }
 
@@ -110,7 +94,8 @@
         async function fetchAndAnalyzeGames() {
             const grid = document.getElementById('gamesGrid');
             try {
-                const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
+                // استخدام بصمة زمنية (Timestamp) لمنع كاش جيت هب ولجلب التحديثات فوراً
+                const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/?t=${new Date().getTime()}`);
                 const files = await response.json();
                 
                 grid.innerHTML = ""; 
@@ -121,7 +106,7 @@
                         let category = 'single'; 
 
                         try {
-                            const gameRes = await fetch(file.download_url);
+                            const gameRes = await fetch(`${file.download_url}?t=${new Date().getTime()}`);
                             const gameHtml = await gameRes.text();
                             
                             if (
@@ -133,15 +118,6 @@
                                 category = 'multi';
                             }
                         } catch (e) {}
-
-                        // أمر الـ Service Worker لتنزيل اللعبة وتخزينها للعمل أوفلاين
-                        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                            navigator.serviceWorker.controller.postMessage({
-                                type: 'CACHE_NEW_GAME',
-                                url: `./${file.name}`,
-                                name: file.name
-                            });
-                        }
 
                         const card = document.createElement('a');
                         card.className = 'game-card';
@@ -167,32 +143,7 @@
                 }
 
             } catch (error) {
-                grid.innerHTML = `<p style="color: #38bdf8;">🌐 أنت أوفلاين حالياً، جاري عرض الألعاب المحفوظة في الموبايل.</p>`;
-                loadOfflineGames();
-            }
-        }
-
-        // عرض الألعاب من الكاش لو الجهاز أوفلاين
-        async function loadOfflineGames() {
-            const grid = document.getElementById('gamesGrid');
-            if ('caches' in window) {
-                const cache = await caches.open('flamingo-games-v2');
-                const keys = await cache.keys();
-                grid.innerHTML = "";
-                
-                keys.forEach(request => {
-                    const url = request.url;
-                    if (url.endsWith('.html') && !url.includes('index.html') && !url.includes('room.html')) {
-                        const fileName = url.split('/').pop();
-                        const displayName = fileName.replace('.html', '').replace(/_/g, ' ');
-                        
-                        const card = document.createElement('a');
-                        card.className = 'game-card';
-                        card.href = fileName;
-                        card.textContent = `🎮 ${displayName} (أوفلاين ⚡)`;
-                        grid.appendChild(card);
-                    }
-                });
+                grid.innerHTML = `<p style="color: #38bdf8;">🌐 أنت أوفلاين حالياً، يتم عرض الألعاب من ذاكرة التخزين.</p>`;
             }
         }
 
