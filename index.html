@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة ألعاب فلامينجو اللانهائية</title>
+    <title>أركيد فلامينجو الخارق - ماريو وتيكن</title>
     <style>
         body { background-color: #0d1117; color: #fff; font-family: Tahoma, sans-serif; text-align: center; margin: 0; padding: 0; }
         header { padding: 20px; background: #161b22; border-bottom: 2px solid #30363d; position: sticky; top: 0; z-index: 10; }
@@ -21,13 +21,13 @@
 <body>
 
     <header>
-        <h1>🕹️ أركيد فلامينجو اللانهائي</h1>
-        <p>عالم بكسل يتسع للأبد .. انزل للأسفل لتوليد ألعاب بلا حدود</p>
+        <h1>🍄 أركيد ماريو وتيكن اللانهائي</h1>
+        <p>عوالم بكسل حقيقية تتولد بلا حدود .. اختر لعبتك وانطلق</p>
     </header>
 
     <div id="list-screen">
         <div id="games-list"></div>
-        <div id="loading-more">جاري تخليق عوالم وألعاب جديدة... ⚡</div>
+        <div id="loading-more">جاري جلب عوالم ماريو وتيكن الفاخرة... ⚡</div>
     </div>
 
     <div id="canvas-container">
@@ -35,7 +35,7 @@
         <canvas id="gameCanvas" width="320" height="400"></canvas>
         <div style="margin-top: 10px;">
             <button onclick="movePlayer(-1)">◀️ يسار</button>
-            <button onclick="playerJump()">⬆️ ناط</button>
+            <button onclick="playerJump()">⬆️ ناط / هجوم</button>
             <button onclick="movePlayer(1)">يمين ▶️</button>
         </div>
         <button class="back-btn" onclick="closeGame()">الرجوع للقائمة</button>
@@ -48,23 +48,21 @@
         let gameState = {};
         
         const gamesData = [];
-        const adjectives = ["أساطير", "مملكة", "ثورة", "حرب", "تحدي", "معبد", "سرعة", "مغامرة", "فارس", "بكسل"];
-        const nouns = ["المقاتلين", "الزمن", "الفضاء", "المتاهة", "العمالقة", "الصحراء", "المدينة", "الأبطال", "المجرة", "المستقبل"];
-        const types = ["منصات بكسل كلاسيكية", "أركيد قتال ثنائي", "مغامرة الفضاء المفتوح", "متاهة الكنز البرتقالي"];
+        const marioNames = ["مغامرات ماريو الكلاسيكية", "عالم الفطر السحري", "إنقاذ الأميرة بيتش", "سوبر ماريو بكسل بردار", "قلعة باوزر المظلمة"];
+        const tekkenNames = ["بطولة حديد تيكن", "قبضة التنين القتالية", "أساطير حلبة الأركيد", "مقاتلو الشوارع الكلاسيكيين", "معركة النخبة القتالية"];
 
-        let currentBatch = 1;
-
-        // توليد دفعة جديدة من الألعاب
         function generateMoreGames(count) {
-            const startIdx = gamesData.length + 1;
+            const startIdx = gamesData.index ? gamesData.length : 1;
             for (let i = startIdx; i < startIdx + count; i++) {
-                const adj = adjectives[i % adjectives.length];
-                const noun = nouns[(i * 7) % nouns.length];
+                let isMario = (i % 2 === 0);
+                let nameList = isMario ? marioNames : tekkenNames;
+                let baseName = nameList[i % nameList.length];
+                
                 gamesData.push({
                     id: i,
-                    name: `${adj} ${noun} #${i}`,
-                    type: types[i % types.length],
-                    color: i % 2 === 0 ? '#ff4444' : '#00ffcc'
+                    name: `${baseName} #${i}`,
+                    type: isMario ? "عالم منصات ماريو (Platformer)" : "حلبة قتال تيكن (Arcade Fighter)",
+                    mode: isMario ? "mario" : "tekken"
                 });
             }
             renderList();
@@ -83,10 +81,9 @@
             `).join('');
         }
 
-        // التمرير اللانهائي (Infinite Scroll)
         window.addEventListener('scroll', () => {
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-                generateMoreGames(20); // يضيف 20 لعبة جديدة أول ما توصل لآخر الصفحة
+                generateMoreGames(15);
             }
         });
 
@@ -98,12 +95,14 @@
 
             gameState = {
                 x: 140,
-                y: 320,
+                y: 300,
                 vx: 0,
                 vy: 0,
-                color: game.color,
-                enemies: [{x: 60, y: 120, vx: 2}, {x: 220, y: 220, vx: -2}],
-                platforms: [{x: 30, y: 300, w: 260, h: 12}, {x: 70, y: 180, w: 180, h: 12}]
+                mode: game.mode,
+                platforms: game.mode === 'mario' ? 
+                    [{x: 20, y: 330, w: 280, h: 15}, {x: 50, y: 220, w: 100, h: 12}, {x: 180, y: 140, w: 100, h: 12}] :
+                    [{x: 10, y: 340, w: 300, h: 20}],
+                enemy: {x: 240, y: game.mode === 'mario' ? 190 : 310, vx: -1.5, type: game.mode}
             };
 
             if (gameLoopInterval) clearInterval(gameLoopInterval);
@@ -111,58 +110,116 @@
         }
 
         function movePlayer(dir) {
-            gameState.x += dir * 15;
+            gameState.x += dir * 16;
             if (gameState.x < 10) gameState.x = 10;
             if (gameState.x > 290) gameState.x = 290;
         }
 
         function playerJump() {
-            gameState.vy = -8;
+            if (gameState.mode === 'mario') {
+                gameState.vy = -9; // قفزة ماريو
+            } else {
+                gameState.vy = -5; // ضربة قوية في تيكن
+            }
         }
 
-        function drawPixelSprite(x, y, color) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x, y, 16, 20); // الجسم
+        // رسم شخصية ماريو الحقيقية بكسل بأجزائها (قبعة حمراء، وجه، ملابس زرقاء)
+        fnDrawMario = function(x, y) {
+            // القبعة الحمراء والشعر
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(x + 2, y, 16, 6);
+            ctx.fillRect(x + 10, y + 2, 8, 4);
+            // الوجه والشارب
             ctx.fillStyle = "#ffccaa";
-            ctx.fillRect(x + 2, y - 8, 12, 10); // الرأس
-            ctx.fillStyle = "#000";
-            ctx.fillRect(x + 8, y - 6, 3, 3); // العين
-        }
+            ctx.fillRect(x + 4, y + 6, 12, 8);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(x + 10, y + 10, 6, 3); // الشارب الشهير
+            // القميص والبنطلون الأزرق والأحزمة
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(x + 2, y + 14, 16, 8);
+            ctx.fillStyle = "#0000ff";
+            ctx.fillRect(x + 4, y + 20, 12, 8);
+        };
+
+        // رسم شخصية مقاتل تيكن (بشكل محارب أركيد بملابس قتالية وحزام وعضلات)
+        fnDrawTekkenFighter = function(x, y, isEnemy) {
+            // الشعر أو العصابة
+            ctx.fillStyle = isEnemy ? "#880000" : "#d4af37";
+            ctx.fillRect(x + 4, y, 12, 4);
+            // الوجه العابس للمقاتل
+            ctx.fillStyle = "#ffdbac";
+            ctx.fillRect(x + 3, y + 4, 14, 8);
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(x + (isEnemy ? 10 : 5), y + 6, 3, 2); // نظرة حادة
+            // جسم وعضلات المقاتل (بدون قميص أو بلبس قتالي)
+            ctx.fillStyle = isEnemy ? "#333333" : "#cc3333";
+            ctx.fillRect(x + 2, y + 12, 16, 10);
+            // بنطلون القتال
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(x + 3, y + 22, 12, 8);
+        };
 
         function updateAndRender() {
-            ctx.fillStyle = "#111625";
+            // خلفية اللعبة حسب النمط
+            if (gameState.mode === 'mario') {
+                ctx.fillStyle = "#5c94fc"; // سماوي ماريو الشهير
+            } else {
+                ctx.fillStyle = "#1c1c1c"; // حلبة تيكن الليلية المظلمة
+            }
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            gameState.vy += 0.3;
+            // فيزياء السقوط والجاذبية
+            gameState.vy += 0.35;
             gameState.y += gameState.vy;
 
+            // اصطدام المنصات
             gameState.platforms.forEach(p => {
                 if (gameState.x + 16 > p.x && gameState.x < p.x + p.w &&
-                    gameState.y + 20 >= p.y && gameState.y + 20 <= p.y + p.h + 10 && gameState.vy > 0) {
-                    gameState.y = p.y - 20;
+                    gameState.y + 28 >= p.y && gameState.y + 28 <= p.y + p.h + 10 && gameState.vy > 0) {
+                    gameState.y = p.y - 28;
                     gameState.vy = 0;
                 }
             });
 
-            if (gameState.y > 360) {
-                gameState.y = 360;
+            if (gameState.y > 330) {
+                gameState.y = 330;
                 gameState.vy = 0;
             }
 
-            ctx.fillStyle = "#30363d";
+            // رسم المنصات أو أرضية الحلبة
+            ctx.fillStyle = gameState.mode === 'mario' ? "#c84c0c" : "#444444"; // طوب ماريو البرتقالي أو أرضية تيكن
             gameState.platforms.forEach(p => {
                 ctx.fillRect(p.x, p.y, p.w, p.h);
-                ctx.strokeStyle = "#58a6ff";
+                ctx.strokeStyle = "#000";
                 ctx.strokeRect(p.x, p.y, p.w, p.h);
             });
 
-            drawPixelSprite(gameState.x, gameState.y, gameState.color);
+            // تحريك ورسم العدو / الخصم
+            gameState.enemy.x += gameState.enemy.vx;
+            if (gameState.enemy.x < 20 || gameState.enemy.x > 270) gameState.enemy.vx *= -1;
 
-            gameState.enemies.forEach(en => {
-                en.x += en.vx;
-                if (en.x < 20 || en.x > 280) en.vx *= -1;
-                drawPixelSprite(en.x, en.y, "#ff3333");
-            });
+            if (gameState.mode === 'mario') {
+                // رسم جوومبا (العدو الشهير في ماريو)
+                ctx.fillStyle = "#8b4513";
+                ctx.fillRect(gameState.enemy.x, gameState.enemy.y + 6, 16, 14);
+                ctx.fillStyle = "#ffccaa";
+                ctx.fillRect(gameState.enemy.x + 2, gameState.enemy.y, 12, 8);
+            } else {
+                // رسم خصم تيكن المقابل
+                fnDrawTekkenFighter(gameState.enemy.x, gameState.enemy.y, true);
+            }
+
+            // رسم البطل الأساسي (ماريو أو مقاتل تيكن)
+            if (gameState.mode === 'mario') {
+                fnDrawMario(gameState.x, gameState.y);
+            } else {
+                fnDrawTekkenFighter(gameState.x, gameState.y, false);
+            }
+
+            // HUD واجهة اللعبة
+            ctx.fillStyle = "#fff";
+            ctx.font = "12px Tahoma";
+            ctx.fillText(gameState.mode === 'mario' ? "🍄 وضع ماريو المنصات" : "🥊 وضع تيكن القتالي", 15, 25);
         }
 
         function closeGame() {
@@ -171,8 +228,8 @@
             document.getElementById('list-screen').style.display = 'block';
         }
 
-        // توليد أول 30 لعبة عند فتح الصفحة
-        generateMoreGames(30);
+        // توليد أول دفعة
+        generateMoreGames(20);
     </script>
 </body>
 </html>
