@@ -1,59 +1,28 @@
-const CACHE_NAME = 'infinite-games-engine-v10';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './engine.json',
-  './manifest.json'
-];
+const CACHE_NAME = 'flingo-cache-v41'; // غير الرقم ده (v42, v43...) مع كل تحديث كبير ترفعه
 
-// تثبيت التخزين المؤقت وتنزيل الملفات مرة واحدة بالكامل للملفات الأوفلاين
+// تثبيت وفحص النسخة الجديدة
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] جاري تنزيل ملفات المحرك و الـ JSON للألعاب أوفلاين...');
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => {
-      return self.skipWaiting();
-    })
-  );
+    self.skipWaiting(); // اجبار الخدمة الجديدة على العمل فوراً
 });
 
-// تفعيل الخدمة والتحكم الفوري بالمتصفح
+// تنظيف الكاش القديم تماماً
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('[Service Worker] حذف النسخ القديمة:', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
-  );
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cache) => {
+                    if (cache !== CACHE_NAME) {
+                        return caches.delete(cache); // مسح أي كاش قديم
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
+    );
 });
 
-// اعتراض الطلبات وقراءتها من الذاكرة المحلية (Cache First) لضمان العمل بدون إنترنت نهائياً
+// جلب الملفات المحدثة
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      }).catch(() => {
-        // في حالة انقطاع الإنترنت تماماً وعدم وجود الطلب في الكاش
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
-      });
-    })
-  );
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
 });
