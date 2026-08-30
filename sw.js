@@ -1,81 +1,59 @@
-const CACHE_NAME = 'flamingo-games-v5'; // رقم إصدار جديد لضمان التحديث الفوري
-
-// الملفات الأساسية للتطبيق
-const STATIC_ASSETS = [
-    './',
-    './index.html',
-    './room.html',
-    './manifest.json'
+const CACHE_NAME = 'infinite-games-engine-v10';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './engine.json',
+  './manifest.json'
 ];
 
-// 1. عند تثبيت الـ Service Worker، بنحفظ الملفات الأساسية
+// تثبيت التخزين المؤقت وتنزيل الملفات مرة واحدة بالكامل للملفات الأوفلاين
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            console.log('📦 جاري حفظ الملفات الأساسية أوفلاين...');
-            return cache.addAll(STATIC_ASSETS);
-        })
-    );
-    self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[Service Worker] جاري تنزيل ملفات المحرك و الـ JSON للألعاب أوفلاين...');
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => {
+      return self.skipWaiting();
+    })
+  );
 });
 
-// 2. تنظيف أي كاش قديم عند التحديث
+// تفعيل الخدمة والتحكم الفوري بالمتصفح
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) => {
-            return Promise.all(
-                keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-            );
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('[Service Worker] حذف النسخ القديمة:', cache);
+            return caches.delete(cache);
+          }
         })
-    );
-    self.clients.claim();
+      );
+    }).then(() => {
+      return self.clients.claim();
+    })
+  );
 });
 
-// 3. طريقة جلب الملفات: لو النت موجود هات الأحدث، لو قطع هات من الكاش فوراً
+// اعتراض الطلبات وقراءتها من الذاكرة المحلية (Cache First) لضمان العمل بدون إنترنت نهائياً
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            // لو الملف موجود في الكاش بنرجعه، وفي الخلفية بنحدثه لو فيه نت
-            const fetchPromise = fetch(event.request).then((networkResponse) => {
-                if (event.request.method === 'GET' && networkResponse.status === 200) {
-                    const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
-                }
-                return networkResponse;
-            }).catch(() => {
-                // لو النت فصل، نتجاهل الخطأ ونعتمد على الكاش
-            });
-
-            return cachedResponse || fetchPromise;
-        }).catch(() => {
-            return caches.match('./index.html');
-        })
-    );
-});
-
-// 4. الاستماع لأوامر تجهيز الألعاب الجديدة في الخلفية (مع الإشعار المخصص)
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'CACHE_NEW_GAME') {
-        const gameUrl = event.data.url;
-        const gameName = event.data.name;
-
-        caches.open(CACHE_NAME).then((cache) => {
-            cache.add(gameUrl).then(() => {
-                console.log(`✅ تم تجهيز اللعبة للعب أوفلاين: ${gameName}`);
-                // إرسال التنبيه للصفحة الرئيسية بالصيغة الذكية اللي طلبناها
-                self.clients.matchAll().then((clients) => {
-                    clients.forEach((client) => {
-                        client.postMessage({
-                            type: 'NEW_GAME_DOWNLOADED',
-                            gameName: gameName
-                        });
-                    });
-                });
-            }).catch(err => {
-                console.log('خطأ أثناء تخزين اللعبة:', err);
-            });
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
         });
-    }
+      }).catch(() => {
+        // في حالة انقطاع الإنترنت تماماً وعدم وجود الطلب في الكاش
+        if (event.request.destination === 'document') {
+          return caches.match('./index.html');
+        }
+      });
+    })
+  );
 });
