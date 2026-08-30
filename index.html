@@ -3,68 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مكتبة ألعاب فلامينجو 🕹️ - المحرك الذكي</title>
-    <link rel="manifest" href="manifest.json?v=10.0">
-    <meta name="theme-color" content="#0f172a">
+    <title>استوديو فلامينجو للخوارزميات اللانهائية 🕹️</title>
+    <link rel="manifest" href="manifest.json?v=40.0">
+    <meta name="theme-color" content="#050508">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body { font-family: Tahoma, sans-serif; text-align: center; background: #0f172a; color: white; padding: 15px; direction: rtl; overflow-x: hidden; }
-        h1 { color: #38bdf8; margin-bottom: 15px; font-size: 24px; }
+        body { font-family: Tahoma, sans-serif; text-align: center; background: #050508; color: white; padding: 15px; direction: rtl; overflow-x: hidden; }
+        h1 { color: #22d3ee; margin-bottom: 5px; font-size: 20px; text-shadow: 0 0 10px rgba(34,211,238,0.3); }
+        p.subtitle { color: #94a3b8; font-size: 12px; margin-bottom: 15px; }
         
         .install-banner {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 2px dashed #38bdf8;
-            padding: 12px;
+            background: linear-gradient(135deg, #09090b, #18181b);
+            border: 2px dashed #22d3ee;
+            padding: 10px;
             border-radius: 12px;
-            margin: 0 auto 20px auto;
-            max-width: 380px;
+            margin: 0 auto 15px auto;
+            max-width: 400px;
             text-align: center;
         }
-        .install-banner p { margin: 0 0 8px 0; color: #38bdf8; font-size: 13px; font-weight: bold; }
+        .install-banner p { margin: 0 0 6px 0; color: #22d3ee; font-size: 12px; font-weight: bold; }
         .install-banner button {
-            background: #10b981; color: white; border: none; padding: 8px 16px;
-            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%;
+            background: #059669; color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; width: 100%;
         }
 
-        .filter-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-btn { padding: 8px 12px; background: #1e293b; border: 1px solid #38bdf8; color: white; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-        .filter-btn.active { background: #38bdf8; color: #0f172a; }
+        .action-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+        }
+        .generate-btn {
+            background: linear-gradient(135deg, #0891b2, #4f46e5);
+            color: white; border: none; padding: 12px;
+            border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79,70,229,0.4);
+        }
+        .generate-btn:active { transform: scale(0.98); }
 
         .games-grid { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto; }
-        .game-card { padding: 15px; background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 15px; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: right; }
-        .game-card:hover { background: #334155; }
+        .game-card {
+            padding: 14px; background: #09090b; border: 1px solid #27272a; border-radius: 12px;
+            color: white; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; text-align: right; transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .game-card:hover { border-color: #22d3ee; background: #18181b; transform: translateY(-2px); }
 
-        /* شاشة اللعبة النشطة */
+        /* شاشة اللعبة */
         #game-screen {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
             background: #000;
             z-index: 100;
             flex-direction: column;
         }
         canvas {
             flex: 1;
-            background: #111;
+            background: #030305;
             display: block;
             touch-action: none;
+            image-rendering: pixelated;
         }
         #hud {
             position: absolute;
-            top: 10px;
-            right: 15px;
-            left: 15px;
+            top: 12px; right: 15px; left: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             pointer-events: none;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            text-shadow: 1px 1px 2px #000;
+            text-shadow: 1px 1px 3px #000;
             z-index: 102;
+            color: #22d3ee;
         }
         #mobile-controls {
             display: none;
@@ -76,71 +91,51 @@
             pointer-events: none;
             z-index: 102;
         }
-        .control-group {
-            display: flex;
-            gap: 15px;
-            pointer-events: auto;
-        }
+        .control-group { display: flex; gap: 15px; pointer-events: auto; }
         .ctrl-btn {
-            width: 65px;
-            height: 65px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            width: 65px; height: 65px;
+            background: rgba(34, 211, 238, 0.2);
+            border: 2px solid #22d3ee;
             border-radius: 50%;
-            color: white;
-            font-size: 22px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            outline: none;
+            color: white; font-size: 22px;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
         }
-        .ctrl-btn:active {
-            background: rgba(255, 255, 255, 0.5);
-        }
+        .ctrl-btn:active { background: rgba(34, 211, 238, 0.6); }
         #back-btn {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #d32f2f;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 103;
-            pointer-events: auto;
+            top: 10px; left: 10px;
+            background: #ef4444; color: white;
+            border: none; padding: 6px 14px;
+            border-radius: 6px; font-weight: bold;
+            cursor: pointer; z-index: 103; pointer-events: auto;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.4);
         }
-
-        .hidden { display: none !important; }
-        .loading { color: #38bdf8; font-size: 16px; margin-top: 20px; }
+        .loading { color: #22d3ee; font-size: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- الواجهة الرئيسية -->
     <div id="main-interface">
-        <h1>مكتبة ألعاب فلامينجو 🕹️</h1>
+        <h1>فلامينجو أركيد الخالص 🕹️</h1>
+        <p class="subtitle">توليد رياضي بحت للأسماء والألعاب دون أي قواميس</p>
 
         <div class="install-banner">
-            <p>📱 تبغى تثبيت الموقع كـ تطبيق أوفلاين بالكامل؟</p>
-            <button onclick="showInstallHelp()">اضغط هنا لمعرفة طريقة التثبيت السريعة 📥</button>
+            <p>📱 تثبيت التطبيق للتشغيل الكامل أوفلاين</p>
+            <button onclick="showInstallHelp()">اضغط هنا لمعرفة طريقة التثبيت 📥</button>
         </div>
 
-        <div class="filter-container">
-            <button class="filter-btn" onclick="filterGames('multi', this)">👥 ألعاب جماعية</button>
-            <button class="filter-btn" onclick="filterGames('single', this)">👤 ألعاب فردية</button>
-            <button class="filter-btn active" onclick="filterGames('all', this)">جميع الألعاب</button>
+        <div class="action-panel">
+            <button class="generate-btn" onclick="synthesizePureGames()">⚡ تخليق ألعاب وعوالم جديدة كلياً</button>
         </div>
 
         <div class="games-grid" id="gamesGrid">
-            <div class="loading">جاري تحميل المحرك الذكي وقائمة الألعاب أوفلاين... ⏳</div>
+            <div class="loading">جاري معالجة مصفوفة التوليد الرياضي... ⏳</div>
         </div>
     </div>
 
-    <!-- شاشة تشغيل الألعاب التوليدية والرسومية عبر الكانفاس -->
     <div id="game-screen">
-        <button id="back-btn" onclick="exitGame()">رجوع للقائمة</button>
+        <button id="back-btn" onclick="exitGame()">خروج للقائمة</button>
         <div id="hud">
             <span id="score-display">النقاط: 0</span>
             <span id="game-title-display">العنوان</span>
@@ -159,7 +154,6 @@
     </div>
 
     <script>
-        let engineData = null;
         let isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
         let mobileControls = document.getElementById("mobile-controls");
         let canvas = document.getElementById("gameCanvas");
@@ -167,144 +161,99 @@
         let animationFrameId = null;
         let keys = {};
         let touchState = { left: false, right: false, action: false };
+        let activeGameConfig = null;
 
-        // تسجيل Service Worker للعمل أوفلاين بالكامل
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    reg.update();
-                }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
 
-        // جلب ملف engine.json وقراءة المحرك الذكي
-        async function loadEngine() {
-            try {
-                let response = await fetch('./engine.json');
-                engineData = await response.json();
-                buildGamesList();
-            } catch (e) {
-                // لو فشل التحميل المباشر، نجرب القراءة من الكاش الداخلي أوفلاين
-                try {
-                    let cacheRes = await caches.match('./engine.json');
-                    if(cacheRes) {
-                        engineData = await cacheRes.json();
-                        buildGamesList();
-                        return;
-                    }
-                } catch(err) {}
-                document.getElementById('gamesGrid').innerHTML = `<p style="color: #38bdf8;">🌐 تأكد من الاتصال لأول مرة لتخزين الملفات، أو أن ملف engine.json موجود بنفس المجلد.</p>`;
-            }
+        // --- مولد رياضي حر للأسماء (بدون أي قاموس كلام ثابت) ---
+        function generatePureAlgorithmicName(seed) {
+            // توليد حروف عشوائية وصوتيات بناءً على الـ Seed الرياضي لتشكيل اسم فريد كلياً
+            const consonants = ["ب", "ت", "ج", "د", "ر", "ز", "س", "ش", "ص", "ط", "ع", "ف", "ق", "ك", "ل", "م", "ن", "ه", "و", "ي", "كس", "بكس", "ترو", "زيك", "فلو"];
+            const vowels = ["ا", "و", "ي", "ي ّ", "اوي"];
+            
+            let randIndex = (s, max) => Math.floor(Math.abs(Math.sin(s++) * 10000)) % max;
+            
+            let c1 = consonants[randIndex(seed, consonants.length)];
+            let v1 = vowels[randIndex(seed + 1, vowels.length)];
+            let c2 = consonants[randIndex(seed + 2, consonants.length)];
+            let c3 = consonants[randIndex(seed + 3, consonants.length)];
+            
+            let codeNum = Math.floor(Math.abs(Math.sin(seed + 4) * 90000)) + 10000;
+            
+            return `بروجيكت [${c1}${v1}${c2}${c3}]-${codeNum}`;
         }
 
-        // بناء قائمة الألعاب بناءً على بيانات الـ JSON
-        function buildGamesList() {
+        // توليد الألوان والخصائص بصرياً برمجياً بالكامل
+        function generatePureTheme(seed) {
+            let hue = Math.floor((seed * 360) % 360);
+            return {
+                bg: `hsl(${hue}, 35%, 6%)`,
+                ground: `hsl(${hue}, 45%, 12%)`,
+                sprite: `hsl(${(hue + 70) % 360}, 90%, 65%)`,
+                accent: `hsl(${(hue + 160) % 360}, 85%, 55%)`,
+                enemy: `hsl(${(hue + 240) % 360}, 80%, 50%)`
+            };
+        }
+
+        window.synthesizePureGames = function() {
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = "";
 
-            // 1. إضافة الألعاب الكلاسيكية المثبتة في مقدمة القائمة (ماريو وتيكن)
-            if (engineData.infinite_autonomous_game_engine.priority_featured_classics) {
-                engineData.infinite_autonomous_game_engine.priority_featured_classics.forEach(game => {
-                    let card = document.createElement('div');
-                    card.className = 'game-card';
-                    let catClass = game.type.includes('جماعية') ? 'multi' : 'single';
-                    card.setAttribute('data-category', catClass);
-                    card.innerHTML = `<div><h3>🎮 ${game.name}</h3><p style="font-size:11px; color:#888;">${game.description}</p></div><span style="color:#666;">▶</span>`;
-                    card.onclick = () => launchEngineGame(game.id, game.name);
-                    grid.appendChild(card);
-                });
-            }
+            // أنواع الميكانيكيات الأساسية المتعددة
+            const coreMechanics = ['platformer', 'fighter', 'shooter'];
 
-            // 2. توليد القائمة اللانهائية للمئات من الألعاب تلقائياً
-            for (let i = 2; i < 50; i++) {
-                let prefixes = engineData.infinite_autonomous_game_engine.smart_distribution_and_type_classifier.arabic_prefixes;
-                let suffixes = engineData.infinite_autonomous_game_engine.smart_distribution_and_type_classifier.arabic_suffixes;
+            for (let i = 0; i < 8; i++) {
+                let seed = Math.random() * 100;
+                let gameName = generatePureAlgorithmicName(seed);
+                let theme = generatePureTheme(seed);
+                let coreId = coreMechanics[Math.floor(Math.random() * coreMechanics.length)];
                 
-                let p = prefixes[i % prefixes.length];
-                let s = suffixes[(i * 3) % suffixes.length];
-                let typeRoll = i % 100;
-                let isMulti = typeRoll >= 90;
-                let typeText = isMulti ? "جماعية (ثنائية) 👥" : "فردية (مستقلة) 👤";
-                let catClass = isMulti ? 'multi' : 'single';
-                
-                let gameName = `${p} ${s} #${i}`;
+                let config = {
+                    name: gameName,
+                    coreId: coreId,
+                    theme: theme,
+                    seed: seed
+                };
 
                 let card = document.createElement('div');
                 card.className = 'game-card';
-                card.setAttribute('data-category', catClass);
-                card.innerHTML = `<div><h3>🕹️ ${gameName}</h3><p style="font-size:11px; color:#888;">نوع اللعبة: ${typeText}</p></div><span style="color:#666;">▶</span>`;
-                card.onclick = () => launchEngineGame(i, gameName);
+                card.innerHTML = `<div><h3>🕹️ ${gameName}</h3><p style="font-size:11px; color:#94a3b8; margin-top:3px;">محرك خوارزمي مستقل • ريترو ناعم</p></div><span style="color:${theme.sprite}; font-size:18px;">▶</span>`;
+                card.onclick = () => launchPureGame(config);
                 grid.appendChild(card);
             }
         }
 
-        // فلترة الألعاب
-        window.filterGames = function(category, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const cards = document.querySelectorAll('.game-card');
-            cards.forEach(card => {
-                const cardCategory = card.getAttribute('data-category');
-                if (category === 'all' || cardCategory === category) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
-
-        // إعدادات التحكم التلقائي للجهاز (موبايل أو كمبيوتر)
-        if (isMobile) {
-            mobileControls.style.display = "flex";
-        }
+        if (isMobile) mobileControls.style.display = "flex";
 
         window.addEventListener("keydown", e => keys[e.code] = true);
         window.addEventListener("keyup", e => keys[e.code] = false);
 
-        function bindTouchButton(id, stateKey) {
-            let btn = document.getElementById(id);
-            if(!btn) return;
-            btn.addEventListener("touchstart", (e) => { e.preventDefault(); touchState[stateKey] = true; });
-            btn.addEventListener("touchend", (e) => { e.preventDefault(); touchState[stateKey] = false; });
-            btn.addEventListener("mousedown", () => { touchState[stateKey] = true; });
-            btn.addEventListener("mouseup", () => { touchState[stateKey] = false; });
+        function bindTouch(id, key) {
+            let b = document.getElementById(id);
+            if(!b) return;
+            b.addEventListener("touchstart", e => { e.preventDefault(); touchState[key] = true; });
+            b.addEventListener("touchend", e => { e.preventDefault(); touchState[key] = false; });
+            b.addEventListener("mousedown", () => touchState[key] = true);
+            b.addEventListener("mouseup", () => touchState[key] = false);
         }
-        bindTouchButton("btn-left", "left");
-        bindTouchButton("btn-right", "right");
-        bindTouchButton("btn-action", "action");
+        bindTouch("btn-left", "left");
+        bindTouch("btn-right", "right");
+        bindTouch("btn-action", "action");
 
-        // نظام الصوت المدمج بدون نت (Web Audio API) باستخدام بيانات الـ JSON
-        let audioCtx = null;
-        function playEngineSound(effectName) {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                let effects = engineData.infinite_autonomous_game_engine.sound_and_effects_engine.effects_mapping;
-                let fx = effects[effectName] || { frequency: 440, duration: 0.1, type: 'sine' };
-
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = fx.type;
-                osc.frequency.value = fx.frequency;
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + fx.duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + fx.duration);
-            } catch (e) {}
-        }
-
-        // تشغيل اللعبة عبر محرك الـ Canvas اللحظي
-        function launchEngineGame(seed, name) {
+        function launchPureGame(config) {
+            activeGameConfig = config;
             document.getElementById("main-interface").style.display = "none";
             document.getElementById("game-screen").style.display = "flex";
-            document.getElementById("game-title-display").innerText = name;
+            document.getElementById("game-title-display").innerText = config.name;
+            document.getElementById("game-title-display").style.color = config.theme.sprite;
             
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - 50;
-
-            initGameLoop(seed);
+            canvas.width = 360;
+            canvas.height = 500;
+            runPureEngine(config);
         }
 
         window.exitGame = function() {
@@ -313,127 +262,141 @@
             document.getElementById("main-interface").style.display = "block";
         }
 
-        let player, obstacles, score, gameSpeed;
+        let audioCtx = null;
+        function playSound(freq, duration) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
 
-        function initGameLoop(seed) {
-            score = 0;
-            gameSpeed = 4;
-            let playerColor = seed === 0 ? '#E52521' : seed === 1 ? '#FF4500' : '#4CAF50';
-            
-            player = {
-                x: 80,
-                y: canvas.height - 150,
-                width: 40,
-                height: 50,
-                vy: 0,
-                jumpPower: -12,
-                gravity: 0.6,
-                grounded: false,
-                color: playerColor
-            };
-            obstacles = [];
+        // محرك الرسم والتشغيل الرياضي الحر
+        function runPureEngine(config) {
+            let score = 0;
+            let px = 160, py = 380, pvy = 0;
+            let entities = [];
+            let frame = 0;
+            let theme = config.theme;
 
             function loop() {
-                ctx.fillStyle = "#111";
+                frame++;
+                ctx.fillStyle = theme.bg;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // رسم الأرضية
-                ctx.fillStyle = "#1e293b";
-                ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
-
-                // حركة اللاعب عبر الكيبورد أو الأزرار
-                let moveLeft = keys["ArrowLeft"] || keys["KeyA"] || touchState.left;
-                let moveRight = keys["ArrowRight"] || keys["KeyD"] || touchState.right;
-                let jumpAction = keys["Space"] || keys["ArrowUp"] || keys["KeyW"] || touchState.action;
-
-                if (moveLeft) player.x -= 5;
-                if (moveRight) player.x += 5;
-                if (jumpAction && player.grounded) {
-                    player.vy = player.jumpPower;
-                    player.grounded = false;
-                    playEngineSound('jump');
+                if(frame % 25 === 0) {
+                    entities.push({x: Math.random() * canvas.width, y: -10, type: 'dust', speed: 1 + Math.random() * 1.5});
                 }
 
-                // الجاذبية
-                player.vy += player.gravity;
-                player.y += player.vy;
+                let left = keys["ArrowLeft"] || keys["KeyA"] || touchState.left;
+                let right = keys["ArrowRight"] || keys["KeyD"] || touchState.right;
+                let action = keys["Space"] || keys["ArrowUp"] || keys["KeyW"] || touchState.action;
 
-                if (player.y > canvas.height - 80 - player.height) {
-                    player.y = canvas.height - 80 - player.height;
-                    player.vy = 0;
-                    player.grounded = true;
-                }
+                if (config.coreId === 'platformer') {
+                    if(left) px -= 4.5;
+                    if(right) px += 4.5;
+                    if(action && py >= 370) { pvy = -11; playSound(500, 0.08); }
+                    pvy += 0.45; py += pvy;
+                    if(py > 370) { py = 370; pvy = 0; }
 
-                // توليد العقبات
-                if (Math.random() < 0.02) {
-                    obstacles.push({
-                        x: canvas.width,
-                        y: canvas.height - 120,
-                        width: 30,
-                        height: 40,
-                        color: '#38bdf8'
-                    });
-                }
+                    ctx.fillStyle = theme.ground;
+                    ctx.fillRect(0, 420, canvas.width, 80);
 
-                for (let i = obstacles.length - 1; i >= 0; i--) {
-                    let obs = obstacles[i];
-                    obs.x -= gameSpeed;
+                    ctx.fillStyle = theme.sprite;
+                    ctx.fillRect(px, py, 26, 32);
 
-                    ctx.fillStyle = obs.color;
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-
-                    // الاصطدام
-                    if (
-                        player.x < obs.x + obs.width &&
-                        player.x + player.width > obs.x &&
-                        player.y < obs.y + obs.height &&
-                        player.y + player.height > obs.y
-                    ) {
-                        playEngineSound('hit');
-                        score = Math.max(0, score - 5);
-                        obstacles.splice(i, 1);
-                        continue;
+                    if(frame % 50 === 0) {
+                        entities.push({x: Math.random() * 320, y: 240, type: 'item', speed: 2});
                     }
 
-                    if (obs.x + obs.width < 0) {
-                        obstacles.splice(i, 1);
-                        score += 10;
-                        playEngineSound('coin');
+                } else if (config.coreId === 'fighter') {
+                    if(left) px -= 5;
+                    if(right) px += 5;
+                    if(px < 20) px = 20; if(px > canvas.width - 50) px = canvas.width - 50;
+
+                    ctx.fillStyle = theme.ground;
+                    ctx.fillRect(0, 400, canvas.width, 100);
+
+                    ctx.fillStyle = theme.sprite;
+                    ctx.fillRect(px, 360, 30, 40);
+
+                    if(action && frame % 15 === 0) {
+                        entities.push({x: px + 30, y: 370, type: 'strike', speed: 6});
+                        playSound(720, 0.06);
+                    }
+
+                    let enemyX = canvas.width - px - 40;
+                    ctx.fillStyle = theme.enemy;
+                    ctx.fillRect(enemyX, 360, 30, 40);
+
+                } else {
+                    if(left) px -= 5;
+                    if(right) px += 5;
+                    if(px < 10) px = 10; if(px > canvas.width - 35) px = canvas.width - 35;
+
+                    if(action && frame % 12 === 0) {
+                        entities.push({x: px + 11, y: 390, type: 'beam', speed: -8});
+                        playSound(880, 0.05);
+                    }
+
+                    ctx.fillStyle = theme.sprite;
+                    ctx.fillRect(px, 400, 28, 28);
+
+                    if(frame % 45 === 0) {
+                        entities.push({x: Math.random() * (canvas.width - 30), y: -20, type: 'hazard', speed: 2.5});
                     }
                 }
 
-                // رسم الشخصية
-                ctx.fillStyle = player.color;
-                ctx.fillRect(player.x, player.y, player.width, player.height);
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(player.x + 25, player.y + 10, 8, 8);
+                entities.forEach((ent, index) => {
+                    if(ent.type === 'dust') {
+                        ent.y += ent.speed;
+                        ctx.fillStyle = "#ffffff15";
+                        ctx.fillRect(ent.x, ent.y, 2, 2);
+                    } else {
+                        ent.y += (ent.speed || 2);
+                        if(ent.x !== undefined && ent.y !== undefined) {
+                            ctx.fillStyle = ent.type === 'item' ? theme.accent : (ent.type === 'strike' || ent.type === 'beam' ? '#fff' : theme.enemy);
+                            ctx.fillRect(ent.x, ent.y, 16, 16);
+                        }
+
+                        if(ent.x && Math.abs(px - ent.x) < 24 && Math.abs(py - ent.y) < 24) {
+                            score += 15;
+                            playSound(950, 0.08);
+                            entities.splice(index, 1);
+                        }
+                    }
+
+                    if(ent.y > canvas.height + 20) {
+                        entities.splice(index, 1);
+                        if(ent.type !== 'dust') score += 5;
+                    }
+                });
 
                 document.getElementById("score-display").innerText = "النقاط: " + score;
-
                 animationFrameId = requestAnimationFrame(loop);
             }
-
             loop();
         }
 
         let deferredPrompt = null;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         window.showInstallHelp = async function() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             } else {
-                alert("طريقة التثبيت السريعة:\n\n1. اضغط على زر القائمة (⋮) أعلى يمين متصفح كروم.\n2. اختر \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".\n\nومبروك عليك الألعاب والمحرك يشتغلون أوفلاين تماماً! 🎮🚀");
+                alert("طريقة التثبيت السريعة:\n1. اضغط على خيارات المتصفح (⋮)\n2. اختر \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".");
             }
         }
 
-        // تشغيل تحميل المحرك عند فتح الصفحة
-        loadEngine();
+        synthesizePureGames();
     </script>
 </body>
 </html>
