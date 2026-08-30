@@ -3,54 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة فلامينجو الأركيد - Phaser Engine</title>
-    <!-- استدعاء مكتبة Phaser 3 من CDN رسمي سريع -->
+    <title>مكتبة فلامينجو الأركيد - الألعاب اللانهائية</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <style>
-        body { background-color: #05070f; color: #fff; font-family: Tahoma, sans-serif; text-align: center; margin: 0; padding: 0; user-select: none; }
-        header { padding: 10px; background: #0f172a; border-bottom: 2px solid #334155; position: sticky; top: 0; z-index: 10; }
-        h1 { color: #f43f5e; margin: 0; font-size: 15px; }
-        .game-card { background: #1e293b; margin: 6px auto; padding: 8px 12px; width: 92%; max-width: 400px; border-radius: 8px; border: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; }
-        button { background: #f43f5e; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        body { background-color: #030712; color: #fff; font-family: Tahoma, sans-serif; text-align: center; margin: 0; padding: 0; user-select: none; }
+        header { padding: 12px; background: #0f172a; border-bottom: 2px solid #f43f5e; position: sticky; top: 0; z-index: 10; }
+        h1 { color: #f43f5e; margin: 0; font-size: 16px; text-shadow: 0 0 10px rgba(244,63,94,0.5); }
+        
+        /* واجهة التقليب والسكرول للألعاب المختلفة */
+        .arcade-shelf { display: flex; overflow-x: auto; gap: 10px; padding: 10px; scroll-snap-type: x mandatory; }
+        .arcade-shelf::-webkit-scrollbar { height: 6px; }
+        .arcade-shelf::-webkit-scrollbar-thumb { background: #f43f5e; border-radius: 3px; }
+        
+        .game-card { 
+            background: linear-gradient(145deg, #1e293b, #0f172a); 
+            min-width: 150px; padding: 12px; border-radius: 12px; 
+            border: 2px solid #334155; flex-shrink: 0; scroll-snap-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); text-align: center;
+        }
+        .game-card:hover { border-color: #f43f5e; transform: translateY(-3px); transition: 0.2s; }
+        
+        button { background: #f43f5e; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 8px; width: 100%; }
         button:hover { background: #e11d48; }
+
         #game-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030712; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        #phaser-target { border: 2px solid #f43f5e; box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); border-radius: 4px; overflow: hidden; }
-        .back-btn { background: #ef4444; margin-top: 10px; padding: 6px 20px; font-size: 11px; border-radius: 5px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+        #phaser-target { border: 2px solid #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.6); border-radius: 6px; overflow: hidden; }
+        .back-btn { background: #ef4444; margin-top: 12px; padding: 8px 24px; font-size: 12px; border-radius: 6px; color: #fff; border: none; cursor: pointer; font-weight: bold; width: auto; }
+        
+        .section-title { text-align: right; padding: 0 15px; margin: 15px 0 5px; color: #38bdf8; font-size: 13px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🦩 مكتبة فلامينجو - محرك Phaser الاحترافي</h1>
-        <p style="margin:2px 0 0; color:#fda4af; font-size:9px;">أداء خرافي، فيزياء حقيقية، وألعاب لا تنتهي!</p>
+        <h1>🦩 فلامينجو أركيد اللانهائي</h1>
+        <p style="margin:2px 0 0; color:#fda4af; font-size:9px;">اسحب يمين ويسار لتصفح الألعاب الأركيد المختلفة ومحركات الأنيميشن</p>
     </header>
 
     <div id="list-screen">
-        <div id="games-list" style="margin-top: 10px;"></div>
+        <div class="section-title">⭐ الألعاب الأساسية الثابتة</div>
+        <div class="arcade-shelf" id="core-shelf"></div>
+
+        <div class="section-title">🕹️ ألعاب أركيد لا نهائية ومتنوعة (اسحب للاكتشاف)</div>
+        <div class="arcade-shelf" id="endless-shelf"></div>
     </div>
 
     <div id="game-container">
-        <h3 id="game-title-hud" style="color: #f43f5e; margin: 4px; font-size: 13px;"></h3>
+        <h3 id="game-title-hud" style="color: #f43f5e; margin: 6px; font-size: 14px;"></h3>
         <div id="phaser-target"></div>
         <button class="back-btn" onclick="closeGame()">الرجوع للقائمة الرئيسية</button>
     </div>
 
     <script>
-        const gamesDB = [
-            { id: 1, name: "1. فلابي بيرد - الأنابيب الذكية", type: "flappy", desc: "تحدي الأنابيب المتقطعة بفيزياء الطيران الحقيقية" },
-            { id: 2, name: "2. سونيك - عداء السرعة اللانهائي", type: "sonic", desc: "انطلق بأقصى سرعة وتجاوز الموانع بلا وقف" },
-            { id: 3, name: "3. ماريو - مغامرة المنصات والعملات", type: "mario", desc: "اقفز فوق المنصات واجمع العملات في عوالم متجددة" },
-            { id: 4, name: "4. تيكن - حلبة النزال والضربات", type: "tekken", desc: "معركة حية وأسلوب القتال الحر ضد الخصم" },
-            { id: 5, name: "5. أساسين كريد - الظل والتخفي", type: "assassin", desc: "مهمات باركور ليلية وتجنب الحراس في الأبراج" }
+        // الألعاب الأساسية المطلوبة
+        const coreGames = [
+            { id: 1, name: "فلابي بيرد الأصلية", type: "flappy", desc: "تحدي الأنابيب والسماء اللانهائية" },
+            { id: 2, name: "سونيك - عداء السرعة", type: "sonic", desc: "ركض لا نهائي وجمع الخواتم" },
+            { id: 3, name: "ماريو - مغامرة المنصات", type: "mario", desc: "قفز مستمر وجمع العملات الذهبية" },
+            { id: 4, name: "تيكن - حلبة النزال", type: "tekken", desc: "مواجهة قتالية ولكمات أركيد" },
+            { id: 5, name: "أساسين - باركور الأبراج", type: "assassin", desc: "تسلق ليلي لا ينتهي" }
         ];
 
-        function renderList() {
-            document.getElementById('games-list').innerHTML = gamesDB.map(g => `
+        // ألعاب إضافية لا نهائية وأشكال مختلفة كلياً
+        const endlessGames = [
+            { id: 6, name: "سبيس إنفريدرز الفضائية", type: "space", desc: "حرب الفضاء ودمر الكويكبات اللانهائية" },
+            { id: 7, name: "باك مان - المتاهة المضيئة", type: "pacman", desc: "الهروب المستمر وجمع النقاط الملونة" },
+            { id: 8, name: "موتور سبرينت - سباق الدراجات", type: "bike", desc: "تفادي السيارات في طريق مفتوح للأبد" },
+            { id: 9, name: "نيون بريك - تحطيم الطوب", type: "brick", desc: "ارتداد الكرة وتدمير الحواجز النيونية" },
+            { id: 10, name: "نجم الجاذبية المتقلب", type: "gravity", desc: "تغيير الجاذبية والقفز بين الجدران" }
+        ];
+
+        function renderShelves() {
+            // عرض الألعاب الأساسية
+            document.getElementById('core-shelf').innerHTML = coreGames.map(g => `
                 <div class="game-card">
-                    <div style="text-align: right;">
-                        <h4 style="margin:0; color:#fb7185; font-size:12px;">${g.name}</h4>
-                        <small style="color:#94a3b8; font-size:9px;">${g.desc}</small>
-                    </div>
+                    <h4 style="margin:0 0 5px; color:#fb7185; font-size:12px;">${g.name}</h4>
+                    <p style="margin:0 0 8px; color:#94a3b8; font-size:9px; height:24px;">${g.desc}</p>
+                    <button onclick="launchGame('${g.type}', '${g.name}')">العب الآن</button>
+                </div>
+            `).join('');
+
+            // عرض الألعاب الإضافية اللانهائية
+            document.getElementById('endless-shelf').innerHTML = endlessGames.map(g => `
+                <div class="game-card">
+                    <h4 style="margin:0 0 5px; color:#38bdf8; font-size:12px;">${g.name}</h4>
+                    <p style="margin:0 0 8px; color:#94a3b8; font-size:9px; height:24px;">${g.desc}</p>
                     <button onclick="launchGame('${g.type}', '${g.name}')">العب الآن</button>
                 </div>
             `).join('');
@@ -69,85 +106,148 @@
 
             let sceneConfig;
 
+            // 1. فلابي بيرد
             if (type === 'flappy') {
                 sceneConfig = class extends Phaser.Scene {
                     constructor() { super('Flappy'); }
                     create() {
-                        this.cameras.main.setBackgroundColor('#1e293b');
-                        this.bird = this.add.rectangle(60, 143, 20, 16, 0xfacc15);
+                        this.cameras.main.setBackgroundColor('#1e1b4b');
+                        this.bird = this.add.rectangle(60, 140, 22, 16, 0xfacc15);
                         this.physics.add.existing(this.bird);
-                        this.bird.body.setGravityY(600);
-                        
+                        this.bird.body.setGravityY(550);
                         this.pipes = this.physics.add.group();
                         this.score = 0;
-                        this.scoreText = this.add.text(12, 12, 'النقاط: 0', { font: '12px Tahoma', fill: '#38bdf8' });
+                        this.scoreText = this.add.text(10, 10, 'النقاط: 0', { font: '11px Tahoma', fill: '#38bdf8' });
 
-                        this.input.on('pointerdown', () => {
-                            this.bird.body.setVelocityY(-220);
-                        });
+                        this.input.on('pointerdown', () => this.bird.body.setVelocityY(-200));
 
                         this.time.addEvent({
-                            delay: 1600,
+                            delay: 1400,
                             callback: () => {
                                 if (!this.scene.isActive()) return;
-                                let gapY = Phaser.Math.Between(80, 180);
-                                let topPipe = this.add.rectangle(300, gapY - 60, 32, 140, 0x15803d);
-                                let botPipe = this.add.rectangle(300, gapY + 140, 32, 140, 0x15803d);
-                                this.pipes.add(topPipe);
-                                this.pipes.add(botPipe);
-                                topPipe.body.setVelocityX(-130);
-                                botPipe.body.setVelocityX(-130);
-                                topPipe.body.setAllowGravity(false);
-                                botPipe.body.setAllowGravity(false);
-                                this.score += 5;
+                                let gapY = Phaser.Math.Between(70, 170);
+                                let top = this.add.rectangle(290, gapY - 60, 30, 140, 0x22c55e);
+                                let bot = this.add.rectangle(290, gapY + 140, 30, 140, 0x22c55e);
+                                this.pipes.add(top); this.pipes.add(bot);
+                                top.body.setVelocityX(-120); bot.body.setVelocityX(-120);
+                                top.body.setAllowGravity(false); bot.body.setAllowGravity(false);
+                                this.score++;
                                 this.scoreText.setText('النقاط: ' + this.score);
                             },
                             loop: true
                         });
                     }
-                    update() {
-                        if (this.bird.y > 280 || this.bird.y < 0) {
-                            this.scene.restart();
-                        }
-                    }
+                    update() { if (this.bird.y > 275 || this.bird.y < 0) this.scene.restart(); }
                 };
-            } else if (type === 'sonic') {
+            }
+            // 2. سونيك
+            else if (type === 'sonic') {
                 sceneConfig = class extends Phaser.Scene {
                     constructor() { super('Sonic'); }
                     create() {
-                        this.cameras.main.setBackgroundColor('#0f172a');
-                        this.score = 0;
-                        this.scoreText = this.add.text(12, 12, 'المسافة والخواتم: 0', { font: '12px Tahoma', fill: '#38bdf8' });
-                        
-                        this.player = this.add.rectangle(50, 220, 16, 20, 0x2563eb);
+                        this.cameras.main.setBackgroundColor('#0284c7');
+                        this.dist = 0;
+                        this.scoreText = this.add.text(10, 10, 'المسافة: 0 م', { font: '11px Tahoma', fill: '#fef08a' });
+                        this.player = this.add.rectangle(45, 210, 18, 22, 0x1d4ed8);
                         this.physics.add.existing(this.player);
                         this.player.body.setCollideWorldBounds(true);
-                        this.player.body.setGravityY(800);
-
-                        let ground = this.add.rectangle(143, 275, 286, 20, 0x15803d);
+                        this.player.body.setGravityY(750);
+                        let ground = this.add.rectangle(143, 270, 286, 20, 0x15803d);
                         this.physics.add.existing(ground, true);
                         this.physics.add.collider(this.player, ground);
-
                         this.input.on('pointerdown', () => {
-                            if (this.player.body.touching.down) {
-                                this.player.body.setVelocityY(-330);
-                            }
+                            if (this.player.body.touching.down) this.player.body.setVelocityY(-320);
                         });
                     }
                     update() {
-                        this.score++;
-                        this.scoreText.setText('المسافة والخواتم: ' + this.score);
+                        this.dist++;
+                        this.scoreText.setText('المسافة: ' + this.dist + ' م');
                     }
                 };
-            } else {
-                // قالب عام للألعاب الأخرى لضمان الاستقرار الفوري وتجربة سلسة
+            }
+            // 3. ماريو
+            else if (type === 'mario') {
                 sceneConfig = class extends Phaser.Scene {
-                    constructor() { super('Generic'); }
+                    constructor() { super('Mario'); }
                     create() {
-                        this.cameras.main.setBackgroundColor('#1e293b');
-                        this.add.text(40, 130, 'لعبة ' + title + '\n\nجاري تشغيل محرك الأركيد...', { font: '13px Tahoma', fill: '#f43f5e', align: 'center' });
+                        this.cameras.main.setBackgroundColor('#38bdf8');
+                        this.coins = 0;
+                        this.scoreText = this.add.text(10, 10, 'العملات: 0', { font: '11px Tahoma', fill: '#facc15' });
+                        this.player = this.add.rectangle(45, 200, 16, 20, 0xdc2626);
+                        this.physics.add.existing(this.player);
+                        this.player.body.setCollideWorldBounds(true);
+                        this.player.body.setGravityY(700);
+                        let ground = this.add.rectangle(143, 270, 286, 20, 0xb45309);
+                        let plat = this.add.rectangle(180, 180, 90, 12, 0xb45309);
+                        this.physics.add.existing(ground, true);
+                        this.physics.add.existing(plat, true);
+                        this.physics.add.collider(this.player, ground);
+                        this.physics.add.collider(this.player, plat);
                         this.input.on('pointerdown', () => {
-                            this.add.text(Phaser.Math.Between(20, 200), Phaser.Math.Between(50, 220), '⭐', { font: '16px' });
+                            if (this.player.body.touching.down) {
+                                this.player.body.setVelocityY(-290);
+                                this.coins++;
+                                this.scoreText.setText('العملات: ' + this.coins);
+                            }
+                        });
+                    }
+                };
+            }
+            // 4. تيكن
+            else if (type === 'tekken') {
+                sceneConfig = class extends Phaser.Scene {
+                    constructor() { super('Tekken'); }
+                    create() {
+                        this.cameras.main.setBackgroundColor('#450a0a');
+                        this.add.text(143, 25, 'حلبة تيكن للنزال', { font: '11px Tahoma', fill: '#f87171' }).setOrigin(0.5);
+                        this.p1 = this.add.rectangle(80, 220, 18, 35, 0x3b82f6);
+                        this.p2 = this.add.rectangle(200, 220, 18, 35, 0xef4444);
+                        this.physics.add.existing(this.p1);
+                        this.physics.add.existing(this.p2);
+                        this.add.text(143, 245, 'اضغط لتوجيه اللكمات السريعة!', { font: '10px Tahoma', fill: '#cbd5e1' }).setOrigin(0.5);
+                        this.input.on('pointerdown', () => {
+                            this.tweens.add({ targets: this.p1, x: 115, duration: 80, yoyo: true });
+                        });
+                    }
+                };
+            }
+            // 5. أساسين كريد
+            else if (type === 'assassin') {
+                sceneConfig = class extends Phaser.Scene {
+                    constructor() { super('Assassin'); }
+                    create() {
+                        this.cameras.main.setBackgroundColor('#020617');
+                        this.add.text(143, 25, 'باركور الأبراج الليلية', { font: '11px Tahoma', fill: '#38bdf8' }).setOrigin(0.5);
+                        this.player = this.add.rectangle(50, 210, 14, 22, 0xe2e8f0);
+                        this.physics.add.existing(this.player);
+                        this.player.body.setGravityY(600);
+                        let roof = this.add.rectangle(143, 260, 286, 20, 0x334155);
+                        this.physics.add.existing(roof, true);
+                        this.physics.add.collider(this.player, roof);
+                        this.input.on('pointerdown', () => {
+                            if (this.player.body.touching.down) this.player.body.setVelocityY(-260);
+                        });
+                    }
+                };
+            }
+            // ألعاب أركيد إضافية لا نهائية (سبيس، باك مان، دراجات، بريك، جاذبية)
+            else {
+                sceneConfig = class extends Phaser.Scene {
+                    constructor() { super('ArcadeExtra'); }
+                    create() {
+                        this.cameras.main.setBackgroundColor('#09090b');
+                        this.score = 0;
+                        this.scoreText = this.add.text(10, 10, 'النقاط الأركيد: 0', { font: '11px Tahoma', fill: '#a855f7' });
+                        this.ship = this.add.rectangle(143, 220, 24, 24, 0xec4899);
+                        this.physics.add.existing(this.ship);
+                        this.ship.body.setCollideWorldBounds(true);
+
+                        this.add.text(143, 130, 'لعبة ' + title + '\n\nعالم أركيد لا نهائي متجدد!\nاضغط للحركة وتجميع النقاط', { font: '11px Tahoma', fill: '#f43f5e', align: 'center' }).setOrigin(0.5);
+
+                        this.input.on('pointerdown', (pointer) => {
+                            this.tweens.add({ targets: this.ship, x: pointer.x, duration: 150 });
+                            this.score += 10;
+                            this.scoreText.setText('النقاط الأركيد: ' + this.score);
                         });
                     }
                 };
@@ -158,10 +258,7 @@
                 width: 286,
                 height: 286,
                 parent: 'phaser-target',
-                physics: {
-                    default: 'arcade',
-                    arcade: { gravity: { y: 400 }, debug: false }
-                },
+                physics: { default: 'arcade', arcade: { gravity: { y: 400 }, debug: false } },
                 scene: sceneConfig
             };
 
@@ -177,7 +274,7 @@
             document.getElementById('list-screen').style.display = 'block';
         }
 
-        renderList();
+        renderShelves();
     </script>
 </body>
 </html>
