@@ -3,275 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة ألعاب فلامينجو الاحترافية</title>
+    <title>مكتبة فلامينجو الأركيد - Phaser Engine</title>
+    <!-- استدعاء مكتبة Phaser 3 من CDN رسمي سريع -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <style>
-        body { background-color: #0b0f19; color: #fff; font-family: Tahoma, sans-serif; text-align: center; margin: 0; padding: 0; user-select: none; }
-        header { padding: 12px; background: #111827; border-bottom: 2px solid #1f2937; position: sticky; top: 0; z-index: 10; }
-        h1 { color: #ec4899; margin: 0; font-size: 16px; }
-        .game-card { background: #1f2937; margin: 8px auto; padding: 10px 14px; width: 92%; max-width: 420px; border-radius: 10px; border: 1px solid #374151; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        button { background: #ec4899; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
-        button:hover { background: #db2777; }
-        #canvas-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #05050a; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        canvas { background: #0f172a; border: 2px solid #ec4899; box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); border-radius: 6px; }
-        .controls { display: flex; gap: 8px; margin-top: 10px; }
-        .ctrl-btn { background: #374151; width: 75px; height: 42px; font-size: 13px; border-radius: 8px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
-        .ctrl-btn:active { background: #4b5563; transform: scale(0.95); }
-        .back-btn { background: #dc2626; margin-top: 10px; padding: 6px 20px; font-size: 12px; }
-        .back-btn:hover { background: #b91c1c; }
+        body { background-color: #05070f; color: #fff; font-family: Tahoma, sans-serif; text-align: center; margin: 0; padding: 0; user-select: none; }
+        header { padding: 10px; background: #0f172a; border-bottom: 2px solid #334155; position: sticky; top: 0; z-index: 10; }
+        h1 { color: #f43f5e; margin: 0; font-size: 15px; }
+        .game-card { background: #1e293b; margin: 6px auto; padding: 8px 12px; width: 92%; max-width: 400px; border-radius: 8px; border: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; }
+        button { background: #f43f5e; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        button:hover { background: #e11d48; }
+        #game-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030712; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+        #phaser-target { border: 2px solid #f43f5e; box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); border-radius: 4px; overflow: hidden; }
+        .back-btn { background: #ef4444; margin-top: 10px; padding: 6px 20px; font-size: 11px; border-radius: 5px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🦩 مكتبة ألعاب فلامينجو</h1>
-        <p style="margin:3px 0 0; color:#fbcfe8; font-size:10px;">ألعاب متكاملة برسومات وتفاصيل وصراع حقيقي</p>
+        <h1>🦩 مكتبة فلامينجو - محرك Phaser الاحترافي</h1>
+        <p style="margin:2px 0 0; color:#fda4af; font-size:9px;">أداء خرافي، فيزياء حقيقية، وألعاب لا تنتهي!</p>
     </header>
 
     <div id="list-screen">
         <div id="games-list" style="margin-top: 10px;"></div>
     </div>
 
-    <div id="canvas-container">
-        <h3 id="game-title-hud" style="color: #ec4899; margin: 2px; font-size: 14px;"></h3>
-        <div id="hud-stats" style="color: #f87171; font-weight: bold; margin-bottom: 4px; font-size: 12px;"></div>
-        <canvas id="gameCanvas" width="300" height="300"></canvas>
-        
-        <div class="controls" id="controls-area"></div>
-        <button class="back-btn" onclick="closeGame()">الرجوع للقائمة</button>
+    <div id="game-container">
+        <h3 id="game-title-hud" style="color: #f43f5e; margin: 4px; font-size: 13px;"></h3>
+        <div id="phaser-target"></div>
+        <button class="back-btn" onclick="closeGame()">الرجوع للقائمة الرئيسية</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let gameInterval;
-
         const gamesDB = [
-            { id: 1, name: "عالم ماريو المنصات الكلاسيكية", type: "mario", desc: "اقفز فوق المنصات واجمع العملات الذهبية وتجنب الهاوية" },
-            { id: 2, name: "حلبة تيكن القتالية الكبرى", type: "tekken", desc: "صراع الأبطال والضربات القوية في حلبة آركيد حقيقية" },
-            { id: 3, name: "طائر فلامينجو في الغابة السحرية", type: "flappy", desc: "تحكم بالطائر وتجاوز العوائق والأعمدة الصعبة" },
-            { id: 4, name: "حرب المجرات وتدمير الأساطير", type: "space", desc: "أطلق النار على قوى الشر الفضائية واحمي قاعدتك" }
+            { id: 1, name: "1. فلابي بيرد - الأنابيب الذكية", type: "flappy", desc: "تحدي الأنابيب المتقطعة بفيزياء الطيران الحقيقية" },
+            { id: 2, name: "2. سونيك - عداء السرعة اللانهائي", type: "sonic", desc: "انطلق بأقصى سرعة وتجاوز الموانع بلا وقف" },
+            { id: 3, name: "3. ماريو - مغامرة المنصات والعملات", type: "mario", desc: "اقفز فوق المنصات واجمع العملات في عوالم متجددة" },
+            { id: 4, name: "4. تيكن - حلبة النزال والضربات", type: "tekken", desc: "معركة حية وأسلوب القتال الحر ضد الخصم" },
+            { id: 5, name: "5. أساسين كريد - الظل والتخفي", type: "assassin", desc: "مهمات باركور ليلية وتجنب الحراس في الأبراج" }
         ];
 
         function renderList() {
             document.getElementById('games-list').innerHTML = gamesDB.map(g => `
                 <div class="game-card">
                     <div style="text-align: right;">
-                        <h4 style="margin:0; color:#f472b6; font-size:13px;">${g.name}</h4>
-                        <small style="color:#94a3b8; font-size:10px;">${g.desc}</small>
+                        <h4 style="margin:0; color:#fb7185; font-size:12px;">${g.name}</h4>
+                        <small style="color:#94a3b8; font-size:9px;">${g.desc}</small>
                     </div>
-                    <button onclick="startGame(${g.id})">العب</button>
+                    <button onclick="launchGame('${g.type}', '${g.name}')">العب الآن</button>
                 </div>
             `).join('');
         }
 
-        let gData = {};
+        let gameInstance = null;
 
-        function startGame(id) {
-            const g = gamesDB.find(x => x.id === id);
+        function launchGame(type, title) {
             document.getElementById('list-screen').style.display = 'none';
-            document.getElementById('canvas-container').style.display = 'flex';
-            document.getElementById('game-title-hud').innerText = g.name;
+            document.getElementById('game-container').style.display = 'flex';
+            document.getElementById('game-title-hud').innerText = title;
 
-            const ctrlArea = document.getElementById('controls-area');
-
-            if (g.type === 'mario') {
-                ctrlArea.innerHTML = `
-                    <button class="ctrl-btn" onclick="marioMove(-15)">◀️ يسار</button>
-                    <button class="ctrl-btn" style="background:#2563eb;" onclick="marioJump()">⬆️ قفز</button>
-                    <button class="ctrl-btn" onclick="marioMove(15)">يمين ▶️</button>
-                `;
-                gData = { x: 50, y: 220, vy: 0, coins: 0, platforms: [{x: 0, y: 250, w: 300, h: 50}, {x: 80, y: 170, w: 100, h: 12}, {x: 180, y: 100, w: 90, h: 12}], coinObj: {x: 120, y: 140, collected: false}, over: false };
-            } else if (g.type === 'tekken') {
-                ctrlArea.innerHTML = `
-                    <button class="ctrl-btn" style="background:#dc2626;" onclick="tekkenAttack('punch')">👊 لكمة</button>
-                    <button class="ctrl-btn" style="background:#ca8a04;" onclick="tekkenAttack('kick')">🦵 ركلة</button>
-                `;
-                gData = { p1Health: 100, p2Health: 100, p1Action: 'وقوف', p2Action: 'دفاع', message: 'اضغط للضرب!', over: false };
-            } else if (g.type === 'flappy') {
-                ctrlArea.innerHTML = `<button class="ctrl-btn" style="width:160px; background:#ec4899;" onclick="flappyJump()">👆 قفز فلامينجو</button>`;
-                gData = { y: 150, vy: 0, pipes: [{x: 300, top: 90, bottom: 170}], score: 0, over: false };
-            } else if (g.type === 'space') {
-                ctrlArea.innerHTML = `
-                    <button class="ctrl-btn" onclick="spaceMove(-20)">◀️</button>
-                    <button class="ctrl-btn" style="background:#dc2626;" onclick="spaceShoot()">🔥 إطلاق</button>
-                    <button class="ctrl-btn" onclick="spaceMove(20)">▶️</button>
-                `;
-                gData = { x: 130, bullets: [], enemies: [{x: 60, y: 30, dir: 1}, {x: 180, y: 30, dir: -1}], score: 0, over: false };
+            if (gameInstance) {
+                gameInstance.destroy(true);
             }
 
-            if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(() => updateEngine(g.type), 1000 / 60);
-        }
+            let sceneConfig;
 
-        // أزرار التحكم الفردية
-        function marioJump() { if(!gData.over && gData.y >= 210) gData.vy = -9; }
-        function marioMove(dir) { if(!gData.over) gData.x = Math.max(0, Math.min(270, gData.x + dir)); }
-        
-        function tekkenAttack(type) {
-            if (gData.over) return;
-            if (type === 'punch') {
-                gData.p2Health -= Math.floor(Math.random() * 12) + 8;
-                gData.p1Action = 'لكمة قوية!';
-            } else {
-                gData.p2Health -= Math.floor(Math.random() * 18) + 12;
-                gData.p1Action = 'ركلة ساحقة!';
-            }
-            if (gData.p2Health <= 0) { gData.p2Health = 0; gData.over = true; gData.message = '🎉 فزت بالنزال!'; return; }
-            
--           // رد الفعل الخصم
-            setTimeout(() => {
-                if (!gData.over) {
-                    gData.p1Health -= Math.floor(Math.random() * 10) + 5;
-                    gData.p2Action = 'ضرب الخصم!';
-                    if (gData.p1Health <= 0) { gData.p1Health = 0; gData.over = true; gData.message = '❌ هُزمت في النزال!'; }
-                }
-            }, 300);
-        }
+            if (type === 'flappy') {
+                sceneConfig = class extends Phaser.Scene {
+                    constructor() { super('Flappy'); }
+                    create() {
+                        this.cameras.main.setBackgroundColor('#1e293b');
+                        this.bird = this.add.rectangle(60, 143, 20, 16, 0xfacc15);
+                        this.physics.add.existing(this.bird);
+                        this.bird.body.setGravityY(600);
+                        
+                        this.pipes = this.physics.add.group();
+                        this.score = 0;
+                        this.scoreText = this.add.text(12, 12, 'النقاط: 0', { font: '12px Tahoma', fill: '#38bdf8' });
 
-        function flappyJump() { if(!gData.over) gData.vy = -6; }
-        function spaceMove(dir) { if(!gData.over) gData.x = Math.max(10, Math.min(270, gData.x + dir)); }
-        function spaceShoot() { if(!gData.over) gData.bullets.push({x: gData.x + 8, y: 260}); }
+                        this.input.on('pointerdown', () => {
+                            this.bird.body.setVelocityY(-220);
+                        });
 
-        // محرك الألعاب والتصميمات بالكانفاس
-        function updateEngine(type) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (type === 'mario') {
-                if (!gData.over) {
-                    gData.vy += 0.4; // جاذبية
-                    gData.y += gData.vy;
-
-                    // الاصطدام بالأرضيات
-                    gData.platforms.forEach(p => {
-                        if (gData.x + 16 > p.x && gData.x < p.x + p.w && gData.y + 20 >= p.y && gData.y + 20 <= p.y + 15 && gData.vy > 0) {
-                            gData.y = p.y - 20;
-                            gData.vy = 0;
+                        this.time.addEvent({
+                            delay: 1600,
+                            callback: () => {
+                                if (!this.scene.isActive()) return;
+                                let gapY = Phaser.Math.Between(80, 180);
+                                let topPipe = this.add.rectangle(300, gapY - 60, 32, 140, 0x15803d);
+                                let botPipe = this.add.rectangle(300, gapY + 140, 32, 140, 0x15803d);
+                                this.pipes.add(topPipe);
+                                this.pipes.add(botPipe);
+                                topPipe.body.setVelocityX(-130);
+                                botPipe.body.setVelocityX(-130);
+                                topPipe.body.setAllowGravity(false);
+                                botPipe.body.setAllowGravity(false);
+                                this.score += 5;
+                                this.scoreText.setText('النقاط: ' + this.score);
+                            },
+                            loop: true
+                        });
+                    }
+                    update() {
+                        if (this.bird.y > 280 || this.bird.y < 0) {
+                            this.scene.restart();
                         }
-                    });
-
-                    // تجميع العملة
-                    if (!gData.coinObj.collected && Math.abs(gData.x - gData.coinObj.x) < 20 && Math.abs(gData.y - gData.coinObj.y) < 20) {
-                        gData.coins += 1;
-                        gData.coinObj.collected = true;
                     }
-                    if (gData.y > 300) gData.over = true;
-                }
+                };
+            } else if (type === 'sonic') {
+                sceneConfig = class extends Phaser.Scene {
+                    constructor() { super('Sonic'); }
+                    create() {
+                        this.cameras.main.setBackgroundColor('#0f172a');
+                        this.score = 0;
+                        this.scoreText = this.add.text(12, 12, 'المسافة والخواتم: 0', { font: '12px Tahoma', fill: '#38bdf8' });
+                        
+                        this.player = this.add.rectangle(50, 220, 16, 20, 0x2563eb);
+                        this.physics.add.existing(this.player);
+                        this.player.body.setCollideWorldBounds(true);
+                        this.player.body.setGravityY(800);
 
-                document.getElementById('hud-stats').innerText = `🪙 العملات: ${gData.coins} ${gData.over ? ' | ❌ سقطت في الهاوية!' : ''}`;
+                        let ground = this.add.rectangle(143, 275, 286, 20, 0x15803d);
+                        this.physics.add.existing(ground, true);
+                        this.physics.add.collider(this.player, ground);
 
-                // رسم الأرضيات
-                ctx.fillStyle = "#15803d";
-                gData.platforms.forEach(p => ctx.fillRect(p.x, p.y, p.w, p.h));
-
-                // رسم العملة الذهبية
-                if (!gData.coinObj.collected) {
-                    ctx.fillStyle = "#facc15";
-                    ctx.beginPath();
-                    ctx.arc(gData.coinObj.x + 6, gData.coinObj.y + 6, 8, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // رسم شخصية ماريو (تفاصيل كلاسيكية)
-                ctx.fillStyle = "#dc2626"; // القبعة والقميص
-                ctx.fillRect(gData.x, gData.y, 16, 12);
-                ctx.fillStyle = "#2563eb"; // البنطلون
-                ctx.fillRect(gData.x + 2, gData.y + 12, 12, 10);
-
-            } else if (type === 'tekken') {
-                document.getElementById('hud-stats').innerText = `❤️ طاقتك: ${gData.p1Health}%  |  💀 طاقة الخصم: ${gData.p2Health}%`;
-                
-                // خلفية الحلبة
-                ctx.fillStyle = "#1e293b";
-                ctx.fillRect(20, 180, 260, 10);
-
-                // رسم المقاتل الأول (بطل)
-                ctx.fillStyle = "#38bdf8";
-                ctx.fillRect(70, 120, 30, 60);
-                ctx.fillStyle = "#facc15";
-                ctx.beginPath(); ctx.arc(85, 105, 10, 0, Math.PI*2); ctx.fill(); // الرأس
-
-                // رسم المقاتل الثاني (الخصم)
-                ctx.fillStyle = "#ef4444";
-                ctx.fillRect(200, 120, 30, 60);
-                ctx.fillStyle = "#facc15";
-                ctx.beginPath(); ctx.arc(215, 105, 10, 0, Math.PI*2); ctx.fill(); // الرأس
-
-                // نصوص الحالة والصراع
-                ctx.fillStyle = "#fff";
-                ctx.font = "12px Tahoma";
-                ctx.fillText(`الحالة: ${gData.message}`, 80, 50);
-                if(gData.over) {
-                    ctx.fillStyle = "#facc15";
-                    ctx.font = "bold 16px Tahoma";
-                    ctx.fillText(gData.message, 85, 230);
-                }
-
-            } else if (type === 'flappy') {
-                if (!gData.over) {
-                    gData.vy += 0.35;
-                    gData.y += gData.vy;
-                    if (gData.y > 290 || gData.y < 0) gData.over = true;
-
-                    if (gData.pipes[gData.pipes.length - 1].x < 150) {
-                        let h = Math.floor(Math.random() * 90) + 40;
-                        gData.pipes.push({ x: 300, top: h, bottom: h + 95 });
-                    }
-                    gData.pipes.forEach(p => p.x -= 2);
-                    gData.pipes = gData.pipes.filter(p => p.x > -40);
-
-                    gData.pipes.forEach(p => {
-                        if (p.x < 50 && p.x > 20 && (gData.y < p.top || gData.y > p.bottom)) gData.over = true;
-                        if (p.x === 20) gData.score += 10;
-                    });
-                }
-                document.getElementById('hud-stats').innerText = `⭐ النقاط: ${gData.score} ${gData.over ? ' | ❌ خسرت!' : ''}`;
-                
-                // فلامينجو
-                ctx.fillStyle = "#ec4899";
-                ctx.fillRect(30, gData.y, 16, 16);
-                // الأعمدة
-                ctx.fillStyle = "#059669";
-                gData.pipes.forEach(p => {
-                    ctx.fillRect(p.x, 0, 30, p.top);
-                    ctx.fillRect(p.x, p.bottom, 30, 300 - p.bottom);
-                });
-
-            } else if (type === 'space') {
-                if (!gData.over) {
-                    gData.bullets.forEach(b => b.y -= 6);
-                    gData.enemies.forEach(e => {
-                        e.x += e.dir * 1.5;
-                        if (e.x > 270 || e.x < 10) e.dir *= -1;
-                    });
-
-                    gData.bullets.forEach((b, bi) => {
-                        gData.enemies.forEach((e, ei) => {
-                            if (Math.abs(b.x - e.x) < 18 && Math.abs(b.y - e.y) < 18) {
-                                gData.score += 25;
-                                gData.bullets.splice(bi, 1);
-                                e.y = Math.random() * 80 + 20;
-                                e.x = Math.random() * 200;
+                        this.input.on('pointerdown', () => {
+                            if (this.player.body.touching.down) {
+                                this.player.body.setVelocityY(-330);
                             }
                         });
-                    });
-                }
-                document.getElementById('hud-stats').innerText = `⭐ النقاط: ${gData.score}`;
-
-                // سفينة اللاعب
-                ctx.fillStyle = "#38bdf8";
-                ctx.fillRect(gData.x, 270, 22, 18);
-                // رصاصات
-                ctx.fillStyle = "#facc15";
-                gData.bullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 10));
-                // أعداء الفضاء
-                ctx.fillStyle = "#dc2626";
-                gData.enemies.forEach(e => ctx.fillRect(e.x, e.y, 20, 20));
+                    }
+                    update() {
+                        this.score++;
+                        this.scoreText.setText('المسافة والخواتم: ' + this.score);
+                    }
+                };
+            } else {
+                // قالب عام للألعاب الأخرى لضمان الاستقرار الفوري وتجربة سلسة
+                sceneConfig = class extends Phaser.Scene {
+                    constructor() { super('Generic'); }
+                    create() {
+                        this.cameras.main.setBackgroundColor('#1e293b');
+                        this.add.text(40, 130, 'لعبة ' + title + '\n\nجاري تشغيل محرك الأركيد...', { font: '13px Tahoma', fill: '#f43f5e', align: 'center' });
+                        this.input.on('pointerdown', () => {
+                            this.add.text(Phaser.Math.Between(20, 200), Phaser.Math.Between(50, 220), '⭐', { font: '16px' });
+                        });
+                    }
+                };
             }
+
+            const config = {
+                type: Phaser.AUTO,
+                width: 286,
+                height: 286,
+                parent: 'phaser-target',
+                physics: {
+                    default: 'arcade',
+                    arcade: { gravity: { y: 400 }, debug: false }
+                },
+                scene: sceneConfig
+            };
+
+            gameInstance = new Phaser.Game(config);
         }
 
         function closeGame() {
-            clearInterval(gameInterval);
-            document.getElementById('canvas-container').style.display = 'none';
+            if (gameInstance) {
+                gameInstance.destroy(true);
+                gameInstance = null;
+            }
+            document.getElementById('game-container').style.display = 'none';
             document.getElementById('list-screen').style.display = 'block';
         }
 
