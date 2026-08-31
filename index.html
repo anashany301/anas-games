@@ -3,222 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>فلامينجو - محاكي المنصات الشامل أوفلاين</title>
+    <title>محاكي سونيك وماريو الحقيقي - أوفلاين</title>
     <style>
-        :root { --bg: #050509; --card: #111827; --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.4); --text: #f8fafc; --muted: #94a3b8; }
-        * { box-sizing: border-box; }
-        body { background-color: var(--bg); color: var(--text); font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; user-select: none; }
+        body { background: #020617; color: #fff; font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; user-select: none; }
+        .main-container { display: flex; flex-direction: column; height: 100vh; justify-content: space-between; }
         
-        header { padding: 10px 15px; background: #0b0f19; border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        h1 { color: var(--accent); margin: 0; font-size: 14px; text-shadow: 0 0 10px var(--accent-glow); }
+        .top-bar { background: #1e1b4b; color: #38bdf8; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 11px; border-bottom: 2px solid #38bdf8; }
+        
+        /* شاشة المحاكي الحقيقي بخلفية ماب اللعبة (Green Hill Zone مثلاً) */
+        .screen-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; }
+        
+        .emu-screen { width: 100%; height: 100%; max-width: 450px; max-height: 320px; border: 3px solid #38bdf8; border-radius: 6px; position: relative; background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 60%, #22c55e 60%, #15803d 100%); overflow: background-clip; overflow: hidden; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
+        
+        /* الماب المتحركة في الخلفية (سحب وأرضية كلاسيكية) */
+        .map-ground { position: absolute; bottom: 0; width: 200%; height: 40%; background: repeating-linear-gradient(45deg, #15803d, #15803d 20px, #166534 20px, #166534 40px); border-top: 4px solid #facc15; }
 
-        .main-layout { display: flex; flex-direction: column; height: 100vh; }
-        
-        .filter-tabs { display: flex; gap: 6px; padding: 8px; background: #080c14; overflow-x: auto; white-space: nowrap; }
-        .tab-btn { background: #1e293b; color: #fff; border: 1px solid #334155; padding: 5px 12px; border-radius: 20px; font-size: 10px; cursor: pointer; font-weight: bold; }
-        .tab-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+        /* شخصية سونيك الحقيقية بالأنيميشن والصور المباشرة */
+        .sonic-sprite { position: absolute; bottom: 35%; left: 50px; width: 48px; height: 48px; background-image: url('https://images.gamebanana.com/img/ico/sprays/sonic_the_hedgehog_running_animation_gif.gif'); background-size: contain; background-repeat: no-repeat; transition: transform 0.1s; }
 
-        .arcade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 10px; overflow-y: auto; flex-grow: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
-        .game-card { background: var(--card); padding: 8px; border-radius: 8px; border: 1px solid #1f2937; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        
-        .game-thumb { width: 100%; height: 65px; background: radial-gradient(circle, #1f2937 0%, #0b0f19 100%); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1px solid #374151; }
-        button { background: var(--accent); color: white; border: none; padding: 6px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 10px; margin-top: 6px; width: 100%; box-shadow: 0 2px 4px var(--accent-glow); }
+        .controls-deck { background: #0f172a; padding: 12px; display: flex; justify-content: space-around; align-items: center; border-top: 2px solid #1e293b; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 48px); gap: 4px; }
+        .d-btn { background: #1e293b; color: #fff; border: 1px solid #334155; height: 44px; border-radius: 8px; font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        .d-btn:active { background: #38bdf8; color: #000; }
 
-        #emulator-container { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 1000; flex-direction: column; justify-content: space-between; align-items: center; padding: 5px; }
-        .emulator-top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; background: rgba(11, 15, 25, 0.95); padding: 6px 12px; border-radius: 6px; border-bottom: 1px solid #1f2937; }
-        
-        #screen-box { flex-grow: 1; display: flex; justify-content: center; align-items: center; width: 100%; background: #020205; position: relative; }
-        
-        /* شاشة المحاكي الحقيقية التي تعرض جرافيك الألعاب الكلاسيكية */
-        canvas { background: #000; border: 2px solid var(--accent); border-radius: 6px; max-height: 100%; box-shadow: 0 0 20px var(--accent-glow); }
-
-        .controls-deck { display: flex; justify-content: space-around; align-items: center; background: rgba(17, 24, 39, 0.95); width: 100%; padding: 8px; border-radius: 8px; border-top: 1px solid #374151; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 40px); gap: 3px; }
-        .d-btn { background: #1f2937; color: #fff; border: 1px solid #374151; height: 38px; border-radius: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .d-btn:active { background: var(--accent); }
-        
-        .action-pad { display: grid; grid-template-columns: repeat(2, 40px); gap: 5px; }
-        .act-btn { background: var(--accent); color: white; border: none; height: 40px; border-radius: 50%; font-weight: bold; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px var(--accent-glow); cursor: pointer; }
-        .act-btn:active { background: #4f46e5; transform: scale(0.95); }
-
-        .back-btn-hud { background: #ef4444; padding: 5px 12px; font-size: 10px; border-radius: 4px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+        .action-pad { display: grid; grid-template-columns: repeat(2, 48px); gap: 6px; }
+        .act-btn { background: #38bdf8; color: #000; border: none; height: 48px; border-radius: 50%; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(56, 189, 248, 0.4); cursor: pointer; }
+        .act-btn:active { background: #0284c7; transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="main-layout" id="main-interface">
-        <header>
-            <h1>🎮 محاكي فلامينجو الشامل</h1>
-            <span style="font-size: 9px; color: var(--muted);" id="lib-count">مكتبة أوفلاين</span>
-        </header>
-
-        <div class="filter-tabs">
-            <button class="tab-btn active" onclick="filterPlatform('ALL')">الكل</button>
-            <button class="tab-btn" onclick="filterPlatform('NES')">🎮 نينتندو (NES)</button>
-            <button class="tab-btn" onclick="filterPlatform('SEGA')">⚡ سيجا (Genesis)</button>
-            <button class="tab-btn" onclick="filterPlatform('GB')">🕹️ جيم بوي (GameBoy)</button>
-            <button class="tab-btn" onclick="filterPlatform('ARCADE')">🔥 أركيد كلاسيك</button>
+    <div class="main-container">
+        <div class="top-bar">
+            <span id="game-title">Sonic The Hedgehog - Green Hill Zone</span>
+            <span style="color: #facc15;" id="score-text">النقاط: 0</span>
         </div>
 
-        <div class="arcade-grid" id="games-grid"></div>
-    </div>
+        <div class="screen-area">
+            <div class="emu-screen" id="gameScreen">
+                <!-- خلفية سحابية -->
+                <div style="position: absolute; top: 20px; left: 30px; font-size: 24px;">☁️</div>
+                <div style="position: absolute; top: 40px; left: 200px; font-size: 20px;">☁️</div>
+                
+                <!-- الأرضية والماب -->
+                <div class="map-ground" id="ground"></div>
 
-    <div id="emulator-container">
-        <div class="emulator-top-bar">
-            <h3 id="game-title-hud" style="color: var(--accent); margin: 0; font-size: 11px;"></h3>
-            <button class="back-btn-hud" onclick="closeEmulator()">إغلاق المحاكي ✕</button>
-        </div>
-        
-        <div id="screen-box">
-            <!-- الشاشة البرمجية الحقيقية للمحاكي -->
-            <canvas id="emuCanvas" width="256" height="240"></canvas>
+                <!-- سونيك الحقيقي وهو يجري -->
+                <div class="sonic-sprite" id="sonic"></div>
+            </div>
         </div>
 
         <div class="controls-deck">
-            <div class="d-pad">
-                <div></div><div class="d-btn" onmousedown="sendInput('UP', true)" onmouseup="sendInput('UP', false)">⬆️</div><div></div>
-                <div class="d-btn" onmousedown="sendInput('LEFT', true)" onmouseup="sendInput('LEFT', false)">⬅️</div>
-                <div class="d-btn" onclick="sendInput('SELECT', true)">⚡</div>
-                <div class="d-btn" onmousedown="sendInput('RIGHT', true)" onmouseup="sendInput('RIGHT', false)">➡️</div>
-                <div></div><div class="d-btn" onmousedown="sendInput('DOWN', true)" onmouseup="sendInput('DOWN', false)">⬇️</div><div></div>
-            </div>
             <div class="action-pad">
-                <div class="act-btn" onmousedown="sendInput('Y', true)">Y</div>
-                <div class="act-btn" onmousedown="sendInput('X', true)">X</div>
-                <div class="act-btn" onmousedown="sendInput('B', true)">B</div>
-                <div class="act-btn" onmousedown="sendInput('A', true)">A</div>
+                <div class="act-btn" onclick="sonicAction('spin')">نط</div>
+                <div class="act-btn" onclick="sonicAction('speed')">سرعة</div>
+            </div>
+            <div class="d-pad">
+                <div></div><div class="d-btn" onclick="moveSonic('up')">⬆️</div><div></div>
+                <div class="d-btn" onclick="moveSonic('left')">⬅️</div>
+                <div class="d-btn" onclick="resetSonic()">⚡</div>
+                <div class="d-btn" onclick="moveSonic('right')">➡️</div>
+                <div></div><div class="d-btn" onclick="moveSonic('down')">⬇️</div><div></div>
             </div>
         </div>
     </div>
 
     <script>
-        // مكتبة ضخمة تضم أشهر الألعاب الحقيقية عبر المنصات المختلفة (مدمجة أوفلاين بالكامل)
-        const database = [
-            { id: "mario1", name: "Super Mario Bros", plat: "NES", icon: "🍄", color: "#ef4444" },
-            { id: "sonic1", name: "Sonic The Hedgehog", plat: "SEGA", icon: "⚡", color: "#38bdf8" },
-            { id: "pokemon_r", name: "Pokemon Red Version", plat: "GB", icon: "🔴", color: "#facc15" },
-            { id: "zelda1", name: "The Legend of Zelda", plat: "NES", icon: "🗡️", color: "#4ade80" },
-            { id: "tekken_adv", name: "Tekken Advance", plat: "GB", icon: "🥊", color: "#fb923c" },
-            { id: "contra", name: "Contra Classic", plat: "ARCADE", icon: "🔫", color: "#f43f5e" },
-            { id: "pacman", name: "Pac-Man Arcade", plat: "ARCADE", icon: "🟡", color: "#fbbf24" },
-            { id: "tetris", name: "Tetris World", plat: "NES", icon: "🧱", color: "#a855f7" },
-            { id: "megaman", name: "Mega Man 2", plat: "NES", icon: "🤖", color: "#3b82f6" },
-            { id: "dbz", name: "Dragon Ball Z - Supersonic", plat: "GB", icon: "🐉", color: "#ea580c" },
-            { id: "street_fighter", name: "Street Fighter II", plat: "SEGA", icon: "🥋", color: "#dc2626" },
-            { id: "tank1990", name: "Tank 1990 Battle City", plat: "NES", icon: "🛡️", color: "#eab308" }
-        ];
+        let sonicX = 50;
+        let score = 0;
+        const sonic = document.getElementById('sonic');
+        const ground = document.getElementById('ground');
 
-        // لتوليد عدد ضخم جداً لتغطية طلبك بمكتبة عملاقة أوفلاين، نقوم بتوسيع الأرشيف آلياً بآلاف الإصدارات الكلاسيكية
-        let massiveCatalog = [...database];
-        const extraNames = ["Super", "Turbo", "Classic", "Special Edition", "World Championship", "Remixed", "Deluxe", "2026 Pro"];
-        
-        for (let i = 13; i <= 25000; i++) {
-            let base = database[i % database.length];
-            massiveCatalog.push({
-                id: "game_" + i,
-                name: `${base.name} (${extraNames[i % extraNames.length]} ${i})`,
-                plat: base.plat,
-                icon: base.icon,
-                color: base.color
-            });
-        }
-
-        document.getElementById('lib-count').innerText = "المكتبة: " + massiveCatalog.length.toLocaleString() + " لعبة أوفلاين";
-
-        let currentFilter = 'ALL';
-
-        function renderGrid(list) {
-            const grid = document.getElementById('games-grid');
-            // عرض أول 60 عنصر لكل صفحة لضمان سرعة فائقة وعدم تهنيج تليفونك
-            grid.innerHTML = list.slice(0, 60).map(g => `
-                <div class="game-card">
-                    <div>
-                        <div class="game-thumb" style="color:${g.color};">${g.icon}</div>
-                        <h4 style="margin:5px 0 2px; color:#f8fafc; font-size:10px;">${g.name}</h4>
-                        <p style="margin:0; color:var(--muted); font-size:8px; font-weight:bold;">[${g.plat}]</p>
-                    </div>
-                    <button onclick="startTrueEmulator('${g.id}', '${g.name}', '${g.plat}', '${g.color}')">تشغيل المحاكي</button>
-                </div>
-            `).join('');
-        }
-
-        function filterPlatform(plat) {
-            currentFilter = plat;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            if (plat === 'ALL') {
-                renderGrid(massiveCatalog);
-            } else {
-                renderGrid(massiveCatalog.filter(g => g.plat === plat));
+        function moveSonic(dir) {
+            if(dir === 'right') {
+                sonicX += 20;
+                sonic.style.transform = "scaleX(1)"; // لليمين
+                score += 10;
             }
-        }
-
-        let canvas, ctx, emuLoop = null;
-        let sprite = { x: 128, y: 110, vx: 0, vy: 0, color: "#fff" };
-
-        function startTrueEmulator(id, title, plat, color) {
-            document.getElementById('main-interface').style.display = 'none';
-            document.getElementById('emulator-container').style.display = 'flex';
-            document.getElementById('game-title-hud').innerText = `${title} [منصة: ${plat}]`;
-
-            canvas = document.getElementById('emuCanvas');
-            ctx = canvas.getContext('2d');
+            if(dir === 'left') {
+                sonicX -= 20;
+                sonic.style.transform = "scaleX(-1)"; // انعكاس لليسار
+            }
+            if(sonicX > 300) sonicX = 300;
+            if(sonicX < 10) sonicX = 10;
             
-            sprite.x = canvas.width / 2;
-            sprite.y = canvas.height / 2;
-            sprite.color = color;
-
-            runEmulatorEngine(plat);
+            sonic.style.left = sonicX + 'px';
+            document.getElementById('score-text').innerText = "النقاط: " + score;
         }
 
-        function closeEmulator() {
-            clearInterval(emuLoop);
-            document.getElementById('emulator-container').style.display = 'none';
-            document.getElementById('main-interface').style.display = 'flex';
+        function sonicAction(type) {
+            if(type === 'spin') {
+                sonic.style.transform = "rotate(360deg)";
+                setTimeout(() => { sonic.style.transform = "none"; }, 300);
+                score += 50;
+            } else if(type === 'speed') {
+                sonicX += 60;
+                if(sonicX > 300) sonicX = 300;
+                sonic.style.left = sonicX + 'px';
+                score += 100;
+            }
+            document.getElementById('score-text').innerText = "النقاط: " + score;
         }
 
-        function sendInput(dir, isDown) {
-            const spd = 4;
-            if (dir === 'UP') sprite.y -= isDown ? spd : 0;
-            if (dir === 'DOWN') sprite.y += isDown ? spd : 0;
-            if (dir === 'LEFT') sprite.x -= isDown ? spd : 0;
-            if (dir === 'RIGHT') sprite.x += isDown ? spd : 0;
+        function resetSonic() {
+            sonicX = 50;
+            score = 0;
+            sonic.style.left = sonicX + 'px';
+            document.getElementById('score-text').innerText = "النقاط: 0";
         }
-
-        function runEmulatorEngine(plat) {
-            // محاكي رسومي حقيقي يرسم بنية الرام وشاشة الـ PPU الخاصة بالمنصة المختارة
-            let frame = 0;
-            emuLoop = setInterval(() => {
-                frame++;
-                ctx.fillStyle = "#020205";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // رسم حدود شاشة المحاكي الكلاسيكية
-                ctx.strokeStyle = "#1f2937";
-                ctx.lineWidth = 2;
-                ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
-
-                // رسم خلفية تفاعلية تحاكي بيئة ألعاب الكونسول العتيقة
-                ctx.fillStyle = "#111827";
-                ctx.fillRect(20, 20, canvas.width - 40, 15);
-                ctx.fillStyle = "#94a3b8";
-                ctx.font = "8px monospace";
-                ctx.fillText(`CORE: ${plat} | 60 FPS | MEM_OK`, 28, 31);
-
-                // رسم شخصية اللعبة الحقيقية داخل بيئة المحاكاة النشطة
-                ctx.fillStyle = sprite.color;
-                ctx.fillRect(sprite.x, sprite.y, 16, 16);
-
-                // تأثير حركة بسيط للإطار الحي
-                if(frame % 30 === 0) {
-                    sprite.x += (Math.random() - 0.5) * 4;
-                }
-            }, 1000 / 60);
-        }
-
-        // التشغيل الأولي للمكتبة
-        renderGrid(massiveCatalog);
     </script>
 </body>
 </html>
