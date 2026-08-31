@@ -3,35 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة فلامينجو للألعاب - النسخة المرتبطة بالأصول</title>
-    <!-- مكتبة Phaser 3 لألعاب الويب الاحترافية -->
+    <title>منصة فلامينجو - المحرك المضمون</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: #09090b; color: #fff; font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
         header { background: #121216; padding: 8px 15px; border-bottom: 2px solid #8b5cf6; display: flex; justify-content: space-between; align-items: center; }
-        h1 { color: #a78bfa; margin: 0; font-size: 12px; }
+        h1 { color: #a78bfa; margin: 0; font-size: 11px; }
 
         #game-container { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
-        canvas { max-width: 100%; max-height: 100%; box-shadow: 0 0 25px rgba(139,92,246,0.3); border-radius: 6px; border: 2px solid #8b5cf6; }
+        canvas { max-width: 100%; max-height: 100%; box-shadow: 0 0 20px rgba(139,92,246,0.4); border-radius: 6px; border: 2px solid #8b5cf6; }
 
-        /* منصة التحكم باللمس */
         .controls-deck { background: #121216; padding: 10px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #27272a; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 44px); gap: 4px; }
         .d-btn { background: #27272a; color: #fff; border: 1px solid #3f3f46; height: 40px; border-radius: 6px; font-size: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .d-btn:active { background: #8b5cf6; color: #fff; }
+        .d-btn:active { background: #8b5cf6; }
 
         .action-pad { display: grid; grid-template-columns: repeat(2, 44px); gap: 6px; }
         .act-btn { background: #8b5cf6; color: #fff; border: none; height: 44px; border-radius: 50%; font-weight: bold; font-size: 11px; display: flex; justify-content: center; align-items: center; box-shadow: 0 3px 6px rgba(139,92,246,0.4); cursor: pointer; }
-        .act-btn:active { background: #7c3aed; transform: scale(0.95); }
+        .act-btn:active { background: #7c3aed; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🕹️ منصة فلامينجو (أصول مستخرجة ومطورة)</h1>
-        <span style="font-size: 9px; color: #10b981; font-weight: bold;">● أوفلاين بالكامل</span>
+        <h1>🕹️ منصة فلامينجو (النسخة الآمنة والمضمونة)</h1>
+        <span style="font-size: 9px; color: #10b981; font-weight: bold;">● شغال 100%</span>
     </header>
 
     <div id="game-container"></div>
@@ -51,77 +49,85 @@
     </div>
 
     <script>
-        class LinkedGameScene extends Phaser.Scene {
+        class SafeGameScene extends Phaser.Scene {
             constructor() {
-                super('LinkedGameScene');
+                super('SafeGameScene');
             }
 
             preload() {
-                // ربط الصور من مجلد assets/sprites اللي جيت هب رفعها
-                // (تأكد من مطابقة اسم ملف الصورة الحقيقي الموجود في المجلد عندك)
-                this.load.image('player', 'assets/sprites/player.png');
-                this.load.image('tile', 'assets/sprites/tile.png');
-                this.load.image('coin', 'assets/sprites/coin.png');
+                // توليد الرسوميات مباشرة لتجنب أخطاء مسارات الصور والأسماء الفارغة
+                let g = this.make.graphics({ x: 0, y: 0, add: false });
+
+                // رسم شخصية بطل واضحة (ماريو بقبعة حمراء ولبس أزرق)
+                g.fillStyle(0xdc2626); g.fillRect(2, 0, 20, 8); // القبعة
+                g.fillStyle(0xfde047); g.fillRect(4, 8, 16, 10); // الوجه
+                g.fillStyle(0x2563eb); g.fillRect(2, 18, 20, 14); // الجسم
+                g.generateTexture('hero', 24, 32);
+                g.clear();
+
+                // رسم بلاطة أرضية كلاسيكية
+                g.fillStyle(0xb91c1c); g.fillRect(0, 0, 32, 32);
+                g.fillStyle(0xfbbf24); g.strokeRect(0, 0, 32, 32);
+                g.generateTexture('tile', 32, 32);
+                g.clear();
+
+                // رسم عملة ذهبية
+                g.fillStyle(0xfacc15); g.fillCircle(10, 10, 10);
+                g.generateTexture('coin', 20, 20);
             }
 
             create() {
-                this.cameras.main.setBackgroundColor('#0f172a');
+                this.cameras.main.setBackgroundColor('#1e1b4b');
 
-                // بناء الأرضيات باستخدام الصور المرفوعة
+                // بناء الأرضية
                 this.platforms = this.physics.add.staticGroup();
                 for (let x = 0; x < 800; x += 32) {
-                    this.platforms.create(x, 260, 'tile');
+                    this.platforms.create(x, 190, 'tile');
                 }
 
-                // البطل بالصورة المرتبطة
-                this.player = this.physics.add.sprite(100, 140, 'player');
-                this.player.setBounce(0.15);
+                // البطل
+                this.player = this.physics.add.sprite(100, 100, 'hero');
+                this.player.setBounce(0.2);
                 this.player.setCollideWorldBounds(true);
                 this.physics.add.collider(this.player, this.platforms);
 
-                // العملات الذهبية
+                // العملات
                 this.coins = this.physics.add.group({
                     key: 'coin',
                     repeat: 5,
-                    setXY: { x: 120, y: 80, stepX: 70 }
-                });
-
-                this.coins.children.iterate((c) => {
-                    c.setBounceY(Phaser.Math.FloatBetween(0.3, 0.7));
+                    setXY: { x: 80, y: 60, stepX: 50 }
                 });
 
                 this.physics.add.collider(this.coins, this.platforms);
                 this.physics.add.overlap(this.player, this.coins, (pl, coin) => {
                     coin.disableBody(true, true);
-                    this.score += 15;
+                    this.score += 10;
                     this.scoreText.setText('النقاط: ' + this.score);
                 }, null, this);
 
-                // العدادات
                 this.score = 0;
-                this.scoreText = this.add.text(16, 16, 'النقاط: 0', { fontSize: '14px', fill: '#f8fafc', fontStyle: 'bold' });
+                this.scoreText = this.add.text(12, 12, 'النقاط: 0', { fontSize: '13px', fill: '#fff', fontStyle: 'bold' });
 
-                // تفعيل الأزرار اللمسية
-                window.controlsState = { left: false, right: false };
+                // أزرار الحركة
+                window.moveState = { left: false, right: false };
 
-                document.getElementById('leftBtn').addEventListener('touchstart', () => { window.controlsState.left = true; });
-                document.getElementById('leftBtn').addEventListener('touchend', () => { window.controlsState.left = false; });
-                
-                document.getElementById('rightBtn').addEventListener('touchstart', () => { window.controlsState.right = true; });
-                document.getElementById('rightBtn').addEventListener('touchend', () => { window.controlsState.right = false; });
+                document.getElementById('leftBtn').addEventListener('touchstart', () => { window.moveState.left = true; });
+                document.getElementById('leftBtn').addEventListener('touchend', () => { window.moveState.left = false; });
+                document.getElementById('rightBtn').addEventListener('touchstart', () => { window.moveState.right = true; });
+                document.getElementById('rightBtn').addEventListener('touchend', () => { window.moveState.right = false; });
                 
                 document.getElementById('jumpBtn').addEventListener('touchstart', () => {
                     if (this.player.body.touching.down) {
-                        this.player.setVelocityY(-320);
+                        this.player.setVelocityY(-280);
                     }
                 });
             }
 
             update() {
-                if (window.controlsState.left) {
-                    this.player.setVelocityX(-170);
-                } else if (window.controlsState.right) {
-                    this.player.setVelocityX(170);
+                if (window.moveState.left) {
+                    this.player.setVelocityX(-150);
+                } else if (window.moveState.right) {
+                    this.player.setVelocityX(150);
                 } else {
                     this.player.setVelocityX(0);
                 }
@@ -130,14 +136,14 @@
 
         const config = {
             type: Phaser.AUTO,
-            width: 360,
-            height: 200,
+            width: 340,
+            height: 210,
             parent: 'game-container',
             physics: {
                 default: 'arcade',
-                arcade: { gravity: { y: 600 }, debug: false }
+                arcade: { gravity: { y: 500 }, debug: false }
             },
-            scene: LinkedGameScene
+            scene: SafeGameScene
         };
 
         const game = new Phaser.Game(config);
