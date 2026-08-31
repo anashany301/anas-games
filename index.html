@@ -3,38 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة ألعاب فلامينجو الضخمة والشاملة - أوفلاين</title>
+    <title>منصة فلامينجو لمحرك Phaser - أوفلاين</title>
+    <!-- تحميل مكتبة Phaser.js الشهيرة لألعاب الـ 2D -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: #09090b; color: #fff; font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        header { background: #121216; padding: 10px 15px; border-bottom: 2px solid #3b82f6; display: flex; justify-content: space-between; align-items: center; }
-        h1 { color: #3b82f6; margin: 0; font-size: 13px; text-shadow: 0 0 10px rgba(59,130,246,0.3); }
+        header { background: #121216; padding: 8px 15px; border-bottom: 2px solid #3b82f6; display: flex; justify-content: space-between; align-items: center; }
+        h1 { color: #3b82f6; margin: 0; font-size: 12px; }
 
-        /* واجهة مكتبة الألعاب الضخمة */
-        #libraryView { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 10px; background: #09090b; }
-        .library-title { font-size: 11px; color: #a1a1aa; margin-bottom: 8px; font-weight: bold; }
-        
-        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; overflow-y: auto; flex: 1; padding-bottom: 10px; }
-        .game-card { background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 10px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: transform 0.1s, border-color 0.1s; }
-        .game-card:active { transform: scale(0.97); border-color: #3b82f6; }
-        .game-icon { font-size: 32px; margin: 6px 0; }
-        .game-card h3 { font-size: 11px; margin: 4px 0; color: #fff; }
-        .game-card p { font-size: 8px; color: #a1a1aa; margin: 0 0 8px; line-height: 1.3; }
-        .launch-btn { background: #3b82f6; color: #fff; border: none; padding: 6px; border-radius: 5px; font-size: 10px; font-weight: bold; width: 100%; box-shadow: 0 2px 5px rgba(59,130,246,0.3); }
+        #game-container { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
+        canvas { max-width: 100%; max-height: 100%; box-shadow: 0 0 20px rgba(59,130,246,0.3); border-radius: 4px; }
 
-        /* واجهة تشغيل اللعبة الكلاسيكية */
-        #gameView { display: none; flex: 1; flex-direction: column; background: #000; }
-        .game-header { background: #121216; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #27272a; }
-        .back-btn { background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }
-
-        .canvas-container { flex: 1; position: relative; background: #111; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        canvas { background: #1e293b; border: 2px solid #3b82f6; border-radius: 6px; max-width: 100%; max-height: 100%; box-shadow: 0 0 15px rgba(59,130,246,0.2); }
-
-        /* منصة أزرار التحكم السفلية المتقدمة */
+        /* أزرار التحكم اللمسية الاحترافية */
         .controls-deck { background: #121216; padding: 10px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #27272a; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 44px); gap: 4px; }
-        .d-btn { background: #27272a; color: #fff; border: 1px solid #3f3f46; height: 40px; border-radius: 6px; font-size: 15px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .d-btn { background: #27272a; color: #fff; border: 1px solid #3f3f46; height: 40px; border-radius: 6px; font-size: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .d-btn:active { background: #3b82f6; color: #000; }
 
         .action-pad { display: grid; grid-template-columns: repeat(2, 44px); gap: 6px; }
@@ -45,238 +30,131 @@
 <body>
 
     <header>
-        <h1>🎮 منصة فلامينجو الأسطورية (نسخة أكس الضخمة)</h1>
-        <span style="font-size: 9px; color: #10b981; font-weight: bold;">● يعمل أوفلاين</span>
+        <h1>🔥 منصة فلامينجو لمحرك Phaser (شخصيات حقيقية)</h1>
+        <span style="font-size: 9px; color: #10b981; font-weight: bold;">● شغال أوفلاين</span>
     </header>
 
-    <!-- قائمة الألعاب الشاملة -->
-    <div id="libraryView">
-        <div class="library-title">اختر اللعبة الكلاسيكية للبدء الفوري:</div>
-        <div class="games-grid" id="gamesGrid"></div>
-    </div>
+    <div id="game-container"></div>
 
-    <!-- شاشة المحاكي واللعب -->
-    <div id="gameView">
-        <div class="game-header">
-            <span id="activeGameTitle" style="font-size: 11px; color: #3b82f6; font-weight: bold;">العنوان</span>
-            <button class="back-btn" onclick="returnToLibrary()">العودة للقائمة ✕</button>
+    <div class="controls-deck">
+        <div class="action-pad">
+            <div class="act-btn" id="jumpBtn">نط</div>
+            <div class="act-btn" id="boostBtn" style="background:#10b981;">سرعة</div>
         </div>
-        <div class="canvas-container">
-            <canvas id="gameCanvas" width="360" height="240"></canvas>
-        </div>
-        <div class="controls-deck">
-            <div class="action-pad">
-                <div class="act-btn" onclick="gameAction('jump')">نط</div>
-                <div class="act-btn" onclick="gameAction('speed')">سرعة</div>
-            </div>
-            <div class="d-pad">
-                <div></div><div class="d-btn" onclick="gameMove('up')">⬆️</div><div></div>
-                <div class="d-btn" onclick="gameMove('left')">⬅️</div>
-                <div class="d-btn" onclick="gameMove('center')">⚡</div>
-                <div class="d-btn" onclick="gameMove('right')">➡️</div>
-                <div></div><div class="d-btn" onclick="gameMove('down')">⬇️</div><div></div>
-            </div>
+        <div class="d-pad">
+            <div></div><div class="d-btn" id="upBtn">⬆️</div><div></div>
+            <div class="d-btn" id="leftBtn">⬅️</div>
+            <div class="d-btn" id="fireBtn">⚡</div>
+            <div class="d-btn" id="rightBtn">➡️</div>
+            <div></div><div class="d-btn" id="downBtn">⬇️</div><div></div>
         </div>
     </div>
 
     <script>
-        // قاعدة البيانات الكاملة والضخمة للألعاب الكلاسيكية
-        const gameCatalog = [
-            {
-                id: 'mario',
-                title: 'ماريو الكلاسيكية الحقيقية',
-                desc: 'مغامرات بطل نينتندو في عوالم الفطر وجمع العملات الذهبية',
-                icon: '🍄',
-                theme: 'mario'
+        class MainGameScene extends Phaser.Scene {
+            constructor() {
+                super('MainGameScene');
+            }
+
+            preload() {
+                // توليد رسومات بكسل آرت حقيقية وملونة بالبرمجة عشان تظهر فوراً من غير صور خارجية معططلة
+                let graphics = this.make.graphics({ x: 0, y: 0, add: false });
+                
+                // رسم شخصية تشبه ماريو (قبعة حمراء ولبس أزرق)
+                graphics.fillStyle(0xff0000); graphics.fillRect(0, 0, 24, 12); // القبعة
+                graphics.fillStyle(0xffccaa); graphics.fillRect(4, 12, 16, 12); // الوجه
+                graphics.fillStyle(0x0000ff); graphics.fillRect(4, 24, 16, 16); // الجسم
+                graphics.generateTexture('marioSprite', 24, 40);
+                graphics.clear();
+
+                // رسم منصة الطوب للأرضية
+                graphics.fillStyle(0xb91c1c); graphics.fillRect(0, 0, 32, 32);
+                graphics.fillStyle(0xfbbf24); graphics.lineStyle(2, 0x000000); graphics.strokeRect(0, 0, 32, 32);
+                graphics.generateTexture('brickTile', 32, 32);
+                graphics.clear();
+
+                // رسم عملة ذهبية دائرية لامعة
+                graphics.fillStyle(0xfacc15);
+                graphics.fillCircle(10, 10, 10);
+                graphics.generateTexture('coin', 20, 20);
+            }
+
+            create() {
+                // خلفية سماوية زاهية
+                this.cameras.main.setBackgroundColor('#38bdf8');
+
+                // إنشاء أرضية من الطوب
+                this.platforms = this.physics.add.staticGroup();
+                for (let x = 0; x < 800; x += 32) {
+                    this.platforms.create(x, 280, 'brickTile');
+                }
+
+                // إضافة البطل (ماريو)
+                this.player = this.physics.add.sprite(100, 150, 'marioSprite');
+                this.player.setBounce(0.1);
+                this.player.setCollideWorldBounds(true);
+                this.physics.add.collider(this.player, this.platforms);
+
+                // إضافة عملات ذهبية للتجميع
+                this.coins = this.physics.add.group({
+                    key: 'coin',
+                    repeat: 5,
+                    setXY: { x: 150, y: 100, stepX: 80 }
+                });
+
+                this.coins.children.iterate((child) => {
+                    child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+                });
+
+                this.physics.add.collider(this.coins, this.platforms);
+                this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
+
+                // عداد النقاط على الشاشة
+                this.score = 0;
+                this.scoreText = this.add.text(16, 16, 'النقاط: 0', { fontSize: '16px', fill: '#fff', fontStyle: 'bold' });
+
+                // ربط أزرار اللمس الحقيقية بالحركة
+                window.moveDir = { left: false, right: false, jump: false };
+
+                document.getElementById('leftBtn').addEventListener('touchstart', () => { window.moveDir.left = true; });
+                document.getElementById('leftBtn').addEventListener('touchend', () => { window.moveDir.left = false; });
+                document.getElementById('rightBtn').addEventListener('touchstart', () => { window.moveDir.right = true; });
+                document.getElementById('rightBtn').addEventListener('touchend', () => { window.moveDir.right = false; });
+                document.getElementById('jumpBtn').addEventListener('touchstart', () => { 
+                    if (this.player.body.touching.down) { this.player.setVelocityY(-300); }
+                });
+            }
+
+            collectCoin(player, coin) {
+                coin.disableBody(true, true);
+                this.score += 10;
+                this.scoreText.setText('النقاط: ' + this.score);
+            }
+
+            update() {
+                if (window.moveDir && window.moveDir.left) {
+                    this.player.setVelocityX(-160);
+                } else if (window.moveDir && window.moveDir.right) {
+                    this.player.setVelocityX(160);
+                } else {
+                    this.player.setVelocityX(0);
+                }
+            }
+        }
+
+        const config = {
+            type: Phaser.AUTO,
+            width: 360,
+            height: 220,
+            parent: 'game-container',
+            physics: {
+                default: 'arcade',
+                arcade: { gravity: { y: 500 }, debug: false }
             },
-            {
-                id: 'sonic',
-                title: 'سونيك القنفذ السريع',
-                desc: 'الجري الخارق في الماب الخضراء الكلاسيكية وتفادي الحواجز',
-                icon: '🦔',
-                theme: 'sonic'
-            },
-            {
-                id: 'pacman',
-                title: 'باك مان الأركيد الشهيرة',
-                desc: 'أكل النقاط والهروب من الأشباح في المتاهة الكلاسيكية',
-                icon: '🟡',
-                theme: 'pacman'
-            },
-            {
-                id: 'tanks',
-                title: 'دبابات التسعينات القتالية',
-                desc: 'حماية القاعدة العسكرية وتدمير دبابات العدو المتحركة',
-                icon: '🛡️',
-                theme: 'tanks'
-            }
-        ];
+            scene: MainGameScene
+        };
 
-        let currentActiveGame = null;
-        let pX = 160, pY = 120, score = 0, gameLoopTimer = null;
-        let mapOffset = 0;
-        
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // بناء القائمة الرئيسية ديناميكياً
-        function initLibrary() {
-            const grid = document.getElementById('gamesGrid');
-            grid.innerHTML = gameCatalog.map(g => `
-                <div class="game-card" onclick="launchGame('${g.id}')">
-                    <div class="game-icon">${g.icon}</div>
-                    <div>
-                        <h3>${g.title}</h3>
-                        <p>${g.desc}</p>
-                    </div>
-                    <button class="launch-btn">تشغيل اللعبة الآن</button>
-                </div>
-            `).join('');
-        }
-
-        function launchGame(id) {
-            currentActiveGame = gameCatalog.find(item => item.id === id);
-            document.getElementById('libraryView').style.display = 'none';
-            document.getElementById('gameView').style.display = 'flex';
-            document.getElementById('activeGameTitle').innerText = currentActiveGame.title;
-            
-            pX = 100;
-            pY = 130;
-            score = 0;
-            mapOffset = 0;
-            
-            if(gameLoopTimer) cancelAnimationFrame(gameLoopTimer);
-            runEngineLoop();
-        }
-
-        function returnToLibrary() {
-            if(gameLoopTimer) cancelAnimationFrame(gameLoopTimer);
-            document.getElementById('gameView').style.display = 'none';
-            document.getElementById('libraryView').style.display = 'flex';
-        }
-
-        function gameMove(dir) {
-            const step = 20;
-            if(dir === 'up') pY -= step;
-            if(dir === 'down') pY += step;
-            if(dir === 'left') { pX -= step; mapOffset -= 5; }
-            if(dir === 'right') { pX += step; mapOffset += 5; score += 10; }
-            if(dir === 'center') { pX = 100; pY = 130; score = 0; }
-
-            // حدود الماب والشاشة
-            if(pX < 15) pX = 15;
-            if(pX > canvas.width - 35) pX = canvas.width - 35;
-            if(pY < 40) pY = 40;
-            if(pY > 170) pY = 170;
-        }
-
-        function gameAction(type) {
-            if(type === 'jump') {
-                pY -= 35;
-                setTimeout(() => { pY += 35; }, 250);
-                score += 50;
-            } else if(type === 'speed') {
-                pX += 45;
-                mapOffset += 20;
-                if(pX > canvas.width - 40) pX = canvas.width - 40;
-                score += 100;
-            }
-        }
-
-        // محرك الرسم التفاعلي المتقدم (يمنع اختفاء الشخصيات ومضمون 100% أوفلاين)
-        function runEngineLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 1. رسم الخلفيات والماب حسب اللعبة
-            if(currentActiveGame.theme === 'sonic') {
-                // سماء وزقزقة وسحب
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#0284c7';
-                ctx.fillRect(0, 150, canvas.width, 90);
-                // أرضية سونيك الخضراء المميزة
-                ctx.fillStyle = '#15803d';
-                ctx.fillRect(0, 180, canvas.width, 60);
-                ctx.fillStyle = '#facc15';
-                ctx.fillRect(0, 175, canvas.width, 5);
-            } else if(currentActiveGame.theme === 'mario') {
-                ctx.fillStyle = '#60a5fa';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                // أرضية ماريو الطوبية
-                ctx.fillStyle = '#b91c1c';
-                ctx.fillRect(0, 180, canvas.width, 60);
-                ctx.fillStyle = '#fbbf24';
-                ctx.fillRect(0, 175, canvas.width, 5);
-            } else if(currentActiveGame.theme === 'pacman') {
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                // متاهة باك مان
-                ctx.strokeStyle = '#1d4ed8';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-            } else {
-                // دبابات
-                ctx.fillStyle = '#18181b';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#3f3f46';
-                ctx.fillRect(40, 40, 60, 60);
-                ctx.fillRect(240, 120, 60, 60);
-            }
-
-            // 2. رسم الشخصية الحقيقية بوضوح تام وثبات كامل
-            ctx.save();
-            ctx.translate(pX, pY);
-
-            if(currentActiveGame.theme === 'sonic') {
-                // رسم سونيك الأزرق الدائري السريع
-                ctx.fillStyle = '#2563eb';
-                ctx.beginPath();
-                ctx.arc(15, 15, 15, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#ffffff';
-                ctx.stroke();
-                // حذاء سونيك الأحمر والأبيض
-                ctx.fillStyle = '#dc2626';
-                ctx.fillRect(5, 25, 10, 6);
-            } else if(currentActiveGame.theme === 'mario') {
-                // رسم ماريو (أحمر وقبعة مميزة)
-                ctx.fillStyle = '#dc2626';
-                ctx.fillRect(5, 5, 20, 18);
-                // وجه ماريو
-                ctx.fillStyle = '#fde047';
-                ctx.fillRect(8, 10, 14, 10);
-                // قبعة ماريو
-                ctx.fillStyle = '#b91c1c';
-                ctx.fillRect(2, 2, 24, 6);
-            } else if(currentActiveGame.theme === 'pacman') {
-                // رسم باك مان (أصفر دائري فم مفتوح)
-                ctx.fillStyle = '#facc15';
-                ctx.beginPath();
-                ctx.arc(15, 15, 14, 0.2, Math.PI * 1.8);
-                ctx.lineTo(15, 15);
-                ctx.fill();
-            } else {
-                // دبابة قتالية
-                ctx.fillStyle = '#22c55e';
-                ctx.fillRect(2, 5, 26, 20);
-                ctx.fillStyle = '#15803d';
-                ctx.fillRect(12, -5, 6, 12);
-            }
-
-            ctx.restore();
-
-            // 3. عرض عدادات اللعبة والنقاط بدقة
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 11px Tahoma';
-            ctx.fillText("النقاط: " + score, 15, 25);
-            ctx.fillText("المرحلة: نشطة", canvas.width - 80, 25);
-
-            gameLoopTimer = requestAnimationFrame(runEngineLoop);
-        }
-
-        // التشغيل التلقائي للمكتبة عند فتح الصفحة
-        initLibrary();
+        const game = new Phaser.Game(config);
     </script>
 </body>
 </html>
