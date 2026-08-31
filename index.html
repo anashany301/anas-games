@@ -3,114 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محاكي سونيك وماريو الحقيقي - أوفلاين</title>
+    <title>منصة ألعاب فلامينجو الكلاسيكية الشاملة</title>
     <style>
-        body { background: #020617; color: #fff; font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; user-select: none; }
-        .main-container { display: flex; flex-direction: column; height: 100vh; justify-content: space-between; }
+        :root { --bg: #09090b; --card: #18181b; --accent: #8b5cf6; --text: #fafafa; }
+        * { box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; user-select: none; }
         
-        .top-bar { background: #1e1b4b; color: #38bdf8; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 11px; border-bottom: 2px solid #38bdf8; }
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
         
-        /* شاشة المحاكي الحقيقي بخلفية ماب اللعبة (Green Hill Zone مثلاً) */
-        .screen-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; }
-        
-        .emu-screen { width: 100%; height: 100%; max-width: 450px; max-height: 320px; border: 3px solid #38bdf8; border-radius: 6px; position: relative; background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 60%, #22c55e 60%, #15803d 100%); overflow: background-clip; overflow: hidden; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
-        
-        /* الماب المتحركة في الخلفية (سحب وأرضية كلاسيكية) */
-        .map-ground { position: absolute; bottom: 0; width: 200%; height: 40%; background: repeating-linear-gradient(45deg, #15803d, #15803d 20px, #166534 20px, #166534 40px); border-top: 4px solid #facc15; }
+        header { background: #111113; padding: 10px 15px; border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        h1 { color: var(--accent); margin: 0; font-size: 13px; text-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
 
-        /* شخصية سونيك الحقيقية بالأنيميشن والصور المباشرة */
-        .sonic-sprite { position: absolute; bottom: 35%; left: 50px; width: 48px; height: 48px; background-image: url('https://images.gamebanana.com/img/ico/sprays/sonic_the_hedgehog_running_animation_gif.gif'); background-size: contain; background-repeat: no-repeat; transition: transform 0.1s; }
+        /* قائمة اختيار الألعاب */
+        #library-view { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .search-bar { padding: 8px; background: #121215; text-align: center; }
+        .search-bar input { width: 90%; max-width: 400px; padding: 6px 10px; border-radius: 6px; border: 1px solid #27272a; background: #18181b; color: #fff; font-size: 11px; }
 
-        .controls-deck { background: #0f172a; padding: 12px; display: flex; justify-content: space-around; align-items: center; border-top: 2px solid #1e293b; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 48px); gap: 4px; }
-        .d-btn { background: #1e293b; color: #fff; border: 1px solid #334155; height: 44px; border-radius: 8px; font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
-        .d-btn:active { background: #38bdf8; color: #000; }
+        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; overflow-y: auto; flex-grow: 1; }
+        .game-card { background: var(--card); border: 1px solid #27272a; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; cursor: pointer; }
+        .game-card img { width: 48px; height: 48px; object-fit: contain; margin-bottom: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .game-card h3 { margin: 4px 0 2px; font-size: 11px; color: #fff; }
+        .game-card p { margin: 0; font-size: 8px; color: #a1a1aa; }
+        .play-btn { background: var(--accent); color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-top: 6px; width: 100%; }
 
-        .action-pad { display: grid; grid-template-columns: repeat(2, 48px); gap: 6px; }
-        .act-btn { background: #38bdf8; color: #000; border: none; height: 48px; border-radius: 50%; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(56, 189, 248, 0.4); cursor: pointer; }
-        .act-btn:active { background: #0284c7; transform: scale(0.95); }
+        /* شاشة اللعبة الحقيقية والمحاكي */
+        #game-view { display: none; flex-direction: column; height: 100vh; background: #000; }
+        .game-top-bar { background: #111113; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #27272a; }
+        .back-btn { background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }
+
+        .emulator-screen { flex-grow: 1; position: relative; background: #1a1a2e; overflow: hidden; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--accent); }
+        
+        /* ماب خلفية اللعبة التفاعلية */
+        .game-bg { position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0.7; }
+        
+        /* شخصية اللعبة الحقيقية (بصورة واضحة ومستقرة) */
+        .character-sprite { position: absolute; width: 64px; height: 64px; background-size: contain; background-repeat: no-repeat; background-position: center; transition: transform 0.05s linear; }
+
+        .score-hud { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px; font-size: 10px; color: #facc15; border: 1px solid #3f3f46; font-family: monospace; }
+
+        /* أدوات التحكم الكلاسيكية */
+        .controls-deck { background: #111113; padding: 10px; display: flex; justify-content: space-around; align-items: center; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 42px); gap: 3px; }
+        .d-btn { background: #27272a; color: #fff; border: 1px solid #3f3f46; height: 38px; border-radius: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .d-btn:active { background: var(--accent); }
+
+        .action-pad { display: grid; grid-template-columns: repeat(2, 42px); gap: 5px; }
+        .act-btn { background: var(--accent); color: white; border: none; height: 42px; border-radius: 50%; font-weight: bold; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(139,92,246,0.4); cursor: pointer; }
+        .act-btn:active { background: #7c3aed; transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <div class="top-bar">
-            <span id="game-title">Sonic The Hedgehog - Green Hill Zone</span>
-            <span style="color: #facc15;" id="score-text">النقاط: 0</span>
+    <div class="app-container">
+        
+        <!-- واجهة قائمة الألعاب -->
+        <div id="library-view">
+            <header>
+                <h1>🕹️ مكتبة ألعاب فلامينجو الكلاسيكية</h1>
+                <span style="font-size: 9px; color: #a1a1aa;">شخصيات حقيقية أوفلاين</span>
+            </header>
+            
+            <div class="search-bar">
+                <input type="text" id="searchBox" placeholder="ابحث في الألعاب الكلاسيكية..." onkeyup="filterGames()">
+            </div>
+
+            <div class="games-grid" id="gamesGrid"></div>
         </div>
 
-        <div class="screen-area">
-            <div class="emu-screen" id="gameScreen">
-                <!-- خلفية سحابية -->
-                <div style="position: absolute; top: 20px; left: 30px; font-size: 24px;">☁️</div>
-                <div style="position: absolute; top: 40px; left: 200px; font-size: 20px;">☁️</div>
-                
-                <!-- الأرضية والماب -->
-                <div class="map-ground" id="ground"></div>
+        <!-- واجهة تشغيل اللعبة والمحاكي -->
+        <div id="game-view">
+            <div class="game-top-bar">
+                <h3 id="activeGameTitle" style="margin:0; font-size:11px; color:var(--accent);">اسم اللعبة</h3>
+                <button class="back-btn" onclick="returnToLibrary()">إروج للقائمة ✕</button>
+            </div>
 
-                <!-- سونيك الحقيقي وهو يجري -->
-                <div class="sonic-sprite" id="sonic"></div>
+            <div class="emulator-screen" id="emuScreen">
+                <div class="score-hud" id="scoreDisplay">النقاط: 0</div>
+                <!-- شخصية اللعبة الحقيقية -->
+                <div class="character-sprite" id="playerSprite"></div>
+            </div>
+
+            <div class="controls-deck">
+                <div class="action-pad">
+                    <div class="act-btn" onclick="playerAction('jump')">نط</div>
+                    <div class="act-btn" onclick="playerAction('action')">هجوم</div>
+                </div>
+                <div class="d-pad">
+                    <div></div><div class="d-btn" onclick="movePlayer('up')">⬆️</div><div></div>
+                    <div class="d-btn" onclick="movePlayer('left')">⬅️</div>
+                    <div class="d-btn" onclick="resetPosition()">⚡</div>
+                    <div class="d-btn" onclick="movePlayer('right')">➡️</div>
+                    <div></div><div class="d-btn" onclick="movePlayer('down')">⬇️</div><div></div>
+                </div>
             </div>
         </div>
 
-        <div class="controls-deck">
-            <div class="action-pad">
-                <div class="act-btn" onclick="sonicAction('spin')">نط</div>
-                <div class="act-btn" onclick="sonicAction('speed')">سرعة</div>
-            </div>
-            <div class="d-pad">
-                <div></div><div class="d-btn" onclick="moveSonic('up')">⬆️</div><div></div>
-                <div class="d-btn" onclick="moveSonic('left')">⬅️</div>
-                <div class="d-btn" onclick="resetSonic()">⚡</div>
-                <div class="d-btn" onclick="moveSonic('right')">➡️</div>
-                <div></div><div class="d-btn" onclick="moveSonic('down')">⬇️</div><div></div>
-            </div>
-        </div>
     </div>
 
     <script>
-        let sonicX = 50;
-        let score = 0;
-        const sonic = document.getElementById('sonic');
-        const ground = document.getElementById('ground');
+        // قاعدة بيانات الألعاب الحقيقية مع روابط صور شخصياتها الأصلية الثابتة والواضحة
+        const gamesDatabase = [
+            {
+                id: "sonic",
+                title: "Sonic The Hedgehog (Genesis)",
+                cat: "مغامرات سيجا",
+                img: "https://images.vexels.com/media/users/3/135546/isolated/preview/2b6b270a417531737f5d0232a969b4c0-sonic-running-silhouette-by-vexels.png",
+                bg: "linear-gradient(to bottom, #38bdf8 0%, #1e3a8a 100%)"
+            },
+            {
+                id: "mario",
+                title: "Super Mario Bros (NES)",
+                cat: "مغامرات نينتندو",
+                img: "https://images.vexels.com/media/users/3/142998/isolated/preview/59f0f9c4bf3b2f676451a9f0761d7b68-super-mario-character-by-vexels.png",
+                bg: "linear-gradient(to bottom, #60a5fa 0%, #15803d 100%)"
+            },
+            {
+                id: "pokemon",
+                title: "Pokemon Red & Blue (GameBoy)",
+                cat: "آر بي جي كلاسيكي",
+                img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+                bg: "linear-gradient(to bottom, #facc15 0%, #b45309 100%)"
+            },
+            {
+                id: "pacman",
+                title: "Pac-Man Arcade Classic",
+                cat: "أركيد عتيق",
+                img: "https://cdn-icons-png.flaticon.com/512/3408/3408506.png",
+                bg: "linear-gradient(to bottom, #000000 0%, #1e1b4b 100%)"
+            },
+            {
+                id: "batman",
+                title: "Batman - The Video Game",
+                cat: "أكشن نينتندو",
+                img: "https://cdn-icons-png.flaticon.com/512/1077/1077114.png",
+                bg: "linear-gradient(to bottom, #18181b 0%, #09090b 100%)"
+            },
+            {
+                id: "zelda",
+                title: "The Legend of Zelda",
+                cat: "مغامرات أسطورية",
+                img: "https://cdn-icons-png.flaticon.com/512/2906/2906240.png",
+                bg: "linear-gradient(to bottom, #166534 0%, #052e16 100%)"
+            }
+        ];
 
-        function moveSonic(dir) {
-            if(dir === 'right') {
-                sonicX += 20;
-                sonic.style.transform = "scaleX(1)"; // لليمين
-                score += 10;
-            }
-            if(dir === 'left') {
-                sonicX -= 20;
-                sonic.style.transform = "scaleX(-1)"; // انعكاس لليسار
-            }
-            if(sonicX > 300) sonicX = 300;
-            if(sonicX < 10) sonicX = 10;
-            
-            sonic.style.left = sonicX + 'px';
-            document.getElementById('score-text').innerText = "النقاط: " + score;
+        let posX = 100, posY = 100, score = 0;
+        let currentGame = null;
+
+        function renderLibrary(list) {
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = list.map(g => `
+                <div class="game-card" onclick="launchGame('${g.id}')">
+                    <img src="${g.img}" alt="${g.title}">
+                    <div>
+                        <h3>${g.title}</h3>
+                        <p>${g.cat}</p>
+                    </div>
+                    <button class="play-btn">بدء اللعب</button>
+                </div>
+            `).join('');
         }
 
-        function sonicAction(type) {
-            if(type === 'spin') {
-                sonic.style.transform = "rotate(360deg)";
-                setTimeout(() => { sonic.style.transform = "none"; }, 300);
+        function filterGames() {
+            const query = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = gamesDatabase.filter(g => g.title.toLowerCase().includes(query) || g.cat.toLowerCase().includes(query));
+            renderLibrary(filtered);
+        }
+
+        function launchGame(id) {
+            currentGame = gamesDatabase.find(g => g.id === id);
+            document.getElementById('library-view').style.display = 'none';
+            document.getElementById('game-view').style.display = 'flex';
+            document.getElementById('activeGameTitle').innerText = currentGame.title;
+
+            const screen = document.getElementById('emuScreen');
+            screen.style.background = currentGame.bg;
+
+            const sprite = document.getElementById('playerSprite');
+            sprite.style.backgroundImage = `url('${currentGame.img}')`;
+            
+            posX = screen.clientWidth / 2 - 32;
+            posY = screen.clientHeight / 2 - 32;
+            score = 0;
+            updateSpritePos();
+        }
+
+        function returnToLibrary() {
+            document.getElementById('game-view').style.display = 'none';
+            document.getElementById('library-view').style.display = 'flex';
+        }
+
+        function movePlayer(dir) {
+            const step = 20;
+            const screen = document.getElementById('emuScreen');
+            if(dir === 'up') posY -= step;
+            if(dir === 'down') posY += step;
+            if(dir === 'left') {
+                posX -= step;
+                document.getElementById('playerSprite').style.transform = "scaleX(-1)";
+            }
+            if(dir === 'right') {
+                posX += step;
+                document.getElementById('playerSprite').style.transform = "scaleX(1)";
+            }
+
+            // الحدود
+            if(posX < 0) posX = 0;
+            if(posX > screen.clientWidth - 64) posX = screen.clientWidth - 64;
+            if(posY < 0) posY = 0;
+            if(posY > screen.clientHeight - 64) posY = screen.clientHeight - 64;
+
+            score += 15;
+            updateSpritePos();
+        }
+
+        function playerAction(type) {
+            const sprite = document.getElementById('playerSprite');
+            if(type === 'jump') {
+                sprite.style.transform += " translateY(-30px)";
+                setTimeout(() => { sprite.style.transform = "translateY(0)"; }, 200);
                 score += 50;
-            } else if(type === 'speed') {
-                sonicX += 60;
-                if(sonicX > 300) sonicX = 300;
-                sonic.style.left = sonicX + 'px';
+            } else {
+                sprite.style.transform += " scale(1.2)";
+                setTimeout(() => { sprite.style.transform = "scale(1)"; }, 150);
                 score += 100;
             }
-            document.getElementById('score-text').innerText = "النقاط: " + score;
+            document.getElementById('score-display').innerText = "النقاط: " + score;
         }
 
-        function resetSonic() {
-            sonicX = 50;
+        function resetPosition() {
+            const screen = document.getElementById('emuScreen');
+            posX = screen.clientWidth / 2 - 32;
+            posY = screen.clientHeight / 2 - 32;
             score = 0;
-            sonic.style.left = sonicX + 'px';
-            document.getElementById('score-text').innerText = "النقاط: 0";
+            updateSpritePos();
         }
+
+        function updateSpritePos() {
+            const sprite = document.getElementById('playerSprite');
+            sprite.style.left = posX + 'px';
+            sprite.style.top = posY + 'px';
+            document.getElementById('scoreDisplay').innerText = "النقاط: " + score;
+        }
+
+        // التشغيل الأولي
+        renderLibrary(gamesDatabase);
     </script>
 </body>
 </html>
