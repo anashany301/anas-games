@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الألعاب الكلاسيكية الضخمة</title>
+    <title>منصة الألعاب السحابية من GitHub</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0b0f19; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
@@ -17,13 +17,11 @@
         
         .grid-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
         .game-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
-        .game-card.featured { border: 2px solid #f59e0b; background: linear-gradient(135deg, #1e293b, #26211c); }
-        .featured-tag { display: inline-block; background-color: #f59e0b; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-bottom: 6px; }
-
+        
         .game-info h3 { font-size: 1rem; color: #f1f5f9; margin-bottom: 6px; word-break: break-word; }
         .game-info span { display: inline-block; background-color: #0369a1; color: #e0f2fe; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 12px; }
         
-        .play-btn { background: #0284c7; color: white; border: none; padding: 9px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; text-decoration: none; display: block; }
+        .play-btn { background: #0284c7; color: white; border: none; padding: 9px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; width: 100%; text-decoration: none; display: block; }
         .play-btn:hover { background: #0ea5e9; }
 
         #loading { color: #38bdf8; font-weight: bold; margin: 20px 0; display: none; }
@@ -32,97 +30,77 @@
 <body>
 
     <header>
-        <h1>منصة الألعاب الكلاسيكية الضخمة</h1>
-        <p>ألعاب ماريو وسونيك في المقدمة تليها بقية الألعاب مباشرة</p>
+        <h1>منصة الألعاب السحابية من GitHub</h1>
+        <p>ألعاب جاهزة ومستودعات مباشرة تعمل بكامل المحاكي</p>
     </header>
 
     <div class="stats-bar" id="statsBar">عدد الألعاب المتاحة: 0</div>
 
     <div class="controls">
-        <select id="platformSelect" onchange="changePlatform()">
-            <option value="nes">ألعاب نينتندو (NES) - ماريو أولاً</option>
-            <option value="SEGA">ألعاب سيجا (SEGA) - سونيك أولاً</option>
-            <option value="ARCADE">ألعاب الآركيد (Arcade)</option>
+        <select id="platformSelect" onchange="loadGitHubCatalog()">
+            <option value="nes">ألعاب نينتندو (NES)</option>
+            <option value="snes">ألعاب سوبر نينتندو (SNES)</option>
+            <option value="sega">ألعاب سيجا (SEGA)</option>
         </select>
     </div>
 
-    <div id="loading">جاري جلب وترتيب الألعاب...</div>
+    <div id="loading">جاري جلب القائمة من مستودع GitHub...</div>
     <div class="grid-container" id="gamesGrid"></div>
 
     <script>
-        function changePlatform() {
-            const selectedPlatform = document.getElementById('platformSelect').value;
-            fetchMassiveCatalog(selectedPlatform);
-        }
-
-        async function fetchMassiveCatalog(platform) {
+        async function loadGitHubCatalog() {
+            const platform = document.getElementById('platformSelect').value;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('gamesGrid').innerHTML = '';
-            document.getElementById('statsBar').innerText = 'جاري السحب والترتيب...';
-            
-            let collectionName = "nes";
-            if (platform === "SEGA") collectionName = "sega_genesis_library";
-            if (platform === "ARCADE") collectionName = "arcade";
+            document.getElementById('statsBar').innerText = 'جاري الاتصال بالمستودع...';
 
-            let query = `collection:(${collectionName}) AND mediatype:(software)`;
+            // سحب ملف الـ JSON المباشر من مستودع GitHub موثوق لألعاب الكلاسيك
+            const jsonUrl = 'https://raw.githubusercontent.com/gamesforsite/webretro/main/roms.json';
 
             try {
-                const apiUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=150`;
-                const response = await fetch(apiUrl);
+                const response = await fetch(jsonUrl);
                 const data = await response.json();
                 
-                if (data.response && data.response.docs) {
-                    let gamesList = data.response.docs.map(doc => ({
-                        id: doc.identifier,
-                        title: doc.title || "لعبة كلاسيكية",
-                        platform: platform
-                    }));
+                // تصفية الألعاب بناءً على المنصة المختارة
+                let games = data.listing.filter(game => {
+                    if (platform === 'nes') return game.system === 'nes';
+                    if (platform === 'snes') return game.system === 'snes';
+                    if (platform === 'sega') return game.system === 'sega' || game.system === 'genesis';
+                    return true;
+                });
 
-                    // ترتيب ذكي: رفع ألعاب ماريو أو سونيك إلى قمة القائمة حسب المنصة المختارة
-                    gamesList.sort((a, b) => {
-                        let titleA = a.title.toLowerCase();
-                        let titleB = b.title.toLowerCase();
-                        
-                        let keyword = platform === 'nes' ? 'mario' : (platform === 'SEGA' ? 'sonic' : '');
-                        
-                        if (keyword) {
-                            let hasA = titleA.includes(keyword);
-                            let hasB = titleB.includes(keyword);
-                            if (hasA && !hasB) return -1;
-                            if (!hasA && hasB) return 1;
-                        }
-                        return titleA.localeCompare(titleB);
-                    });
-                    
-                    renderGrid(gamesList);
-                }
+                renderGrid(games, platform);
             } catch (e) {
-                console.error("خطأ في جلب الألعاب", e);
-                document.getElementById('statsBar').innerText = 'حدث خطأ أثناء جلب الألعاب';
+                console.error("خطأ في الاتصال بمستودع جيت هب", e);
+                document.getElementById('statsBar').innerText = 'فشل الاتصال بالمستودع الخارجي';
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
-        function renderGrid(games) {
+        function renderGrid(games, platform) {
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = '';
 
-            games.forEach((game, index) => {
-                const embedUrl = `https://archive.org/embed/${game.id}`;
+            if(games.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444;">لا توجد ألعاب متاحة لهذه القائمة حالياً</p>';
+                document.getElementById('statsBar').innerText = 'عدد الألعاب المتاحة: 0';
+                return;
+            }
+
+            games.forEach(game => {
                 const card = document.createElement('div');
+                card.className = 'game-card';
                 
-                // تمييز أول العاب في القائمة (ماريو أو سونيك) بستايل مميز
-                let isTopGame = index < 3 && (game.title.toLowerCase().includes('mario') || game.title.toLowerCase().includes('sonic'));
-                card.className = isTopGame ? 'game-card featured' : 'game-card';
-                
+                // رابط تشغيل يعتمد على محاكي ويب مباشر
+                const playUrl = `https://webretro.io/?system=${platform}&rom=${encodeURIComponent(game.filename)}`;
+
                 card.innerHTML = `
                     <div class="game-info">
-                        ${isTopGame ? '<span class="featured-tag">★ مميز في المقدمة</span>' : ''}
                         <h3>${game.title}</h3>
-                        <span>${game.platform}</span>
+                        <span>${platform.toUpperCase()}</span>
                     </div>
-                    <a class="play-btn" href="${embedUrl}" target="_blank">تشغيل اللعبة</a>
+                    <a class="play-btn" href="${playUrl}" target="_blank">تشغيل مباشر</a>
                 `;
                 grid.appendChild(card);
             });
@@ -131,7 +109,7 @@
         }
 
         window.onload = function() {
-            fetchMassiveCatalog('nes');
+            loadGitHubCatalog();
         };
     </script>
 </body>
