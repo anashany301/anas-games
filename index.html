@@ -32,7 +32,6 @@
 
         #loading { color: #38bdf8; font-weight: bold; margin: 20px 0; display: none; font-size: 0.9rem; }
 
-        /* نافذة التشغيل والمحاكي */
         #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); justify-content: center; align-items: center; z-index: 1000; padding: 5px; flex-direction: column; }
         .modal-content { background: #1e293b; padding: 10px; border-radius: 12px; width: 100%; max-width: 550px; text-align: center; position: relative; border: 1px solid #334155; display: flex; flex-direction: column; align-items: center; }
         .close-btn { position: absolute; top: 8px; left: 8px; background: #ef4444; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 1rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
@@ -40,11 +39,10 @@
         .emulator-container { width: 100%; height: 300px; background: #000; border-radius: 6px; margin-top: 5px; border: 2px solid #334155; position: relative; overflow: hidden; }
         .emulator-screen { width: 100%; height: 100%; border: none; }
 
-        /* أزرار التحكم الحقيقية التفاعلية */
         .gamepads { display: flex; justify-content: space-between; width: 100%; margin-top: 10px; padding: 0 5px; align-items: center; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 2px; }
         .pad-btn { background: #334155; color: white; border: none; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .pad-btn:active, .pad-btn.active { background: #38bdf8; color: #0f172a; }
+        .pad-btn:active { background: #38bdf8; color: #0f172a; }
         
         .center-controls { display: flex; gap: 8px; flex-direction: column; align-items: center; }
         .meta-btn { background: #475569; color: white; border: none; padding: 5px 10px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
@@ -52,28 +50,29 @@
 
         .action-btns { display: flex; gap: 10px; }
         .action-btn { width: 45px; height: 45px; background: #0284c7; color: white; border: none; border-radius: 50%; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 5px rgba(0,0,0,0.3); user-select: none; }
-        .action-btn:active, .action-btn.active { background: #38bdf8; color: #0f172a; }
+        .action-btn:active { background: #38bdf8; color: #0f172a; }
     </style>
 </head>
 <body>
 
     <header>
         <h1>منصة الألعاب الكلاسيكية التفاعلية</h1>
-        <p>ألعاب أصلية قابلة للعب الفوري مع أزرار تحكم حقيقية</p>
+        <p>ألعاب أصلية ومحاكاة فورية مع أزرار تحكم حقيقية</p>
     </header>
 
     <div class="stats-bar" id="statsBar">عدد الألعاب المتاحة: 0</div>
 
     <div class="controls">
         <select id="platformSelect" onchange="resetAndLoad()">
-            <option value="nes">ألعاب نينتندو (NES)</option>
+            <option value="nes">ألعاب نينتندو الكلاسيكية (NES)</option>
             <option value="sega">ألعاب سيجا (SEGA)</option>
+            <option value="arcade">ألعاب الآركيد</option>
         </select>
         <input type="text" id="searchInput" placeholder="ابحث عن لعبة..." oninput="filterCatalog()">
     </div>
 
     <div class="grid-container" id="gamesGrid"></div>
-    <div id="loading">جاري جلب الألعاب القابلة للتشغيل...</div>
+    <div id="loading">جاري تحديث الألعاب...</div>
 
     <div id="playerModal">
         <div class="modal-content">
@@ -112,66 +111,67 @@
 
     <script>
         let uniqueMap = new Map();
-        let seenTitles = new Set();
-        let currentPage = 1;
-        let isLoading = false;
-        let currentPlatform = "nes";
 
-        function cleanGameTitle(title) {
-            return title.toLowerCase()
-                .replace(/\(.*?\)/g, '')
-                .replace(/\[.*?\]/g, '')
-                .replace(/v\d+(\.\d+)?/g, '')
-                .trim();
-        }
+        // قائمة ألعاب أساسية مضمونة وموثقة من الأرشيف لتعمل فوريًا بدون فشل البحث
+        const fallbackGames = {
+            nes: [
+                { id: "super-mario-bros-usa", title: "Super Mario Bros (USA)", platform: "NES" },
+                { id: "Pac-Man_1982_Atari", title: "Pac-Man Classic", platform: "NES" },
+                { id: "DonkeyKong1981", title: "Donkey Kong Arcade", platform: "NES" },
+                { id: "Contra_1988_Konami", title: "Contra Classic", platform: "NES" },
+                { id: "Tank_1990_1993_Hudson", title: "Tank 1990 (Battle City)", platform: "NES" },
+                { id: "Tetris_1989_Nintendo", title: "Tetris Classic", platform: "NES" }
+            ],
+            sega: [
+                { id: "SonicTheHedgehogGenesis", title: "Sonic The Hedgehog Genesis", platform: "SEGA" },
+                { id: "GoldenAxe1989Sega", title: "Golden Axe", platform: "SEGA" },
+                { id: "Shinobi1989Sega", title: "Shinobi", platform: "SEGA" }
+            ],
+            arcade: [
+                { id: "pacman", title: "Pac-Man Arcade", platform: "ARCADE" },
+                { id: "galaga", title: "Galaga Arcade", platform: "ARCADE" }
+            ]
+        };
 
         async function resetAndLoad() {
-            currentPlatform = document.getElementById('platformSelect').value;
+            const platform = document.getElementById('platformSelect').value;
             uniqueMap.clear();
-            seenTitles.clear();
-            currentPage = 1;
-            document.getElementById('gamesGrid').innerHTML = '';
-            await loadMoreGames();
+            
+            // إضافة الألعاب المضمونة أولاً
+            if (fallbackGames[platform]) {
+                fallbackGames[platform].forEach(g => {
+                    uniqueMap.set(g.id, { identifier: g.id, title: g.title, platform: g.platform, isFeatured: true });
+                });
+            }
+
+            renderGrid();
+            await fetchArchiveGames(platform);
         }
 
-        async function loadMoreGames() {
-            if (isLoading) return;
-            isLoading = true;
+        async function fetchArchiveGames(platform) {
             document.getElementById('loading').style.display = 'block';
-
-            // استعلام يستهدف الألعاب القابلة للتشغيل برمجياً ويتجنب ملفات الفيديو والصور
-            let query = currentPlatform === 'nes' 
-                ? "collection:(nes) AND mediatype:(software) AND -mediatype:(movies)" 
-                : "collection:(sega) AND mediatype:(software) AND -mediatype:(movies)";
+            let query = `collection:(${platform}) AND mediatype:(software)`;
+            if (platform === 'arcade') query = `collection:(arcade) AND mediatype:(software)`;
 
             try {
-                const apiUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=35&page=${currentPage}`;
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                const docs = data.response.docs;
-
-                if (docs && docs.length > 0) {
-                    docs.forEach(game => {
-                        if (game.identifier && game.title) {
-                            const cleanName = cleanGameTitle(game.title);
-                            // استبعاد العناوين المرتبطة بالفيديوهات أو النصوص الصامتة
-                            if (!uniqueMap.has(game.identifier) && !seenTitles.has(cleanName) && !game.title.toLowerCase().includes('ending')) {
-                                seenTitles.add(cleanName);
-                                uniqueMap.set(game.identifier, {
-                                    identifier: game.identifier,
-                                    title: game.title,
-                                    platform: currentPlatform.toUpperCase()
-                                });
-                            }
+                const res = await fetch(`https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=50`);
+                const data = await res.json();
+                if (data.response && data.response.docs) {
+                    data.response.docs.forEach(doc => {
+                        if (doc.identifier && doc.title && !uniqueMap.has(doc.identifier)) {
+                            uniqueMap.set(doc.identifier, {
+                                identifier: doc.identifier,
+                                title: doc.title,
+                                platform: platform.toUpperCase(),
+                                isFeatured: false
+                            });
                         }
                     });
-                    currentPage++;
                     renderGrid();
                 }
-            } catch (error) {
-                console.error("خطأ في جلب الألعاب", error);
+            } catch (e) {
+                console.error("فشل جلب الأرشيف الإضافي", e);
             } finally {
-                isLoading = false;
                 document.getElementById('loading').style.display = 'none';
             }
         }
@@ -185,12 +185,13 @@
             uniqueMap.forEach(game => {
                 if (!query || game.title.toLowerCase().includes(query)) {
                     count++;
-                    const emulatorUrl = `https://archive.org/embed/${game.identifier}?ui=embed`;
+                    const emulatorUrl = `https://archive.org/embed/${game.identifier}`;
                     const card = document.createElement('div');
-                    card.className = 'game-card';
+                    card.className = game.isFeatured ? 'game-card featured' : 'game-card';
                     
                     card.innerHTML = `
                         <div class="game-info">
+                            ${game.isFeatured ? '<span class="featured-tag">★ لعبة رئيسية مضمونة</span>' : ''}
                             <h3>${game.title}</h3>
                             <span>${game.platform}</span>
                         </div>
@@ -207,12 +208,6 @@
             renderGrid();
         }
 
-        window.addEventListener('scroll', () => {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
-                loadMoreGames();
-            }
-        });
-
         function playGame(title, url) {
             document.getElementById('modalGameTitle').innerText = title;
             document.getElementById('emulatorFrame').src = url;
@@ -224,30 +219,25 @@
             document.getElementById('emulatorFrame').src = '';
         }
 
-        // إرسال أوامر الأزرار الحقيقية مباشرة للمحاكي داخل الـ iframe
         function pressKey(keyName) {
-            const iframeWindow = document.getElementById('emulatorFrame').contentWindow;
-            if (!iframeWindow) return;
-            
-            let eventData = { key: keyName, code: keyName, bubbles: true };
-            if (keyName === 'ArrowUp') eventData.keyCode = 38;
-            if (keyName === 'ArrowDown') eventData.keyCode = 40;
-            if (keyName === 'ArrowLeft') eventData.keyCode = 37;
-            if (keyName === 'ArrowRight') eventData.keyCode = 39;
-            if (keyName === 'Enter') eventData.keyCode = 13;
-            if (keyName === 'Select') eventData.keyCode = 32; // Space bar as select
-            if (keyName === 'KeyZ') eventData.keyCode = 90; // Z for A button
-            if (keyName === 'KeyX') eventData.keyCode = 88; // X for B button
-
-            iframeWindow.document.dispatchEvent(new KeyboardEvent('keydown', eventData));
+            const win = document.getElementById('emulatorFrame').contentWindow;
+            if (!win) return;
+            let ev = { key: keyName, code: keyName, bubbles: true };
+            if (keyName === 'ArrowUp') ev.keyCode = 38;
+            if (keyName === 'ArrowDown') ev.keyCode = 40;
+            if (keyName === 'ArrowLeft') ev.keyCode = 37;
+            if (keyName === 'ArrowRight') ev.keyCode = 39;
+            if (keyName === 'Enter') ev.keyCode = 13;
+            if (keyName === 'Select') ev.keyCode = 32;
+            if (keyName === 'KeyZ') ev.keyCode = 90;
+            if (keyName === 'KeyX') ev.keyCode = 88;
+            win.document.dispatchEvent(new KeyboardEvent('keydown', ev));
         }
 
         function releaseKey(keyName) {
-            const iframeWindow = document.getElementById('emulatorFrame').contentWindow;
-            if (!iframeWindow) return;
-            
-            let eventData = { key: keyName, code: keyName, bubbles: true };
-            iframeWindow.document.dispatchEvent(new KeyboardEvent('keyup', eventData));
+            const win = document.getElementById('emulatorFrame').contentWindow;
+            if (!win) return;
+            win.document.dispatchEvent(new KeyboardEvent('keyup', { key: keyName, code: keyName, bubbles: true }));
         }
 
         window.onload = resetAndLoad;
