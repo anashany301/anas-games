@@ -17,12 +17,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Generate Lightweight JSONs
+      - name: Generate Lightweight JSONs in Root
         run: |
           python -c '
           import urllib.request
           import json
-          import os
 
           platforms = {
               "nes": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/nes/games.json",
@@ -30,8 +29,6 @@ jobs:
               "snes": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/snes/games.json",
               "arcade": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/arcade/games.json"
           }
-
-          os.makedirs("data", exist_ok=True)
 
           for platform, url in platforms.items():
               try:
@@ -45,15 +42,16 @@ jobs:
                           title = game.get("name") or game.get("title") or "Unknown"
                           rom_file = game.get("url") or game.get("file") or ""
                           if rom_file:
-                              # نخزن الاسم ومسار الملف المختصر فقط لتوفير المساحة وسرعة التحميل
                               platform_catalog.append({
                                   "title": title,
                                   "file": rom_file
                               })
                       
-                      with open(f"data/{platform}.json", "w", encoding="utf-8") as f:
+                      # حفظ الملف مباشرة في الجذر الرئيسي بره أي مجلدات
+                      filename = f"{platform}.json"
+                      with open(filename, "w", encoding="utf-8") as f:
                           json.dump(platform_catalog, f, ensure_ascii=False)
-                      print(f"Saved {len(platform_catalog)} games for {platform}")
+                      print(f"Saved {len(platform_catalog)} games to {filename}")
               except Exception as e:
                   print(f"Error {platform}: {e}")
           '
@@ -62,6 +60,6 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
-          git add data/
-          git commit -m "Auto-update lightweight game catalogs" || exit 0
+          git add nes.json snes.json segaMD.json arcade.json || true
+          git commit -m "Auto-update lightweight game catalogs in root" || exit 0
           git push
