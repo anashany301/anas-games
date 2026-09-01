@@ -3,244 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الألعاب الكلاسيكية التفاعلية</title>
+    <title>منصة الألعاب الكلاسيكية الضخمة</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
-        header { text-align: center; margin-bottom: 15px; width: 100%; max-width: 800px; }
+        body { background-color: #0b0f19; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
+        header { text-align: center; margin-bottom: 15px; width: 100%; max-width: 900px; }
         h1 { font-size: 2rem; color: #38bdf8; margin-bottom: 5px; }
-        p { color: #94a3b8; font-size: 0.9rem; }
         
-        .stats-bar { background: #1e293b; border: 1px solid #334155; padding: 8px 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #38bdf8; font-size: 0.9rem; }
+        .stats-bar { background: #1e293b; border: 1px solid #334155; padding: 8px 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #38bdf8; font-size: 0.95rem; width: 100%; max-width: 900px; text-align: center; }
+
+        .controls { width: 100%; max-width: 900px; display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        select { padding: 10px 14px; font-size: 0.95rem; border-radius: 8px; border: 2px solid #334155; background-color: #1e293b; color: #fff; outline: none; cursor: pointer; }
         
-        .controls { width: 100%; max-width: 800px; display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-        input, select { padding: 10px 14px; font-size: 0.95rem; border-radius: 8px; border: 2px solid #334155; background-color: #1e293b; color: #fff; outline: none; }
-        input { flex: 1; min-width: 220px; }
-        
-        .grid-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
-        .game-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; }
-        .game-card:hover { transform: translateY(-2px); border-color: #38bdf8; }
-        
+        .grid-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .game-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
         .game-card.featured { border: 2px solid #f59e0b; background: linear-gradient(135deg, #1e293b, #26211c); }
-        .featured-tag { display: inline-block; background-color: #f59e0b; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-bottom: 4px; }
+        .featured-tag { display: inline-block; background-color: #f59e0b; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-bottom: 6px; }
 
-        .game-info h3 { font-size: 0.95rem; color: #f1f5f9; margin-bottom: 4px; word-break: break-word; }
-        .game-info span { display: inline-block; background-color: #0369a1; color: #e0f2fe; padding: 2px 6px; border-radius: 12px; font-size: 0.7rem; margin-bottom: 10px; }
+        .game-info h3 { font-size: 1rem; color: #f1f5f9; margin-bottom: 6px; word-break: break-word; }
+        .game-info span { display: inline-block; background-color: #0369a1; color: #e0f2fe; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 12px; }
         
-        .play-btn { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: bold; text-align: center; }
-        .play-btn:hover { opacity: 0.9; }
+        .play-btn { background: #0284c7; color: white; border: none; padding: 9px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; text-decoration: none; display: block; }
+        .play-btn:hover { background: #0ea5e9; }
 
-        #loading { color: #38bdf8; font-weight: bold; margin: 20px 0; display: none; font-size: 0.9rem; }
-
-        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); justify-content: center; align-items: center; z-index: 1000; padding: 5px; flex-direction: column; }
-        .modal-content { background: #1e293b; padding: 10px; border-radius: 12px; width: 100%; max-width: 550px; text-align: center; position: relative; border: 1px solid #334155; display: flex; flex-direction: column; align-items: center; }
-        .close-btn { position: absolute; top: 8px; left: 8px; background: #ef4444; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 1rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
-        
-        .emulator-container { width: 100%; height: 300px; background: #000; border-radius: 6px; margin-top: 5px; border: 2px solid #334155; position: relative; overflow: hidden; }
-        .emulator-screen { width: 100%; height: 100%; border: none; }
-
-        .gamepads { display: flex; justify-content: space-between; width: 100%; margin-top: 10px; padding: 0 5px; align-items: center; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 2px; }
-        .pad-btn { background: #334155; color: white; border: none; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .pad-btn:active { background: #38bdf8; color: #0f172a; }
-        
-        .center-controls { display: flex; gap: 8px; flex-direction: column; align-items: center; }
-        .meta-btn { background: #475569; color: white; border: none; padding: 5px 10px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .meta-btn:active { background: #38bdf8; color: #0f172a; }
-
-        .action-btns { display: flex; gap: 10px; }
-        .action-btn { width: 45px; height: 45px; background: #0284c7; color: white; border: none; border-radius: 50%; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 5px rgba(0,0,0,0.3); user-select: none; }
-        .action-btn:active { background: #38bdf8; color: #0f172a; }
+        #loading { color: #38bdf8; font-weight: bold; margin: 20px 0; display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>منصة الألعاب الكلاسيكية التفاعلية</h1>
-        <p>ألعاب أصلية ومحاكاة فورية مع أزرار تحكم حقيقية</p>
+        <h1>منصة الألعاب الكلاسيكية الضخمة</h1>
+        <p>ألعاب ماريو وسونيك في المقدمة تليها بقية الألعاب مباشرة</p>
     </header>
 
     <div class="stats-bar" id="statsBar">عدد الألعاب المتاحة: 0</div>
 
     <div class="controls">
-        <select id="platformSelect" onchange="resetAndLoad()">
-            <option value="nes">ألعاب نينتندو الكلاسيكية (NES)</option>
-            <option value="sega">ألعاب سيجا (SEGA)</option>
-            <option value="arcade">ألعاب الآركيد</option>
+        <select id="platformSelect" onchange="changePlatform()">
+            <option value="nes">ألعاب نينتندو (NES) - ماريو أولاً</option>
+            <option value="SEGA">ألعاب سيجا (SEGA) - سونيك أولاً</option>
+            <option value="ARCADE">ألعاب الآركيد (Arcade)</option>
         </select>
-        <input type="text" id="searchInput" placeholder="ابحث عن لعبة..." oninput="filterCatalog()">
     </div>
 
+    <div id="loading">جاري جلب وترتيب الألعاب...</div>
     <div class="grid-container" id="gamesGrid"></div>
-    <div id="loading">جاري تحديث الألعاب...</div>
-
-    <div id="playerModal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closePlayer()">&times;</button>
-            <h2 id="modalGameTitle" style="color: #38bdf8; margin-bottom: 2px; font-size: 0.95rem;">تشغيل اللعبة</h2>
-            
-            <div class="emulator-container">
-                <iframe id="emulatorFrame" class="emulator-screen" src=""></iframe>
-            </div>
-
-            <div class="gamepads">
-                <div class="d-pad">
-                    <div></div>
-                    <button class="pad-btn" ontouchstart="pressKey('ArrowUp')" ontouchend="releaseKey('ArrowUp')" onmousedown="pressKey('ArrowUp')" onmouseup="releaseKey('ArrowUp')">▲</button>
-                    <div></div>
-                    <button class="pad-btn" ontouchstart="pressKey('ArrowLeft')" ontouchend="releaseKey('ArrowLeft')" onmousedown="pressKey('ArrowLeft')" onmouseup="releaseKey('ArrowLeft')">◀</button>
-                    <div style="background: #1e293b;"></div>
-                    <button class="pad-btn" ontouchstart="pressKey('ArrowRight')" ontouchend="releaseKey('ArrowRight')" onmousedown="pressKey('ArrowRight')" onmouseup="releaseKey('ArrowRight')">▶</button>
-                    <div></div>
-                    <button class="pad-btn" ontouchstart="pressKey('ArrowDown')" ontouchend="releaseKey('ArrowDown')" onmousedown="pressKey('ArrowDown')" onmouseup="releaseKey('ArrowDown')">▼</button>
-                    <div></div>
-                </div>
-
-                <div class="center-controls">
-                    <button class="meta-btn" ontouchstart="pressKey('Select')" ontouchend="releaseKey('Select')" onmousedown="pressKey('Select')" onmouseup="releaseKey('Select')">SELECT</button>
-                    <button class="meta-btn" ontouchstart="pressKey('Enter')" ontouchend="releaseKey('Enter')" onmousedown="pressKey('Enter')" onmouseup="releaseKey('Enter')">START</button>
-                </div>
-
-                <div class="action-btns">
-                    <button class="action-btn" ontouchstart="pressKey('KeyX')" ontouchend="releaseKey('KeyX')" onmousedown="pressKey('KeyX')" onmouseup="releaseKey('KeyX')">B</button>
-                    <button class="action-btn" ontouchstart="pressKey('KeyZ')" ontouchend="releaseKey('KeyZ')" onmousedown="pressKey('KeyZ')" onmouseup="releaseKey('KeyZ')">A</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
-        let uniqueMap = new Map();
-
-        // قائمة ألعاب أساسية مضمونة وموثقة من الأرشيف لتعمل فوريًا بدون فشل البحث
-        const fallbackGames = {
-            nes: [
-                { id: "super-mario-bros-usa", title: "Super Mario Bros (USA)", platform: "NES" },
-                { id: "Pac-Man_1982_Atari", title: "Pac-Man Classic", platform: "NES" },
-                { id: "DonkeyKong1981", title: "Donkey Kong Arcade", platform: "NES" },
-                { id: "Contra_1988_Konami", title: "Contra Classic", platform: "NES" },
-                { id: "Tank_1990_1993_Hudson", title: "Tank 1990 (Battle City)", platform: "NES" },
-                { id: "Tetris_1989_Nintendo", title: "Tetris Classic", platform: "NES" }
-            ],
-            sega: [
-                { id: "SonicTheHedgehogGenesis", title: "Sonic The Hedgehog Genesis", platform: "SEGA" },
-                { id: "GoldenAxe1989Sega", title: "Golden Axe", platform: "SEGA" },
-                { id: "Shinobi1989Sega", title: "Shinobi", platform: "SEGA" }
-            ],
-            arcade: [
-                { id: "pacman", title: "Pac-Man Arcade", platform: "ARCADE" },
-                { id: "galaga", title: "Galaga Arcade", platform: "ARCADE" }
-            ]
-        };
-
-        async function resetAndLoad() {
-            const platform = document.getElementById('platformSelect').value;
-            uniqueMap.clear();
-            
-            // إضافة الألعاب المضمونة أولاً
-            if (fallbackGames[platform]) {
-                fallbackGames[platform].forEach(g => {
-                    uniqueMap.set(g.id, { identifier: g.id, title: g.title, platform: g.platform, isFeatured: true });
-                });
-            }
-
-            renderGrid();
-            await fetchArchiveGames(platform);
+        function changePlatform() {
+            const selectedPlatform = document.getElementById('platformSelect').value;
+            fetchMassiveCatalog(selectedPlatform);
         }
 
-        async function fetchArchiveGames(platform) {
+        async function fetchMassiveCatalog(platform) {
             document.getElementById('loading').style.display = 'block';
-            let query = `collection:(${platform}) AND mediatype:(software)`;
-            if (platform === 'arcade') query = `collection:(arcade) AND mediatype:(software)`;
+            document.getElementById('gamesGrid').innerHTML = '';
+            document.getElementById('statsBar').innerText = 'جاري السحب والترتيب...';
+            
+            let collectionName = "nes";
+            if (platform === "SEGA") collectionName = "sega_genesis_library";
+            if (platform === "ARCADE") collectionName = "arcade";
+
+            let query = `collection:(${collectionName}) AND mediatype:(software)`;
 
             try {
-                const res = await fetch(`https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=50`);
-                const data = await res.json();
+                const apiUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=150`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
                 if (data.response && data.response.docs) {
-                    data.response.docs.forEach(doc => {
-                        if (doc.identifier && doc.title && !uniqueMap.has(doc.identifier)) {
-                            uniqueMap.set(doc.identifier, {
-                                identifier: doc.identifier,
-                                title: doc.title,
-                                platform: platform.toUpperCase(),
-                                isFeatured: false
-                            });
+                    let gamesList = data.response.docs.map(doc => ({
+                        id: doc.identifier,
+                        title: doc.title || "لعبة كلاسيكية",
+                        platform: platform
+                    }));
+
+                    // ترتيب ذكي: رفع ألعاب ماريو أو سونيك إلى قمة القائمة حسب المنصة المختارة
+                    gamesList.sort((a, b) => {
+                        let titleA = a.title.toLowerCase();
+                        let titleB = b.title.toLowerCase();
+                        
+                        let keyword = platform === 'nes' ? 'mario' : (platform === 'SEGA' ? 'sonic' : '');
+                        
+                        if (keyword) {
+                            let hasA = titleA.includes(keyword);
+                            let hasB = titleB.includes(keyword);
+                            if (hasA && !hasB) return -1;
+                            if (!hasA && hasB) return 1;
                         }
+                        return titleA.localeCompare(titleB);
                     });
-                    renderGrid();
+                    
+                    renderGrid(gamesList);
                 }
             } catch (e) {
-                console.error("فشل جلب الأرشيف الإضافي", e);
+                console.error("خطأ في جلب الألعاب", e);
+                document.getElementById('statsBar').innerText = 'حدث خطأ أثناء جلب الألعاب';
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
-        function renderGrid() {
+        function renderGrid(games) {
             const grid = document.getElementById('gamesGrid');
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
             grid.innerHTML = '';
 
-            let count = 0;
-            uniqueMap.forEach(game => {
-                if (!query || game.title.toLowerCase().includes(query)) {
-                    count++;
-                    const emulatorUrl = `https://archive.org/embed/${game.identifier}`;
-                    const card = document.createElement('div');
-                    card.className = game.isFeatured ? 'game-card featured' : 'game-card';
-                    
-                    card.innerHTML = `
-                        <div class="game-info">
-                            ${game.isFeatured ? '<span class="featured-tag">★ لعبة رئيسية مضمونة</span>' : ''}
-                            <h3>${game.title}</h3>
-                            <span>${game.platform}</span>
-                        </div>
-                        <button class="play-btn" onclick="playGame('${game.title.replace(/'/g, "")}', '${emulatorUrl}')">تشغيل اللعبة</button>
-                    `;
-                    grid.appendChild(card);
-                }
+            games.forEach((game, index) => {
+                const embedUrl = `https://archive.org/embed/${game.id}`;
+                const card = document.createElement('div');
+                
+                // تمييز أول العاب في القائمة (ماريو أو سونيك) بستايل مميز
+                let isTopGame = index < 3 && (game.title.toLowerCase().includes('mario') || game.title.toLowerCase().includes('sonic'));
+                card.className = isTopGame ? 'game-card featured' : 'game-card';
+                
+                card.innerHTML = `
+                    <div class="game-info">
+                        ${isTopGame ? '<span class="featured-tag">★ مميز في المقدمة</span>' : ''}
+                        <h3>${game.title}</h3>
+                        <span>${game.platform}</span>
+                    </div>
+                    <a class="play-btn" href="${embedUrl}" target="_blank">تشغيل اللعبة</a>
+                `;
+                grid.appendChild(card);
             });
 
-            document.getElementById('statsBar').innerText = `عدد الألعاب المتاحة: ${count}`;
+            document.getElementById('statsBar').innerText = `عدد الألعاب المتاحة: ${games.length}`;
         }
 
-        function filterCatalog() {
-            renderGrid();
-        }
-
-        function playGame(title, url) {
-            document.getElementById('modalGameTitle').innerText = title;
-            document.getElementById('emulatorFrame').src = url;
-            document.getElementById('playerModal').style.display = 'flex';
-        }
-
-        function closePlayer() {
-            document.getElementById('playerModal').style.display = 'none';
-            document.getElementById('emulatorFrame').src = '';
-        }
-
-        function pressKey(keyName) {
-            const win = document.getElementById('emulatorFrame').contentWindow;
-            if (!win) return;
-            let ev = { key: keyName, code: keyName, bubbles: true };
-            if (keyName === 'ArrowUp') ev.keyCode = 38;
-            if (keyName === 'ArrowDown') ev.keyCode = 40;
-            if (keyName === 'ArrowLeft') ev.keyCode = 37;
-            if (keyName === 'ArrowRight') ev.keyCode = 39;
-            if (keyName === 'Enter') ev.keyCode = 13;
-            if (keyName === 'Select') ev.keyCode = 32;
-            if (keyName === 'KeyZ') ev.keyCode = 90;
-            if (keyName === 'KeyX') ev.keyCode = 88;
-            win.document.dispatchEvent(new KeyboardEvent('keydown', ev));
-        }
-
-        function releaseKey(keyName) {
-            const win = document.getElementById('emulatorFrame').contentWindow;
-            if (!win) return;
-            win.document.dispatchEvent(new KeyboardEvent('keyup', { key: keyName, code: keyName, bubbles: true }));
-        }
-
-        window.onload = resetAndLoad;
+        window.onload = function() {
+            fetchMassiveCatalog('nes');
+        };
     </script>
 </body>
 </html>
