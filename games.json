@@ -1,1 +1,14 @@
-[]
+[
+    {
+        "title": "Pac-Man Classic",
+        "embed_url": "https://mamedev.org/"
+    },
+    {
+        "title": "Internet Archive Arcade",
+        "embed_url": "https://archive.org/embed/arcade_roms_collection"
+    },
+    {
+        "title": "Super Mario Bros (Archive)",
+        "embed_url": "https://archive.org/embed/nes-roms-collection"
+    }
+]
