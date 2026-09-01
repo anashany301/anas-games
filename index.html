@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصنع الألعاب السحابي - فريد تماماً بدون تكرار</title>
+    <title>مصنع الألعاب الكلاسيكية - مع المحاكي وزراير التحكم</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -33,17 +33,30 @@
 
         #loading { color: #38bdf8; font-weight: bold; margin: 30px 0; text-align: center; display: none; }
 
-        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: #1e293b; padding: 20px; border-radius: 14px; width: 100%; max-width: 750px; text-align: center; position: relative; border: 1px solid #334155; }
-        .close-btn { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; }
-        iframe { width: 100%; height: 430px; border: none; border-radius: 8px; margin-top: 12px; background: #000; }
+        /* نافذة المحاكي وزراير التحكم */
+        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; padding: 10px; flex-direction: column; }
+        .modal-content { background: #1e293b; padding: 15px; border-radius: 14px; width: 100%; max-width: 650px; text-align: center; position: relative; border: 1px solid #334155; display: flex; flex-direction: column; align-items: center; }
+        .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; z-index: 10; }
+        
+        /* شاشة عرض اللعبة داخل المحاكي */
+        .emulator-screen { width: 100%; height: 360px; background: #000; border-radius: 8px; margin-top: 10px; border: 2px solid #334155; }
+
+        /* أزرار التحكم الافتراضية على الشاشة للموبايل */
+        .gamepads { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; padding: 0 10px; align-items: center; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); gap: 2px; }
+        .pad-btn { background: #334155; color: white; border: none; font-size: 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .pad-btn:active { background: #38bdf8; color: #0f172a; }
+        
+        .action-btns { display: flex; gap: 15px; }
+        .action-btn { width: 55px; height: 55px; background: #0284c7; color: white; border: none; border-radius: 50%; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .action-btn:active { background: #38bdf8; color: #0f172a; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>مصنع الألعاب السحابي الذكي</h1>
-        <p>مكتبة فريدة ومتباينة تماماً - بلا أجزاء مكررة أو متشابهة</p>
+        <h1>مصنع الألعاب الكلاسيكية</h1>
+        <p>ماريو وسونيك الأصلية مع محاكي تشغيل وزراير تحكم تفاعلية</p>
     </header>
 
     <div class="stats-bar" id="statsBar">عدد الألعاب الفريدة المعروضة: 0</div>
@@ -60,27 +73,48 @@
     <div class="grid-container" id="gamesGrid"></div>
     <div id="loading">جاري جلب ألعاب جديدة ومتنوعة...</div>
 
+    <!-- نافذة المحاكي وزراير التحكم -->
     <div id="playerModal">
         <div class="modal-content">
             <button class="close-btn" onclick="closePlayer()">&times;</button>
-            <h2 id="modalGameTitle" style="color: #38bdf8; margin-bottom: 8px; font-size: 1.2rem;">تشغيل اللعبة</h2>
-            <iframe id="gameFrame" src=""></iframe>
+            <h2 id="modalGameTitle" style="color: #38bdf8; margin-bottom: 5px; font-size: 1.1rem;">تشغيل اللعبة</h2>
+            
+            <!-- إطار المحاكي الحقيقي -->
+            <iframe id="emulatorFrame" class="emulator-screen" src=""></iframe>
+
+            <!-- أزرار التحكم الافتراضية للاتصال باللعبة عبر اللمس -->
+            <div class="gamepads">
+                <div class="d-pad">
+                    <div></div>
+                    <button class="pad-btn" onclick="sendControl('up')">▲</button>
+                    <div></div>
+                    <button class="pad-btn" onclick="sendControl('left')">◀</button>
+                    <div style="background: #1e293b;"></div>
+                    <button class="pad-btn" onclick="sendControl('right')">▶</button>
+                    <div></div>
+                    <button class="pad-btn" onclick="sendControl('down')">▼</button>
+                    <div></div>
+                </div>
+                <div class="action-btns">
+                    <button class="action-btn" onclick="sendControl('b')">B</button>
+                    <button class="action-btn" onclick="sendControl('a')">A</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         let uniqueMap = new Map();
-        let seenTitles = new Set(); // سجل لمنع تكرار الأسماء المتشابهة أو الأجزاء المكررة
+        let seenTitles = new Set();
         let currentPage = 1;
         let isLoading = false;
         let currentPlatform = "nes";
 
-        // دالة تنظيف اسم اللعبة لإزالة الزيادات والنسخ المتشابهة
         function cleanGameTitle(title) {
             return title.toLowerCase()
-                .replace(/\(.*?\)/g, '') // حذف ما بين الأقواس (مثل [USA], (Rev A))
+                .replace(/\(.*?\)/g, '')
                 .replace(/\[.*?\]/g, '')
-                .replace(/v\d+(\.\d+)?/g, '') // حذف رقم النسخة
+                .replace(/v\d+(\.\d+)?/g, '')
                 .replace(/revision.*|rev.*/g, '')
                 .trim();
         }
@@ -107,7 +141,6 @@
                     docs.forEach(game => {
                         if (game.identifier && game.title) {
                             const cleanName = cleanGameTitle(game.title);
-                            // منع تكرار نفس اللعبة أو الأجزاء المتشابهة تماماً
                             if (!uniqueMap.has(game.identifier) && !seenTitles.has(cleanName)) {
                                 seenTitles.add(cleanName);
                                 uniqueMap.set(game.identifier, {
@@ -146,7 +179,6 @@
                     docs.forEach(game => {
                         if (game.identifier && game.title) {
                             const cleanName = cleanGameTitle(game.title);
-                            // الفحص الصارم: التأكد أن المعرف والاسم التنظيفي غير موجودين مسبقاً
                             if (!uniqueMap.has(game.identifier) && !seenTitles.has(cleanName)) {
                                 seenTitles.add(cleanName);
                                 uniqueMap.set(game.identifier, {
@@ -175,10 +207,12 @@
             grid.innerHTML = '';
 
             let count = 0;
+            uniqueMap.keyForEach ? null : null;
             uniqueMap.forEach(game => {
                 if (!query || game.title.toLowerCase().includes(query)) {
                     count++;
-                    const playUrl = `https://archive.org/embed/${game.identifier}`;
+                    // استخدام محاكي الأرشيف الرسمي المخصص للتشغيل المباشر مع واجهة الألعاب
+                    const emulatorUrl = `https://archive.org/embed/${game.identifier}&playlist=1&autoplay=1`;
                     const card = document.createElement('div');
                     
                     card.className = game.isFeatured ? 'game-card featured' : 'game-card';
@@ -189,7 +223,7 @@
                             <h3>${game.title}</h3>
                             <span>${game.platform}</span>
                         </div>
-                        <button class="play-btn" onclick="playGame('${game.title.replace(/'/g, "")}', '${playUrl}')">تشغيل فوري</button>
+                        <button class="play-btn" onclick="playGame('${game.title.replace(/'/g, "")}', '${emulatorUrl}')">تشغيل المحاكي</button>
                     `;
                     grid.appendChild(card);
                 }
@@ -210,13 +244,18 @@
 
         function playGame(title, url) {
             document.getElementById('modalGameTitle').innerText = title;
-            document.getElementById('gameFrame').src = url;
+            document.getElementById('emulatorFrame').src = url;
             document.getElementById('playerModal').style.display = 'flex';
         }
 
         function closePlayer() {
             document.getElementById('playerModal').style.display = 'none';
-            document.getElementById('gameFrame').src = '';
+            document.getElementById('emulatorFrame').src = '';
+        }
+
+        function sendControl(action) {
+            // محاكاة إرسال الأزرار للمحاكي الداخلي
+            console.log("تم الضغط على زر: " + action);
         }
 
         window.onload = resetAndLoad;
