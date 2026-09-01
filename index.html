@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الألعاب السحابية من GitHub</title>
+    <title>منصة الألعاب الكلاسيكية الشاملة</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0b0f19; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
@@ -21,8 +21,16 @@
         .game-info h3 { font-size: 1rem; color: #f1f5f9; margin-bottom: 6px; word-break: break-word; }
         .game-info span { display: inline-block; background-color: #0369a1; color: #e0f2fe; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 12px; }
         
-        .play-btn { background: #0284c7; color: white; border: none; padding: 9px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; width: 100%; text-decoration: none; display: block; }
+        .play-btn { background: #0284c7; color: white; border: none; padding: 9px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; width: 100%; }
         .play-btn:hover { background: #0ea5e9; }
+
+        /* نافذة التشغيل الداخلي (Embed Modal) */
+        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; padding: 10px; flex-direction: column; }
+        .modal-content { background: #1e293b; padding: 12px; border-radius: 14px; width: 100%; max-width: 700px; text-align: center; position: relative; border: 1px solid #334155; }
+        .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; z-index: 10; }
+        
+        .emulator-container { width: 100%; height: 400px; background: #000; border-radius: 8px; margin-top: 10px; overflow: hidden; border: 2px solid #334155; }
+        iframe { width: 100%; height: 100%; border: none; }
 
         #loading { color: #38bdf8; font-weight: bold; margin: 20px 0; display: none; }
     </style>
@@ -30,49 +38,60 @@
 <body>
 
     <header>
-        <h1>منصة الألعاب السحابية من GitHub</h1>
-        <p>ألعاب جاهزة ومستودعات مباشرة تعمل بكامل المحاكي</p>
+        <h1>منصة الألعاب الكلاسيكية الشاملة</h1>
+        <p>مكتبات ضخمة ومحدثة لكل منصة تعمل بالكامل داخل الموقع</p>
     </header>
 
     <div class="stats-bar" id="statsBar">عدد الألعاب المتاحة: 0</div>
 
     <div class="controls">
-        <select id="platformSelect" onchange="loadGitHubCatalog()">
-            <option value="nes">ألعاب نينتندو (NES)</option>
+        <select id="platformSelect" onchange="loadCatalog()">
+            <option value="nes">ألعاب نينتندو (NES) - مكتبة كاملة</option>
+            <option value="segaMD">ألعاب سيجا جينسيس (Sega Genesis)</option>
             <option value="snes">ألعاب سوبر نينتندو (SNES)</option>
-            <option value="sega">ألعاب سيجا (SEGA)</option>
+            <option value="arcade">ألعاب الآركيد الكلاسيكية (Arcade)</option>
         </select>
     </div>
 
-    <div id="loading">جاري جلب القائمة من مستودع GitHub...</div>
+    <div id="loading">جاري سحب المكتبة الضخمة...</div>
     <div class="grid-container" id="gamesGrid"></div>
 
+    <!-- نافذة تشغيل الألعاب -->
+    <div id="playerModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closePlayer()">&times;</button>
+            <h2 id="modalGameTitle" style="color: #38bdf8; margin-bottom: 5px; font-size: 1rem;">تشغيل اللعبة</h2>
+            <div class="emulator-container">
+                <iframe id="emulatorFrame" src="" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
     <script>
-        async function loadGitHubCatalog() {
+        // قواعد بيانات رسمية ومستقرة تضم آلاف الألعاب لكل منصة
+        const databases = {
+            nes: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/nes/games.json",
+            segaMD: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/segaMD/games.json",
+            snes: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/snes/games.json",
+            arcade: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/arcade/games.json"
+        };
+
+        async function loadCatalog() {
             const platform = document.getElementById('platformSelect').value;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('gamesGrid').innerHTML = '';
-            document.getElementById('statsBar').innerText = 'جاري الاتصال بالمستودع...';
+            document.getElementById('statsBar').innerText = 'جاري تحميل الألعاب...';
 
-            // سحب ملف الـ JSON المباشر من مستودع GitHub موثوق لألعاب الكلاسيك
-            const jsonUrl = 'https://raw.githubusercontent.com/gamesforsite/webretro/main/roms.json';
+            const jsonUrl = databases[platform];
 
             try {
                 const response = await fetch(jsonUrl);
-                const data = await response.json();
+                const games = await response.json();
                 
-                // تصفية الألعاب بناءً على المنصة المختارة
-                let games = data.listing.filter(game => {
-                    if (platform === 'nes') return game.system === 'nes';
-                    if (platform === 'snes') return game.system === 'snes';
-                    if (platform === 'sega') return game.system === 'sega' || game.system === 'genesis';
-                    return true;
-                });
-
                 renderGrid(games, platform);
             } catch (e) {
-                console.error("خطأ في الاتصال بمستودع جيت هب", e);
-                document.getElementById('statsBar').innerText = 'فشل الاتصال بالمستودع الخارجي';
+                console.error("خطأ في جلب بيانات الألعاب", e);
+                document.getElementById('statsBar').innerText = 'تعذر تحميل المكتبة، حاول مرة أخرى';
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -82,34 +101,47 @@
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = '';
 
-            if(games.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444;">لا توجد ألعاب متاحة لهذه القائمة حالياً</p>';
+            if(!games || games.length === 0) {
                 document.getElementById('statsBar').innerText = 'عدد الألعاب المتاحة: 0';
                 return;
             }
 
-            games.forEach(game => {
+            // عرض الألعاب (نحدد عرض أول 200 لعبة لضمان سرعة التصفح، مع إمكانية زيادة العدد)
+            const displayGames = games.slice(0, 300);
+
+            displayGames.forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 
-                // رابط تشغيل يعتمد على محاكي ويب مباشر
-                const playUrl = `https://webretro.io/?system=${platform}&rom=${encodeURIComponent(game.filename)}`;
+                // رابط التشغيل الداخلي المباشر للمحاكي
+                const embedUrl = `https://play.emulatorjs.com/emulatorv2/index.html?system=${platform}&game=${encodeURIComponent(game.url || game.file)}`;
 
                 card.innerHTML = `
                     <div class="game-info">
-                        <h3>${game.title}</h3>
+                        <h3>${game.name || game.title}</h3>
                         <span>${platform.toUpperCase()}</span>
                     </div>
-                    <a class="play-btn" href="${playUrl}" target="_blank">تشغيل مباشر</a>
+                    <button class="play-btn" onclick="playGame('${(game.name || game.title).replace(/'/g, "")}', '${embedUrl}')">تشغيل مباشر</button>
                 `;
                 grid.appendChild(card);
             });
 
-            document.getElementById('statsBar').innerText = `عدد الألعاب المتاحة: ${games.length}`;
+            document.getElementById('statsBar').innerText = `عدد الألعاب المعروضة: ${displayGames.length} (من أصل ${games.length} لعبة)`;
+        }
+
+        function playGame(title, url) {
+            document.getElementById('modalGameTitle').innerText = title;
+            document.getElementById('emulatorFrame').src = url;
+            document.getElementById('playerModal').style.display = 'flex';
+        }
+
+        function closePlayer() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('emulatorFrame').src = '';
         }
 
         window.onload = function() {
-            loadGitHubCatalog();
+            loadCatalog();
         };
     </script>
 </body>
