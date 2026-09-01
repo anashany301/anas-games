@@ -1,14 +1,1662 @@
 [
     {
-        "title": "Pac-Man Classic",
-        "embed_url": "https://mamedev.org/"
+        "title": "Overwatch",
+        "embed_url": "https://www.freetogame.com/open/overwatch"
     },
     {
-        "title": "Internet Archive Arcade",
-        "embed_url": "https://archive.org/embed/arcade_roms_collection"
+        "title": "PUBG: BATTLEGROUNDS",
+        "embed_url": "https://www.freetogame.com/open/pubg"
     },
     {
-        "title": "Super Mario Bros (Archive)",
-        "embed_url": "https://archive.org/embed/nes-roms-collection"
+        "title": "Enlisted",
+        "embed_url": "https://www.freetogame.com/open/enlisted"
+    },
+    {
+        "title": "World of Tanks: HEAT",
+        "embed_url": "https://www.freetogame.com/open/world-of-tanks-heat"
+    },
+    {
+        "title": "Neverness to Everness",
+        "embed_url": "https://www.freetogame.com/open/nte"
+    },
+    {
+        "title": "Throne And Liberty",
+        "embed_url": "https://www.freetogame.com/open/throne-and-liberty"
+    },
+    {
+        "title": "Fall Guys",
+        "embed_url": "https://www.freetogame.com/open/fall-guys"
+    },
+    {
+        "title": "Game Of Thrones Winter Is Coming",
+        "embed_url": "https://www.freetogame.com/open/game-of-thrones-winter-is-coming"
+    },
+    {
+        "title": "Elvenar",
+        "embed_url": "https://www.freetogame.com/open/elvenar"
+    },
+    {
+        "title": "Neverwinter",
+        "embed_url": "https://www.freetogame.com/open/neverwinter"
+    },
+    {
+        "title": "Lost Ark",
+        "embed_url": "https://www.freetogame.com/open/lost-ark"
+    },
+    {
+        "title": "Genshin Impact",
+        "embed_url": "https://www.freetogame.com/open/genshin-impact"
+    },
+    {
+        "title": "Hero Wars: Dominion Era",
+        "embed_url": "https://www.freetogame.com/open/hero-wars"
+    },
+    {
+        "title": "World of Warships",
+        "embed_url": "https://www.freetogame.com/open/world-of-warships"
+    },
+    {
+        "title": "World of Tanks",
+        "embed_url": "https://www.freetogame.com/open/world-of-tanks"
+    },
+    {
+        "title": "Crystal Saga Nova",
+        "embed_url": "https://www.freetogame.com/open/crystal-saga-nova"
+    },
+    {
+        "title": "World of Sea Battle",
+        "embed_url": "https://www.freetogame.com/open/world-of-sea-battle"
+    },
+    {
+        "title": "Diablo Immortal",
+        "embed_url": "https://www.freetogame.com/open/diablo-immortal"
+    },
+    {
+        "title": "Phantasy Star Online 2 New Genesis",
+        "embed_url": "https://www.freetogame.com/open/pso2-new-genesis"
+    },
+    {
+        "title": "Crossout",
+        "embed_url": "https://www.freetogame.com/open/crossout"
+    },
+    {
+        "title": "War Thunder",
+        "embed_url": "https://www.freetogame.com/open/war-thunder"
+    },
+    {
+        "title": "Ragnarok: The New World",
+        "embed_url": "https://www.freetogame.com/open/ragnarok-the-new-world"
+    },
+    {
+        "title": "Battlefield REDSEC",
+        "embed_url": "https://www.freetogame.com/open/battlefield-redsec"
+    },
+    {
+        "title": "Foundation: Galactic Frontier",
+        "embed_url": "https://www.freetogame.com/open/foundation-galactic-frontier"
+    },
+    {
+        "title": "Marvel Rivals",
+        "embed_url": "https://www.freetogame.com/open/marvel-rivals"
+    },
+    {
+        "title": "Palia",
+        "embed_url": "https://www.freetogame.com/open/palia"
+    },
+    {
+        "title": "League of Angels - Heaven's Fury",
+        "embed_url": "https://www.freetogame.com/open/league-of-angels-heavens-fury"
+    },
+    {
+        "title": "Forge of Empires",
+        "embed_url": "https://www.freetogame.com/open/forge-of-empires"
+    },
+    {
+        "title": "Star Trek Online",
+        "embed_url": "https://www.freetogame.com/open/star-trek-online"
+    },
+    {
+        "title": "Where Winds Meet",
+        "embed_url": "https://www.freetogame.com/open/where-winds-meet"
+    },
+    {
+        "title": "Brighter Shores",
+        "embed_url": "https://www.freetogame.com/open/brighter-shores"
+    },
+    {
+        "title": "Halo Infinite",
+        "embed_url": "https://www.freetogame.com/open/halo-infinite"
+    },
+    {
+        "title": "Valorant",
+        "embed_url": "https://www.freetogame.com/open/valorant"
+    },
+    {
+        "title": "Phantasy Star Online 2",
+        "embed_url": "https://www.freetogame.com/open/pso2"
+    },
+    {
+        "title": "Call of Duty: Warzone",
+        "embed_url": "https://www.freetogame.com/open/call-of-duty-warzone"
+    },
+    {
+        "title": "Destiny 2",
+        "embed_url": "https://www.freetogame.com/open/destiny-2"
+    },
+    {
+        "title": "Apex Legends",
+        "embed_url": "https://www.freetogame.com/open/apex-legends"
+    },
+    {
+        "title": "Fortnite",
+        "embed_url": "https://www.freetogame.com/open/fortnite-battle-royale"
+    },
+    {
+        "title": "Blade and Soul",
+        "embed_url": "https://www.freetogame.com/open/blade-and-soul"
+    },
+    {
+        "title": "Brawlhalla",
+        "embed_url": "https://www.freetogame.com/open/brawlhalla"
+    },
+    {
+        "title": "Trove",
+        "embed_url": "https://www.freetogame.com/open/trove"
+    },
+    {
+        "title": "Guild Wars 2",
+        "embed_url": "https://www.freetogame.com/open/guild-wars-2"
+    },
+    {
+        "title": "Goodgame Empire",
+        "embed_url": "https://www.freetogame.com/open/goodgame-empire"
+    },
+    {
+        "title": "RuneScape",
+        "embed_url": "https://www.freetogame.com/open/runescape"
+    },
+    {
+        "title": "Tibia",
+        "embed_url": "https://www.freetogame.com/open/tibia"
+    },
+    {
+        "title": "Arknights: Endfield",
+        "embed_url": "https://www.freetogame.com/open/arknights-endfield"
+    },
+    {
+        "title": "Wuthering Waves",
+        "embed_url": "https://www.freetogame.com/open/wuthering-waves"
+    },
+    {
+        "title": "Naraka: Bladepoint",
+        "embed_url": "https://www.freetogame.com/open/naraka-bladepoint"
+    },
+    {
+        "title": "Honkai: Star Rail",
+        "embed_url": "https://www.freetogame.com/open/honkai-star-rail"
+    },
+    {
+        "title": "Soul's Remnant",
+        "embed_url": "https://www.freetogame.com/open/souls-remnant"
+    },
+    {
+        "title": "Gloria Victis",
+        "embed_url": "https://www.freetogame.com/open/gloria-victis"
+    },
+    {
+        "title": "RF Online Next",
+        "embed_url": "https://www.freetogame.com/open/rf-online-next"
+    },
+    {
+        "title": "The Division Resurgence",
+        "embed_url": "https://www.freetogame.com/open/the-division-resurgence"
+    },
+    {
+        "title": "The Seven Deadly Sins: Origin",
+        "embed_url": "https://www.freetogame.com/open/the-seven-deadly-sins-origin"
+    },
+    {
+        "title": "Heartopia",
+        "embed_url": "https://www.freetogame.com/open/heartopia"
+    },
+    {
+        "title": "Reign of Guilds",
+        "embed_url": "https://www.freetogame.com/open/reign-of-guilds"
+    },
+    {
+        "title": "2XKO",
+        "embed_url": "https://www.freetogame.com/open/2xko"
+    },
+    {
+        "title": "Blue Protocol: Star Resonance",
+        "embed_url": "https://www.freetogame.com/open/blue-protocol-star-resonance"
+    },
+    {
+        "title": "Raven2",
+        "embed_url": "https://www.freetogame.com/open/raven2"
+    },
+    {
+        "title": "Superball",
+        "embed_url": "https://www.freetogame.com/open/superball"
+    },
+    {
+        "title": "Arena Breakout: Infinite",
+        "embed_url": "https://www.freetogame.com/open/arena-breakout-infinite"
+    },
+    {
+        "title": "Warborne Above Ashes",
+        "embed_url": "https://www.freetogame.com/open/warborne-above-ashes"
+    },
+    {
+        "title": "Eterspire",
+        "embed_url": "https://www.freetogame.com/open/eterspire"
+    },
+    {
+        "title": "skate.",
+        "embed_url": "https://www.freetogame.com/open/skate"
+    },
+    {
+        "title": "Blade & Soul Heroes",
+        "embed_url": "https://www.freetogame.com/open/blade-soul-heroes"
+    },
+    {
+        "title": "Dragon Ball Gekishin Squadra",
+        "embed_url": "https://www.freetogame.com/open/dragon-ball-gekishin-squadra"
+    },
+    {
+        "title": "Dfiance",
+        "embed_url": "https://www.freetogame.com/open/dfiance"
+    },
+    {
+        "title": "Dungeon Stalker",
+        "embed_url": "https://www.freetogame.com/open/dungeon-stalker"
+    },
+    {
+        "title": "Mecha BREAK",
+        "embed_url": "https://www.freetogame.com/open/mecha-break"
+    },
+    {
+        "title": "Terminull Brigade",
+        "embed_url": "https://www.freetogame.com/open/terminull-brigade"
+    },
+    {
+        "title": "Umamusume: Pretty Derby",
+        "embed_url": "https://www.freetogame.com/open/umamusume-pretty-derby"
+    },
+    {
+        "title": "Crystal Of Atlan",
+        "embed_url": "https://www.freetogame.com/open/crystal-of-atlan"
+    },
+    {
+        "title": "Splitgate: Arena Reloaded",
+        "embed_url": "https://www.freetogame.com/open/splitgate-arena-reloaded"
+    },
+    {
+        "title": "Steel Hunters",
+        "embed_url": "https://www.freetogame.com/open/steel-hunters"
+    },
+    {
+        "title": "The Lost Glitches",
+        "embed_url": "https://www.freetogame.com/open/the-lost-glitches"
+    },
+    {
+        "title": "Odin: Valhalla Rising",
+        "embed_url": "https://www.freetogame.com/open/odin-valhalla-rising"
+    },
+    {
+        "title": "War Robots: Frontiers",
+        "embed_url": "https://www.freetogame.com/open/war-robots-frontiers"
+    },
+    {
+        "title": "FragPunk",
+        "embed_url": "https://www.freetogame.com/open/fragpunk"
+    },
+    {
+        "title": "Delta Force",
+        "embed_url": "https://www.freetogame.com/open/delta-force"
+    },
+    {
+        "title": "Strinova",
+        "embed_url": "https://www.freetogame.com/open/strinova"
+    },
+    {
+        "title": "SUPERVIVE",
+        "embed_url": "https://www.freetogame.com/open/supervive"
+    },
+    {
+        "title": "Starborne: Frontiers",
+        "embed_url": "https://www.freetogame.com/open/starborne-frontiers"
+    },
+    {
+        "title": "Return Alive",
+        "embed_url": "https://www.freetogame.com/open/return-alive"
+    },
+    {
+        "title": "Spectre Divide",
+        "embed_url": "https://www.freetogame.com/open/spectre-divide"
+    },
+    {
+        "title": "Vigor",
+        "embed_url": "https://www.freetogame.com/open/vigor"
+    },
+    {
+        "title": "Smite 2",
+        "embed_url": "https://www.freetogame.com/open/smite-2"
+    },
+    {
+        "title": "The First Descendant",
+        "embed_url": "https://www.freetogame.com/open/the-first-descendant"
+    },
+    {
+        "title": "Once Human",
+        "embed_url": "https://www.freetogame.com/open/once-human"
+    },
+    {
+        "title": "Stormgate",
+        "embed_url": "https://www.freetogame.com/open/stormgate"
+    },
+    {
+        "title": "Zenless Zone Zero",
+        "embed_url": "https://www.freetogame.com/open/zenless-zone-zero"
+    },
+    {
+        "title": "Battle Crush",
+        "embed_url": "https://www.freetogame.com/open/battle-crush"
+    },
+    {
+        "title": "Screenplay CCG",
+        "embed_url": "https://www.freetogame.com/open/screenplay"
+    },
+    {
+        "title": "SolForge Fusion",
+        "embed_url": "https://www.freetogame.com/open/solforge-fusion"
+    },
+    {
+        "title": "Sky: Children of the Light",
+        "embed_url": "https://www.freetogame.com/open/sky-children-of-the-light"
+    },
+    {
+        "title": "Project Entropy",
+        "embed_url": "https://www.freetogame.com/open/project-entropy"
+    },
+    {
+        "title": "Predecessor",
+        "embed_url": "https://www.freetogame.com/open/predecessor"
+    },
+    {
+        "title": "Project Apidom",
+        "embed_url": "https://www.freetogame.com/open/project-apidom"
+    },
+    {
+        "title": "RAID: Shadow Legends",
+        "embed_url": "https://www.freetogame.com/open/raid-shadow-legends"
+    },
+    {
+        "title": "Ravendawn",
+        "embed_url": "https://www.freetogame.com/open/ravendawn"
+    },
+    {
+        "title": "One Punch Man: World",
+        "embed_url": "https://www.freetogame.com/open/one-punch-man-world"
+    },
+    {
+        "title": "Battle Teams 2",
+        "embed_url": "https://www.freetogame.com/open/battle-teams-2"
+    },
+    {
+        "title": "The Finals",
+        "embed_url": "https://www.freetogame.com/open/the-finals"
+    },
+    {
+        "title": "Infinite Borders",
+        "embed_url": "https://www.freetogame.com/open/infinite-borders"
+    },
+    {
+        "title": "Titan Revenge",
+        "embed_url": "https://www.freetogame.com/open/titan-revenge"
+    },
+    {
+        "title": "Destiny's Divide",
+        "embed_url": "https://www.freetogame.com/open/destinys-divide"
+    },
+    {
+        "title": "Warhammer 40,000: Warpforge",
+        "embed_url": "https://www.freetogame.com/open/warhammer-40000-warpforge"
+    },
+    {
+        "title": "Microvolts: Recharged",
+        "embed_url": "https://www.freetogame.com/open/microvolts"
+    },
+    {
+        "title": "Deceit 2",
+        "embed_url": "https://www.freetogame.com/open/deceit-2"
+    },
+    {
+        "title": "My Hero Ultra Rumble",
+        "embed_url": "https://www.freetogame.com/open/my-hero-ultra-rumble"
+    },
+    {
+        "title": "Hawked",
+        "embed_url": "https://www.freetogame.com/open/hawked"
+    },
+    {
+        "title": "Tales Of Yore",
+        "embed_url": "https://www.freetogame.com/open/tales-of-yore"
+    },
+    {
+        "title": "Waven",
+        "embed_url": "https://www.freetogame.com/open/waven"
+    },
+    {
+        "title": "Town of Salem 2",
+        "embed_url": "https://www.freetogame.com/open/town-of-salem-2"
+    },
+    {
+        "title": "Undawn",
+        "embed_url": "https://www.freetogame.com/open/undawn"
+    },
+    {
+        "title": "Eden Eternal",
+        "embed_url": "https://www.freetogame.com/open/eden-eternal"
+    },
+    {
+        "title": "Veiled Experts",
+        "embed_url": "https://www.freetogame.com/open/veiled-experts"
+    },
+    {
+        "title": "Jected - Rivals",
+        "embed_url": "https://www.freetogame.com/open/jected-rivals"
+    },
+    {
+        "title": "Ethyrial: Echoes of Yore",
+        "embed_url": "https://www.freetogame.com/open/ethyrial-echoes-of-yore"
+    },
+    {
+        "title": "Stalcraft: X",
+        "embed_url": "https://www.freetogame.com/open/stalcraft-x"
+    },
+    {
+        "title": "Fangs",
+        "embed_url": "https://www.freetogame.com/open/fangs"
+    },
+    {
+        "title": "Summoners War: Chronicles",
+        "embed_url": "https://www.freetogame.com/open/summoners-war-chronicles"
+    },
+    {
+        "title": "Marvel Snap",
+        "embed_url": "https://www.freetogame.com/open/marvel-snap"
+    },
+    {
+        "title": "World Boss",
+        "embed_url": "https://www.freetogame.com/open/world-boss"
+    },
+    {
+        "title": "Omega Strikers",
+        "embed_url": "https://www.freetogame.com/open/omega-strikers"
+    },
+    {
+        "title": "Gundam Evolution",
+        "embed_url": "https://www.freetogame.com/open/gundam-evolution"
+    },
+    {
+        "title": "Aero Tales Online",
+        "embed_url": "https://www.freetogame.com/open/aero-tales-online"
+    },
+    {
+        "title": "Tower of Fantasy",
+        "embed_url": "https://www.freetogame.com/open/tower-of-fantasy"
+    },
+    {
+        "title": "Magic Spellslingers",
+        "embed_url": "https://www.freetogame.com/open/magic-spellslingers"
+    },
+    {
+        "title": "A.V.A Global",
+        "embed_url": "https://www.freetogame.com/open/ava"
+    },
+    {
+        "title": "Lost Light",
+        "embed_url": "https://www.freetogame.com/open/lost-light"
+    },
+    {
+        "title": "Temperia: Soul of Majestic",
+        "embed_url": "https://www.freetogame.com/open/temperia"
+    },
+    {
+        "title": "Flyff Universe",
+        "embed_url": "https://www.freetogame.com/open/flyff-universe"
+    },
+    {
+        "title": "World of Runes",
+        "embed_url": "https://www.freetogame.com/open/world-of-runes"
+    },
+    {
+        "title": "Roller Champions",
+        "embed_url": "https://www.freetogame.com/open/roller-champions"
+    },
+    {
+        "title": "Goose, Goose, DUCK",
+        "embed_url": "https://www.freetogame.com/open/goose-goose-duck"
+    },
+    {
+        "title": "Super Animal Royale",
+        "embed_url": "https://www.freetogame.com/open/super-animal-royale"
+    },
+    {
+        "title": "Super Squad",
+        "embed_url": "https://www.freetogame.com/open/super-squad"
+    },
+    {
+        "title": "Sherwood Extreme",
+        "embed_url": "https://www.freetogame.com/open/sherwood-extreme"
+    },
+    {
+        "title": "Smash Legends",
+        "embed_url": "https://www.freetogame.com/open/smash-legends"
+    },
+    {
+        "title": "Primordials: Battle of Gods",
+        "embed_url": "https://www.freetogame.com/open/primordials-battle-of-gods"
+    },
+    {
+        "title": "Super Mecha Champions",
+        "embed_url": "https://www.freetogame.com/open/super-mecha-champions"
+    },
+    {
+        "title": "Chroma: Bloom And Blight",
+        "embed_url": "https://www.freetogame.com/open/chroma-bloom-and-blight"
+    },
+    {
+        "title": "Blankos Block Party",
+        "embed_url": "https://www.freetogame.com/open/blankos"
+    },
+    {
+        "title": "Slapshot: Rebound",
+        "embed_url": "https://www.freetogame.com/open/slapshot-rebound"
+    },
+    {
+        "title": "Rogue Company",
+        "embed_url": "https://www.freetogame.com/open/rogue-company"
+    },
+    {
+        "title": "Eternal Return",
+        "embed_url": "https://www.freetogame.com/open/eternal-return"
+    },
+    {
+        "title": "Blood of Steel",
+        "embed_url": "https://www.freetogame.com/open/blood-of-steel"
+    },
+    {
+        "title": "Spellbreak",
+        "embed_url": "https://www.freetogame.com/open/spellbreak"
+    },
+    {
+        "title": "Rocket League",
+        "embed_url": "https://www.freetogame.com/open/rocket-league"
+    },
+    {
+        "title": "Armor Valor",
+        "embed_url": "https://www.freetogame.com/open/armor-valor"
+    },
+    {
+        "title": "Unfortunate Spacemen",
+        "embed_url": "https://www.freetogame.com/open/unfortunate-spacemen"
+    },
+    {
+        "title": "Shop Titans",
+        "embed_url": "https://www.freetogame.com/open/shop-titans"
+    },
+    {
+        "title": "Survivor Legacy",
+        "embed_url": "https://www.freetogame.com/open/survivor-legacy"
+    },
+    {
+        "title": "Bombergrounds: Battle Royale",
+        "embed_url": "https://www.freetogame.com/open/bombergrounds-battle-royale"
+    },
+    {
+        "title": "Kakale Online",
+        "embed_url": "https://www.freetogame.com/open/kakale-online"
+    },
+    {
+        "title": "Darwin Project",
+        "embed_url": "https://www.freetogame.com/open/darwin-project"
+    },
+    {
+        "title": "Legends of Runeterra",
+        "embed_url": "https://www.freetogame.com/open/runeterra"
+    },
+    {
+        "title": "CRSED: F.O.A.D.",
+        "embed_url": "https://www.freetogame.com/open/crsed"
+    },
+    {
+        "title": "Mirage Online Classic",
+        "embed_url": "https://www.freetogame.com/open/mirage-online-classic"
+    },
+    {
+        "title": "Inferna",
+        "embed_url": "https://www.freetogame.com/open/inferna"
+    },
+    {
+        "title": "Ultimate Pirates",
+        "embed_url": "https://www.freetogame.com/open/ultimate-pirates"
+    },
+    {
+        "title": "Stay Out",
+        "embed_url": "https://www.freetogame.com/open/stay-out"
+    },
+    {
+        "title": "PC Futbol Legends",
+        "embed_url": "https://www.freetogame.com/open/futbol-legends"
+    },
+    {
+        "title": "Vampire Empire",
+        "embed_url": "https://www.freetogame.com/open/vampire-empire"
+    },
+    {
+        "title": "Firestone Idle RPG",
+        "embed_url": "https://www.freetogame.com/open/firestone-idle-rpg"
+    },
+    {
+        "title": "Mythgard",
+        "embed_url": "https://www.freetogame.com/open/mythgard"
+    },
+    {
+        "title": "Crystal Clash",
+        "embed_url": "https://www.freetogame.com/open/crystal-clash"
+    },
+    {
+        "title": "Dota Underlords",
+        "embed_url": "https://www.freetogame.com/open/dota-underlords"
+    },
+    {
+        "title": "Minion Masters",
+        "embed_url": "https://www.freetogame.com/open/minion-masters"
+    },
+    {
+        "title": "Splitgate",
+        "embed_url": "https://www.freetogame.com/open/splitgate"
+    },
+    {
+        "title": "Eternal Fury",
+        "embed_url": "https://www.freetogame.com/open/eternal-fury"
+    },
+    {
+        "title": "Conqueror's Blade",
+        "embed_url": "https://www.freetogame.com/open/conquerors-blade"
+    },
+    {
+        "title": "Stein.world",
+        "embed_url": "https://www.freetogame.com/open/steinworld"
+    },
+    {
+        "title": "Kards",
+        "embed_url": "https://www.freetogame.com/open/kards"
+    },
+    {
+        "title": "KurtzPel",
+        "embed_url": "https://www.freetogame.com/open/kurtzpel"
+    },
+    {
+        "title": "The Third Age",
+        "embed_url": "https://www.freetogame.com/open/the-third-age"
+    },
+    {
+        "title": "Eternal",
+        "embed_url": "https://www.freetogame.com/open/eternal"
+    },
+    {
+        "title": "Artifact",
+        "embed_url": "https://www.freetogame.com/open/artifact"
+    },
+    {
+        "title": "World War 3",
+        "embed_url": "https://www.freetogame.com/open/world-war-3"
+    },
+    {
+        "title": "Combat Arms: Reloaded",
+        "embed_url": "https://www.freetogame.com/open/combat-arms"
+    },
+    {
+        "title": "Dreadnought",
+        "embed_url": "https://www.freetogame.com/open/dreadnought"
+    },
+    {
+        "title": "Spacelords",
+        "embed_url": "https://www.freetogame.com/open/spacelords"
+    },
+    {
+        "title": "Battlerite Royale",
+        "embed_url": "https://www.freetogame.com/open/battlerite-royale"
+    },
+    {
+        "title": "Magic: The Gathering Arena",
+        "embed_url": "https://www.freetogame.com/open/mtg-arena"
+    },
+    {
+        "title": "League of Angels 3",
+        "embed_url": "https://www.freetogame.com/open/league-of-angels-3"
+    },
+    {
+        "title": "BlackShot: Revolution",
+        "embed_url": "https://www.freetogame.com/open/blackshot"
+    },
+    {
+        "title": "Cosmos Invictus",
+        "embed_url": "https://www.freetogame.com/open/cosmos-invictus"
+    },
+    {
+        "title": "Empire: World War 3",
+        "embed_url": "https://www.freetogame.com/open/empireww3"
+    },
+    {
+        "title": "Totally Accurate Battlegrounds",
+        "embed_url": "https://www.freetogame.com/open/tabg"
+    },
+    {
+        "title": "Will To Live",
+        "embed_url": "https://www.freetogame.com/open/will-to-live"
+    },
+    {
+        "title": "Battle Arena Heroes Adventure",
+        "embed_url": "https://www.freetogame.com/open/battle-arena-heroes-adventure"
+    },
+    {
+        "title": "Spellsworn",
+        "embed_url": "https://www.freetogame.com/open/spellsworn"
+    },
+    {
+        "title": "Z1 Battle Royale",
+        "embed_url": "https://www.freetogame.com/open/z1-battle-royale"
+    },
+    {
+        "title": "Tale Of Toast",
+        "embed_url": "https://www.freetogame.com/open/tale-of-toast"
+    },
+    {
+        "title": "SoulWorker",
+        "embed_url": "https://www.freetogame.com/open/soulworker"
+    },
+    {
+        "title": "Bombtag",
+        "embed_url": "https://www.freetogame.com/open/bombtag"
+    },
+    {
+        "title": "Dead Maze",
+        "embed_url": "https://www.freetogame.com/open/dead-maze"
+    },
+    {
+        "title": "Scions of Fate",
+        "embed_url": "https://www.freetogame.com/open/scions-of-fate"
+    },
+    {
+        "title": "Wild Terra Online",
+        "embed_url": "https://www.freetogame.com/open/wild-terra-online"
+    },
+    {
+        "title": "Global Adventures",
+        "embed_url": "https://www.freetogame.com/open/global-adventures"
+    },
+    {
+        "title": "Closers",
+        "embed_url": "https://www.freetogame.com/open/closers"
+    },
+    {
+        "title": "La Tale Evolved",
+        "embed_url": "https://www.freetogame.com/open/la-tale"
+    },
+    {
+        "title": "Luna Online: Reborn",
+        "embed_url": "https://www.freetogame.com/open/luna-online"
+    },
+    {
+        "title": "The Ultimatest Battle",
+        "embed_url": "https://www.freetogame.com/open/the-ultimatest-battle"
+    },
+    {
+        "title": "Quake Champions",
+        "embed_url": "https://www.freetogame.com/open/quake-champions"
+    },
+    {
+        "title": "Gods Origin Online",
+        "embed_url": "https://www.freetogame.com/open/gods-origin"
+    },
+    {
+        "title": "Black Squad",
+        "embed_url": "https://www.freetogame.com/open/black-squad"
+    },
+    {
+        "title": "Secret World Legends",
+        "embed_url": "https://www.freetogame.com/open/secret-world-legends"
+    },
+    {
+        "title": "Albion Online",
+        "embed_url": "https://www.freetogame.com/open/albion-online"
+    },
+    {
+        "title": "Pixel Worlds",
+        "embed_url": "https://www.freetogame.com/open/pixel-worlds"
+    },
+    {
+        "title": "Deceit",
+        "embed_url": "https://www.freetogame.com/open/deceit"
+    },
+    {
+        "title": "Gwent: The Witcher Card Game",
+        "embed_url": "https://www.freetogame.com/open/gwent"
+    },
+    {
+        "title": "Awesomenauts",
+        "embed_url": "https://www.freetogame.com/open/awesomenauts"
+    },
+    {
+        "title": "Alien Swarm: Reactive Drop",
+        "embed_url": "https://www.freetogame.com/open/alien-swarm-reactive-drop"
+    },
+    {
+        "title": "Catan Universe",
+        "embed_url": "https://www.freetogame.com/open/catan-universe"
+    },
+    {
+        "title": "Krosmaga",
+        "embed_url": "https://www.freetogame.com/open/krosmaga"
+    },
+    {
+        "title": "Chronicles of Eidola",
+        "embed_url": "https://www.freetogame.com/open/chronicles-of-eidola"
+    },
+    {
+        "title": "MU Legend",
+        "embed_url": "https://www.freetogame.com/open/mu-legend"
+    },
+    {
+        "title": "Therian Saga",
+        "embed_url": "https://www.freetogame.com/open/therian-saga"
+    },
+    {
+        "title": "Cabals: Card Blitz",
+        "embed_url": "https://www.freetogame.com/open/cabals-card-blitz"
+    },
+    {
+        "title": "Line of Sight",
+        "embed_url": "https://www.freetogame.com/open/line-of-sight"
+    },
+    {
+        "title": "Dragon Awaken",
+        "embed_url": "https://www.freetogame.com/open/dragon-awaken"
+    },
+    {
+        "title": "Infestation: The New Z",
+        "embed_url": "https://www.freetogame.com/open/infestation-new-z"
+    },
+    {
+        "title": "One Tower",
+        "embed_url": "https://www.freetogame.com/open/one-tower"
+    },
+    {
+        "title": "Shadowverse",
+        "embed_url": "https://www.freetogame.com/open/shadowverse"
+    },
+    {
+        "title": "AdventureQuest 3D",
+        "embed_url": "https://www.freetogame.com/open/adventurequest-3d"
+    },
+    {
+        "title": "Riding Club Championships",
+        "embed_url": "https://www.freetogame.com/open/riding-club-championships"
+    },
+    {
+        "title": "Battlerite",
+        "embed_url": "https://www.freetogame.com/open/battlerite"
+    },
+    {
+        "title": "Paladins",
+        "embed_url": "https://www.freetogame.com/open/paladins"
+    },
+    {
+        "title": "Omega Zodiac",
+        "embed_url": "https://www.freetogame.com/open/omega-zodiac"
+    },
+    {
+        "title": "Riders of Icarus",
+        "embed_url": "https://www.freetogame.com/open/riders-of-icarus"
+    },
+    {
+        "title": "Naruto Online",
+        "embed_url": "https://www.freetogame.com/open/naruto-online"
+    },
+    {
+        "title": "Zula",
+        "embed_url": "https://www.freetogame.com/open/zula"
+    },
+    {
+        "title": "LuckCatchers",
+        "embed_url": "https://www.freetogame.com/open/luckcatchers"
+    },
+    {
+        "title": "UFO Online: Invasion",
+        "embed_url": "https://www.freetogame.com/open/ufo-online-invasion"
+    },
+    {
+        "title": "Weapons Of Mythology",
+        "embed_url": "https://www.freetogame.com/open/weapons-of-mythology"
+    },
+    {
+        "title": "Tree of Savior",
+        "embed_url": "https://www.freetogame.com/open/tree-of-savior"
+    },
+    {
+        "title": "Starbreak",
+        "embed_url": "https://www.freetogame.com/open/starbreak"
+    },
+    {
+        "title": "Fantasy Tales Online",
+        "embed_url": "https://www.freetogame.com/open/fantasy-tales-online"
+    },
+    {
+        "title": "Dragon Blood",
+        "embed_url": "https://www.freetogame.com/open/dragon-blood"
+    },
+    {
+        "title": "League of Angels 2",
+        "embed_url": "https://www.freetogame.com/open/league-angels-2"
+    },
+    {
+        "title": "Astral Heroes",
+        "embed_url": "https://www.freetogame.com/open/astral-heroes"
+    },
+    {
+        "title": "Holodrive",
+        "embed_url": "https://www.freetogame.com/open/holodrive"
+    },
+    {
+        "title": "Cabal Online",
+        "embed_url": "https://www.freetogame.com/open/cabal-online"
+    },
+    {
+        "title": "Atom Universe",
+        "embed_url": "https://www.freetogame.com/open/atom-universe"
+    },
+    {
+        "title": "Spellweaver",
+        "embed_url": "https://www.freetogame.com/open/spellweaver"
+    },
+    {
+        "title": "Clash of Avatars",
+        "embed_url": "https://www.freetogame.com/open/clash-of-avatars"
+    },
+    {
+        "title": "War Trigger 3",
+        "embed_url": "https://www.freetogame.com/open/wt3"
+    },
+    {
+        "title": "VEGA Conflict",
+        "embed_url": "https://www.freetogame.com/open/vega-conflict"
+    },
+    {
+        "title": "Metal War Online: Retribution",
+        "embed_url": "https://www.freetogame.com/open/metal-war-online"
+    },
+    {
+        "title": "Immortal Empire",
+        "embed_url": "https://www.freetogame.com/open/immortal-empire"
+    },
+    {
+        "title": "MechWarrior Online",
+        "embed_url": "https://www.freetogame.com/open/mechwarrior-online"
+    },
+    {
+        "title": "Armored Warfare",
+        "embed_url": "https://www.freetogame.com/open/armored-warfare"
+    },
+    {
+        "title": "America’s Army: Proving Grounds",
+        "embed_url": "https://www.freetogame.com/open/americas-army"
+    },
+    {
+        "title": "One Piece Online 2",
+        "embed_url": "https://www.freetogame.com/open/one-piece-online-2"
+    },
+    {
+        "title": "Legends of Honor",
+        "embed_url": "https://www.freetogame.com/open/legends-of-honor"
+    },
+    {
+        "title": "Felspire",
+        "embed_url": "https://www.freetogame.com/open/felspire"
+    },
+    {
+        "title": "WARMODE",
+        "embed_url": "https://www.freetogame.com/open/warmode"
+    },
+    {
+        "title": "Sphere 3: Enchanted World",
+        "embed_url": "https://www.freetogame.com/open/sphere-3"
+    },
+    {
+        "title": "Fishing Planet",
+        "embed_url": "https://www.freetogame.com/open/fishing-planet"
+    },
+    {
+        "title": "Aberoth",
+        "embed_url": "https://www.freetogame.com/open/aberoth"
+    },
+    {
+        "title": "Codename CURE",
+        "embed_url": "https://www.freetogame.com/open/codename-cure"
+    },
+    {
+        "title": "Card Hunter",
+        "embed_url": "https://www.freetogame.com/open/card-hunter"
+    },
+    {
+        "title": "Fallout Shelter",
+        "embed_url": "https://www.freetogame.com/open/fallout-shelter"
+    },
+    {
+        "title": "Lord’s Road",
+        "embed_url": "https://www.freetogame.com/open/lords-road"
+    },
+    {
+        "title": "Salem",
+        "embed_url": "https://www.freetogame.com/open/salem"
+    },
+    {
+        "title": "Heroes of the Storm",
+        "embed_url": "https://www.freetogame.com/open/heroes-of-the-storm"
+    },
+    {
+        "title": "Dirty Bomb",
+        "embed_url": "https://www.freetogame.com/open/dirty-bomb"
+    },
+    {
+        "title": "Vikings: War Of Clans",
+        "embed_url": "https://www.freetogame.com/open/vikings-war-of-clans"
+    },
+    {
+        "title": "Star Trek: Alien Domain",
+        "embed_url": "https://www.freetogame.com/open/star-trek-alien-domain"
+    },
+    {
+        "title": "Survarium",
+        "embed_url": "https://www.freetogame.com/open/survarium"
+    },
+    {
+        "title": "Dungeon Fighter Online",
+        "embed_url": "https://www.freetogame.com/open/dungeon-fighter-online"
+    },
+    {
+        "title": "Grimoire: Manastorm",
+        "embed_url": "https://www.freetogame.com/open/grimoire-manastorm"
+    },
+    {
+        "title": "StarColony",
+        "embed_url": "https://www.freetogame.com/open/starcolony"
+    },
+    {
+        "title": "Transformice",
+        "embed_url": "https://www.freetogame.com/open/transformice"
+    },
+    {
+        "title": "Gear Up",
+        "embed_url": "https://www.freetogame.com/open/gear-up"
+    },
+    {
+        "title": "8BitMMO",
+        "embed_url": "https://www.freetogame.com/open/8bitmmo"
+    },
+    {
+        "title": "Siegelord",
+        "embed_url": "https://www.freetogame.com/open/siegelord"
+    },
+    {
+        "title": "Dungeon Defenders 2",
+        "embed_url": "https://www.freetogame.com/open/dungeon-defenders-2"
+    },
+    {
+        "title": "Blockade 3D",
+        "embed_url": "https://www.freetogame.com/open/blockade-3d"
+    },
+    {
+        "title": "Eldevin",
+        "embed_url": "https://www.freetogame.com/open/eldevin"
+    },
+    {
+        "title": "Double Action",
+        "embed_url": "https://www.freetogame.com/open/double-action"
+    },
+    {
+        "title": "Pox Nora",
+        "embed_url": "https://www.freetogame.com/open/pox-nora"
+    },
+    {
+        "title": "Counter-Strike Nexon",
+        "embed_url": "https://www.freetogame.com/open/counter-strike-nexon"
+    },
+    {
+        "title": "Uncharted Waters Online",
+        "embed_url": "https://www.freetogame.com/open/uncharted-waters-online"
+    },
+    {
+        "title": "ArcheAge",
+        "embed_url": "https://www.freetogame.com/open/archeage"
+    },
+    {
+        "title": "Tribal Wars 2",
+        "embed_url": "https://www.freetogame.com/open/tribal-wars-2"
+    },
+    {
+        "title": "WAKFU",
+        "embed_url": "https://www.freetogame.com/open/wakfu"
+    },
+    {
+        "title": "Infinity Wars",
+        "embed_url": "https://www.freetogame.com/open/infinity-wars"
+    },
+    {
+        "title": "Divine Souls",
+        "embed_url": "https://www.freetogame.com/open/divine-souls"
+    },
+    {
+        "title": "Cubic Castles",
+        "embed_url": "https://www.freetogame.com/open/cubic-castles"
+    },
+    {
+        "title": "Royal Quest",
+        "embed_url": "https://www.freetogame.com/open/royal-quest"
+    },
+    {
+        "title": "Bleach Online",
+        "embed_url": "https://www.freetogame.com/open/bleach-online"
+    },
+    {
+        "title": "Unturned",
+        "embed_url": "https://www.freetogame.com/open/unturned"
+    },
+    {
+        "title": "Warface",
+        "embed_url": "https://www.freetogame.com/open/warface"
+    },
+    {
+        "title": "Freestyle2: Street Basketball",
+        "embed_url": "https://www.freetogame.com/open/freestyle2-street-basketball"
+    },
+    {
+        "title": "Fistful of Frags",
+        "embed_url": "https://www.freetogame.com/open/fistful-of-frags"
+    },
+    {
+        "title": "GunZ 2: The Second Duel",
+        "embed_url": "https://www.freetogame.com/open/gunz-2"
+    },
+    {
+        "title": "Archeblade",
+        "embed_url": "https://www.freetogame.com/open/archeblade"
+    },
+    {
+        "title": "Villagers and Heroes",
+        "embed_url": "https://www.freetogame.com/open/villagers-and-heroes"
+    },
+    {
+        "title": "Sparta: War of Empires",
+        "embed_url": "https://www.freetogame.com/open/sparta-war-empires"
+    },
+    {
+        "title": "Smite",
+        "embed_url": "https://www.freetogame.com/open/smite"
+    },
+    {
+        "title": "Dogs of War Online",
+        "embed_url": "https://www.freetogame.com/open/dogs-war-online"
+    },
+    {
+        "title": "Hearthstone: Heroes of Warcraft",
+        "embed_url": "https://www.freetogame.com/open/hearthstone-heroes-warcraft"
+    },
+    {
+        "title": "Lucent Heart",
+        "embed_url": "https://www.freetogame.com/open/lucent-heart"
+    },
+    {
+        "title": "League of Angels",
+        "embed_url": "https://www.freetogame.com/open/league-of-angels"
+    },
+    {
+        "title": "Aura Kingdom",
+        "embed_url": "https://www.freetogame.com/open/aura-kingdom"
+    },
+    {
+        "title": "Crystal Saga",
+        "embed_url": "https://www.freetogame.com/open/crystal-saga"
+    },
+    {
+        "title": "World of Warplanes",
+        "embed_url": "https://www.freetogame.com/open/world-of-warplanes"
+    },
+    {
+        "title": "RIFT",
+        "embed_url": "https://www.freetogame.com/open/rift"
+    },
+    {
+        "title": "Path of Exile",
+        "embed_url": "https://www.freetogame.com/open/path-of-exile"
+    },
+    {
+        "title": "Soldiers Inc.",
+        "embed_url": "https://www.freetogame.com/open/soldiers-inc"
+    },
+    {
+        "title": "Nords: Heroes of the North",
+        "embed_url": "https://www.freetogame.com/open/nords-heroes-north"
+    },
+    {
+        "title": "Dota 2",
+        "embed_url": "https://www.freetogame.com/open/dota-2"
+    },
+    {
+        "title": "Ragnarok Online 2",
+        "embed_url": "https://www.freetogame.com/open/ragnarok-online-2"
+    },
+    {
+        "title": "Panzar",
+        "embed_url": "https://www.freetogame.com/open/panzar"
+    },
+    {
+        "title": "Kingdom Wars",
+        "embed_url": "https://www.freetogame.com/open/kingdom-wars"
+    },
+    {
+        "title": "Warframe",
+        "embed_url": "https://www.freetogame.com/open/warframe"
+    },
+    {
+        "title": "Champions of Regnum",
+        "embed_url": "https://www.freetogame.com/open/champions-of-regnum"
+    },
+    {
+        "title": "Star Conflict",
+        "embed_url": "https://www.freetogame.com/open/star-conflict"
+    },
+    {
+        "title": "Rail Nation",
+        "embed_url": "https://www.freetogame.com/open/rail-nation"
+    },
+    {
+        "title": "Epic Cards Battle",
+        "embed_url": "https://www.freetogame.com/open/epic-card-battle"
+    },
+    {
+        "title": "Age of Wushu",
+        "embed_url": "https://www.freetogame.com/open/age-of-wushu"
+    },
+    {
+        "title": "Everquest",
+        "embed_url": "https://www.freetogame.com/open/everquest"
+    },
+    {
+        "title": "Mabinogi",
+        "embed_url": "https://www.freetogame.com/open/mabinogi"
+    },
+    {
+        "title": "Stormfall: Age of War",
+        "embed_url": "https://www.freetogame.com/open/stormfall-age-war"
+    },
+    {
+        "title": "PlanetSide 2",
+        "embed_url": "https://www.freetogame.com/open/planetside-2"
+    },
+    {
+        "title": "AirMech",
+        "embed_url": "https://www.freetogame.com/open/airmech"
+    },
+    {
+        "title": "Big Farm",
+        "embed_url": "https://www.freetogame.com/open/big-farm"
+    },
+    {
+        "title": "Wartune",
+        "embed_url": "https://www.freetogame.com/open/wartune"
+    },
+    {
+        "title": "Pirate 101",
+        "embed_url": "https://www.freetogame.com/open/pirate-101"
+    },
+    {
+        "title": "Dino Storm",
+        "embed_url": "https://www.freetogame.com/open/dino-storm"
+    },
+    {
+        "title": "The Settlers Online",
+        "embed_url": "https://www.freetogame.com/open/the-settlers-online"
+    },
+    {
+        "title": "Continent of the Ninth Seal",
+        "embed_url": "https://www.freetogame.com/open/c9"
+    },
+    {
+        "title": "Counter-Strike 2",
+        "embed_url": "https://www.freetogame.com/open/counter-strike-2"
+    },
+    {
+        "title": "RPG MO",
+        "embed_url": "https://www.freetogame.com/open/rpg-mo"
+    },
+    {
+        "title": "Realm of the Mad God",
+        "embed_url": "https://www.freetogame.com/open/realm-mad-god"
+    },
+    {
+        "title": "Pirates: Tides of Fortune",
+        "embed_url": "https://www.freetogame.com/open/pirates-tides-fortune"
+    },
+    {
+        "title": "Stronghold Kingdoms",
+        "embed_url": "https://www.freetogame.com/open/stronghold-kingdoms"
+    },
+    {
+        "title": "Star Wars: The Old Republic",
+        "embed_url": "https://www.freetogame.com/open/swtor"
+    },
+    {
+        "title": "No More Room in Hell",
+        "embed_url": "https://www.freetogame.com/open/no-more-room-in-hell"
+    },
+    {
+        "title": "Digimon Masters Online",
+        "embed_url": "https://www.freetogame.com/open/digimon-masters-online"
+    },
+    {
+        "title": "Dragon Nest",
+        "embed_url": "https://www.freetogame.com/open/dragon-nest"
+    },
+    {
+        "title": "Drakensang Online",
+        "embed_url": "https://www.freetogame.com/open/drakensang-online"
+    },
+    {
+        "title": "Spiral Knights",
+        "embed_url": "https://www.freetogame.com/open/spiral-knights"
+    },
+    {
+        "title": "Steel Legions",
+        "embed_url": "https://www.freetogame.com/open/steel-legions"
+    },
+    {
+        "title": "Asda Global",
+        "embed_url": "https://www.freetogame.com/open/asda-global"
+    },
+    {
+        "title": "Brink",
+        "embed_url": "https://www.freetogame.com/open/brink"
+    },
+    {
+        "title": "Allods Online",
+        "embed_url": "https://www.freetogame.com/open/allods-online"
+    },
+    {
+        "title": "Elsword",
+        "embed_url": "https://www.freetogame.com/open/elsword"
+    },
+    {
+        "title": "DC Universe Online",
+        "embed_url": "https://www.freetogame.com/open/dcuo"
+    },
+    {
+        "title": "Bloodline Champions",
+        "embed_url": "https://www.freetogame.com/open/bloodline-champions"
+    },
+    {
+        "title": "GetAmped 2",
+        "embed_url": "https://www.freetogame.com/open/getamped-2"
+    },
+    {
+        "title": "Dragon Saga",
+        "embed_url": "https://www.freetogame.com/open/dragon-saga"
+    },
+    {
+        "title": "Vindictus",
+        "embed_url": "https://www.freetogame.com/open/vindictus"
+    },
+    {
+        "title": "Aika Online",
+        "embed_url": "https://www.freetogame.com/open/aika-online"
+    },
+    {
+        "title": "APB Reloaded",
+        "embed_url": "https://www.freetogame.com/open/apb"
+    },
+    {
+        "title": "Mortal Online",
+        "embed_url": "https://www.freetogame.com/open/mortal-online"
+    },
+    {
+        "title": "Grand Fantasia",
+        "embed_url": "https://www.freetogame.com/open/grand-fantasia"
+    },
+    {
+        "title": "Grepolis",
+        "embed_url": "https://www.freetogame.com/open/grepolis"
+    },
+    {
+        "title": "League of Legends",
+        "embed_url": "https://www.freetogame.com/open/league-of-legends"
+    },
+    {
+        "title": "Twelve Sky 2",
+        "embed_url": "https://www.freetogame.com/open/twelve-sky-2"
+    },
+    {
+        "title": "Champions Online",
+        "embed_url": "https://www.freetogame.com/open/champions-online"
+    },
+    {
+        "title": "WolfTeam",
+        "embed_url": "https://www.freetogame.com/open/wolfteam"
+    },
+    {
+        "title": "Runes of Magic",
+        "embed_url": "https://www.freetogame.com/open/runes-of-magic"
+    },
+    {
+        "title": "theHunter",
+        "embed_url": "https://www.freetogame.com/open/thehunter"
+    },
+    {
+        "title": "AION",
+        "embed_url": "https://www.freetogame.com/open/aion"
+    },
+    {
+        "title": "Atlantica Online",
+        "embed_url": "https://www.freetogame.com/open/atlantica-online"
+    },
+    {
+        "title": "Florensia",
+        "embed_url": "https://www.freetogame.com/open/florensia"
+    },
+    {
+        "title": "4Story",
+        "embed_url": "https://www.freetogame.com/open/4story"
+    },
+    {
+        "title": "AdventureQuest Worlds",
+        "embed_url": "https://www.freetogame.com/open/adventurequest-worlds"
+    },
+    {
+        "title": "S4 league",
+        "embed_url": "https://www.freetogame.com/open/s4-league"
+    },
+    {
+        "title": "Wizard101",
+        "embed_url": "https://www.freetogame.com/open/wizard101"
+    },
+    {
+        "title": "Perfect World International",
+        "embed_url": "https://www.freetogame.com/open/pwi"
+    },
+    {
+        "title": "Ace Online",
+        "embed_url": "https://www.freetogame.com/open/ace-online"
+    },
+    {
+        "title": "Rohan: Blood Feud",
+        "embed_url": "https://www.freetogame.com/open/rohan-blood-feud"
+    },
+    {
+        "title": "Age of Conan: Unchained",
+        "embed_url": "https://www.freetogame.com/open/age-of-conan"
+    },
+    {
+        "title": "Ikariam",
+        "embed_url": "https://www.freetogame.com/open/ikariam"
+    },
+    {
+        "title": "Fiesta Online",
+        "embed_url": "https://www.freetogame.com/open/fiesta-online"
+    },
+    {
+        "title": "Angels Online Global",
+        "embed_url": "https://www.freetogame.com/open/angels-online"
+    },
+    {
+        "title": "Seal Online",
+        "embed_url": "https://www.freetogame.com/open/seal-online"
+    },
+    {
+        "title": "Team Fortress 2",
+        "embed_url": "https://www.freetogame.com/open/team-fortress-2"
+    },
+    {
+        "title": "Rumble Fighter",
+        "embed_url": "https://www.freetogame.com/open/rumble-fighter"
+    },
+    {
+        "title": "Granado Espada Online",
+        "embed_url": "https://www.freetogame.com/open/granado-espada"
+    },
+    {
+        "title": "9Dragons",
+        "embed_url": "https://www.freetogame.com/open/9dragons"
+    },
+    {
+        "title": "Crossfire",
+        "embed_url": "https://www.freetogame.com/open/crossfire"
+    },
+    {
+        "title": "Teeworlds",
+        "embed_url": "https://www.freetogame.com/open/teeworlds"
+    },
+    {
+        "title": "Priston Tale",
+        "embed_url": "https://www.freetogame.com/open/priston-tale"
+    },
+    {
+        "title": "Roblox",
+        "embed_url": "https://www.freetogame.com/open/roblox"
+    },
+    {
+        "title": "Metin2",
+        "embed_url": "https://www.freetogame.com/open/metin2"
+    },
+    {
+        "title": "Dark Orbit Reloaded",
+        "embed_url": "https://www.freetogame.com/open/darkorbit"
+    },
+    {
+        "title": "Rappelz",
+        "embed_url": "https://www.freetogame.com/open/rappelz"
+    },
+    {
+        "title": "Grand Prix Racing Online",
+        "embed_url": "https://www.freetogame.com/open/gpro"
+    },
+    {
+        "title": "Astro Empires",
+        "embed_url": "https://www.freetogame.com/open/astro-empires"
+    },
+    {
+        "title": "Dungeons and Dragons Online",
+        "embed_url": "https://www.freetogame.com/open/dungeons-dragons-online"
+    },
+    {
+        "title": "Urban Rivals",
+        "embed_url": "https://www.freetogame.com/open/urban-rivals"
+    },
+    {
+        "title": "Flyff: Fly For Fun",
+        "embed_url": "https://www.freetogame.com/open/flyff"
+    },
+    {
+        "title": "Dream of Mirror Online",
+        "embed_url": "https://www.freetogame.com/open/domo"
+    },
+    {
+        "title": "Imperia Online",
+        "embed_url": "https://www.freetogame.com/open/imperia-online"
+    },
+    {
+        "title": "MapleStory",
+        "embed_url": "https://www.freetogame.com/open/maplestory"
+    },
+    {
+        "title": "Shot Online",
+        "embed_url": "https://www.freetogame.com/open/shot-online"
+    },
+    {
+        "title": "Everquest 2",
+        "embed_url": "https://www.freetogame.com/open/everquest-2"
+    },
+    {
+        "title": "Dofus",
+        "embed_url": "https://www.freetogame.com/open/dofus"
+    },
+    {
+        "title": "Travian",
+        "embed_url": "https://www.freetogame.com/open/travian"
+    },
+    {
+        "title": "Ryzom",
+        "embed_url": "https://www.freetogame.com/open/ryzom"
+    },
+    {
+        "title": "Kal Online",
+        "embed_url": "https://www.freetogame.com/open/kalonline"
+    },
+    {
+        "title": "Lineage 2",
+        "embed_url": "https://www.freetogame.com/open/lineage-2"
+    },
+    {
+        "title": "Red Stone Online",
+        "embed_url": "https://www.freetogame.com/open/red-stone-online"
+    },
+    {
+        "title": "Mu Online",
+        "embed_url": "https://www.freetogame.com/open/mu-online"
+    },
+    {
+        "title": "Second Life",
+        "embed_url": "https://www.freetogame.com/open/second-life"
+    },
+    {
+        "title": "Ragnarok Online",
+        "embed_url": "https://www.freetogame.com/open/ragnarok-online"
+    },
+    {
+        "title": "Entropia Universe",
+        "embed_url": "https://www.freetogame.com/open/entropia-universe"
+    },
+    {
+        "title": "Habbo",
+        "embed_url": "https://www.freetogame.com/open/habbo"
+    },
+    {
+        "title": "Anarchy Online",
+        "embed_url": "https://www.freetogame.com/open/anarchy-online"
+    },
+    {
+        "title": "The Lord of the Rings Online",
+        "embed_url": "https://www.freetogame.com/open/lotro"
     }
 ]
