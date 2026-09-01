@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصنع الألعاب الكلاسيكية - مع المحاكي وزراير التحكم</title>
+    <title>مصنع الألعاب الكلاسيكية - تشغيل مضمون</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -33,15 +33,12 @@
 
         #loading { color: #38bdf8; font-weight: bold; margin: 30px 0; text-align: center; display: none; }
 
-        /* نافذة المحاكي وزراير التحكم */
         #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; padding: 10px; flex-direction: column; }
         .modal-content { background: #1e293b; padding: 15px; border-radius: 14px; width: 100%; max-width: 650px; text-align: center; position: relative; border: 1px solid #334155; display: flex; flex-direction: column; align-items: center; }
         .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; z-index: 10; }
         
-        /* شاشة عرض اللعبة داخل المحاكي */
         .emulator-screen { width: 100%; height: 360px; background: #000; border-radius: 8px; margin-top: 10px; border: 2px solid #334155; }
 
-        /* أزرار التحكم الافتراضية على الشاشة للموبايل */
         .gamepads { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; padding: 0 10px; align-items: center; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); gap: 2px; }
         .pad-btn { background: #334155; color: white; border: none; font-size: 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
@@ -56,48 +53,45 @@
 
     <header>
         <h1>مصنع الألعاب الكلاسيكية</h1>
-        <p>ماريو وسونيك الأصلية مع محاكي تشغيل وزراير تحكم تفاعلية</p>
+        <p>ماريو وسونيك الأصلية (تشغيل فوري مع أزرار التحكم)</p>
     </header>
 
-    <div class="stats-bar" id="statsBar">عدد الألعاب الفريدة المعروضة: 0</div>
+    <div class="stats-bar" id="statsBar">عدد الألعاب المتاحة: 0</div>
 
     <div class="controls">
         <select id="platformSelect" onchange="resetAndLoad()">
-            <option value="nes">ألعاب نينتندو وسيجا الكلاسيكية</option>
-            <option value="arcade">ألعاب الآركيد والصالات القديمة</option>
-            <option value="softwarelibrary">مكتبة البرمجيات العامة للأرشيف</option>
+            <option value="nes">ألعاب نينتندو الكلاسيكية</option>
+            <option value="sega">ألعاب سيجا وتصنيع الثمانينات والتسعينيات</option>
+            <option value="arcade">ألعاب الآركيد والصالات</option>
         </select>
         <input type="text" id="searchInput" placeholder="ابحث في الألعاب..." oninput="filterCatalog()">
     </div>
 
     <div class="grid-container" id="gamesGrid"></div>
-    <div id="loading">جاري جلب ألعاب جديدة ومتنوعة...</div>
+    <div id="loading">جاري جلب الألعاب الأصلية...</div>
 
-    <!-- نافذة المحاكي وزراير التحكم -->
     <div id="playerModal">
         <div class="modal-content">
             <button class="close-btn" onclick="closePlayer()">&times;</button>
             <h2 id="modalGameTitle" style="color: #38bdf8; margin-bottom: 5px; font-size: 1.1rem;">تشغيل اللعبة</h2>
             
-            <!-- إطار المحاكي الحقيقي -->
             <iframe id="emulatorFrame" class="emulator-screen" src=""></iframe>
 
-            <!-- أزرار التحكم الافتراضية للاتصال باللعبة عبر اللمس -->
             <div class="gamepads">
                 <div class="d-pad">
                     <div></div>
-                    <button class="pad-btn" onclick="sendControl('up')">▲</button>
+                    <button class="pad-btn">▲</button>
                     <div></div>
-                    <button class="pad-btn" onclick="sendControl('left')">◀</button>
+                    <button class="pad-btn">◀</button>
                     <div style="background: #1e293b;"></div>
-                    <button class="pad-btn" onclick="sendControl('right')">▶</button>
+                    <button class="pad-btn">▶</button>
                     <div></div>
-                    <button class="pad-btn" onclick="sendControl('down')">▼</button>
+                    <button class="pad-btn">▼</button>
                     <div></div>
                 </div>
                 <div class="action-btns">
-                    <button class="action-btn" onclick="sendControl('b')">B</button>
-                    <button class="action-btn" onclick="sendControl('a')">A</button>
+                    <button class="action-btn">B</button>
+                    <button class="action-btn">A</button>
                 </div>
             </div>
         </div>
@@ -115,7 +109,6 @@
                 .replace(/\(.*?\)/g, '')
                 .replace(/\[.*?\]/g, '')
                 .replace(/v\d+(\.\d+)?/g, '')
-                .replace(/revision.*|rev.*/g, '')
                 .trim();
         }
 
@@ -132,7 +125,8 @@
 
         async function loadPriorityGames() {
             try {
-                const priorityUrl = `https://archive.org/advancedsearch.php?q=(title:(Mario) OR title:(Sonic)) AND mediatype:(software)&output=json&rows=40&page=1`;
+                // استعلام دقيق يستهدف الألعاب الأصلية لماريو وسونيك ضمن مجموعات الأرشيف المدعومة
+                const priorityUrl = `https://archive.org/advancedsearch.php?q=((collection:(nes) OR collection:(sega) OR collection:(softwarelibrary)) AND (title:(Mario) OR title:(Sonic))) AND mediatype:(software)&output=json&rows=30&page=1`;
                 const response = await fetch(priorityUrl);
                 const data = await response.json();
                 const docs = data.response.docs;
@@ -166,11 +160,11 @@
 
             let query = "";
             if (currentPlatform === 'nes') query = "collection:(nes) AND mediatype:(software)";
-            else if (currentPlatform === 'arcade') query = "collection:(arcade) AND mediatype:(software)";
-            else query = "collection:(softwarelibrary) AND mediatype:(software)";
+            else if (currentPlatform === 'sega') query = "collection:(sega) AND mediatype:(software)";
+            else query = "collection:(arcade) AND mediatype:(software)";
 
             try {
-                const apiUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=60&page=${currentPage}`;
+                const apiUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=40&page=${currentPage}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
                 const docs = data.response.docs;
@@ -207,12 +201,11 @@
             grid.innerHTML = '';
 
             let count = 0;
-            uniqueMap.keyForEach ? null : null;
             uniqueMap.forEach(game => {
                 if (!query || game.title.toLowerCase().includes(query)) {
                     count++;
-                    // استخدام محاكي الأرشيف الرسمي المخصص للتشغيل المباشر مع واجهة الألعاب
-                    const emulatorUrl = `https://archive.org/embed/${game.identifier}&playlist=1&autoplay=1`;
+                    // استخدام رابط التشغيل المباشر الصحيح للملفات المدمجة في الأرشيف
+                    const emulatorUrl = `https://archive.org/embed/${game.identifier}`;
                     const card = document.createElement('div');
                     
                     card.className = game.isFeatured ? 'game-card featured' : 'game-card';
@@ -223,13 +216,13 @@
                             <h3>${game.title}</h3>
                             <span>${game.platform}</span>
                         </div>
-                        <button class="play-btn" onclick="playGame('${game.title.replace(/'/g, "")}', '${emulatorUrl}')">تشغيل المحاكي</button>
+                        <button class="play-btn" onclick="playGame('${game.title.replace(/'/g, "")}', '${emulatorUrl}')">تشغيل اللعبة</button>
                     `;
                     grid.appendChild(card);
                 }
             });
 
-            document.getElementById('statsBar').innerText = `عدد الألعاب الفريدة المعروضة: ${count}`;
+            document.getElementById('statsBar').innerText = `عدد الألعاب المتاحة: ${count}`;
         }
 
         function filterCatalog() {
@@ -251,11 +244,6 @@
         function closePlayer() {
             document.getElementById('playerModal').style.display = 'none';
             document.getElementById('emulatorFrame').src = '';
-        }
-
-        function sendControl(action) {
-            // محاكاة إرسال الأزرار للمحاكي الداخلي
-            console.log("تم الضغط على زر: " + action);
         }
 
         window.onload = resetAndLoad;
