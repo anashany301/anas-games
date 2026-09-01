@@ -2,151 +2,224 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة فلامينجو - المحرك المضمون</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مصنع الألعاب السحابي - فريد تماماً بدون تكرار</title>
     <style>
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: #09090b; color: #fff; font-family: Tahoma, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 800px; }
+        h1 { font-size: 2.3rem; color: #38bdf8; margin-bottom: 10px; }
+        p { color: #94a3b8; font-size: 1rem; }
         
-        header { background: #121216; padding: 8px 15px; border-bottom: 2px solid #8b5cf6; display: flex; justify-content: space-between; align-items: center; }
-        h1 { color: #a78bfa; margin: 0; font-size: 11px; }
+        .stats-bar { background: #1e293b; border: 1px solid #334155; padding: 10px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; color: #38bdf8; }
+        
+        .controls { width: 100%; max-width: 800px; display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
+        input, select { padding: 12px 16px; font-size: 1rem; border-radius: 10px; border: 2px solid #334155; background-color: #1e293b; color: #fff; outline: none; }
+        input { flex: 1; min-width: 250px; }
+        select { cursor: pointer; }
+        
+        .grid-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
+        .game-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
+        .game-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.4); border-color: #38bdf8; }
+        
+        .game-card.featured { border: 2px solid #f59e0b; background: linear-gradient(135deg, #1e293b, #292524); }
+        .featured-tag { display: inline-block; background-color: #f59e0b; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; }
 
-        #game-container { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
-        canvas { max-width: 100%; max-height: 100%; box-shadow: 0 0 20px rgba(139,92,246,0.4); border-radius: 6px; border: 2px solid #8b5cf6; }
+        .game-info h3 { font-size: 1rem; color: #f1f5f9; margin-bottom: 6px; word-break: break-word; }
+        .game-info span { display: inline-block; background-color: #0369a1; color: #e0f2fe; padding: 3px 8px; border-radius: 15px; font-size: 0.75rem; margin-bottom: 12px; }
+        
+        .play-btn { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; }
+        .play-btn:hover { opacity: 0.9; }
 
-        .controls-deck { background: #121216; padding: 10px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #27272a; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 44px); gap: 4px; }
-        .d-btn { background: #27272a; color: #fff; border: 1px solid #3f3f46; height: 40px; border-radius: 6px; font-size: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .d-btn:active { background: #8b5cf6; }
+        #loading { color: #38bdf8; font-weight: bold; margin: 30px 0; text-align: center; display: none; }
 
-        .action-pad { display: grid; grid-template-columns: repeat(2, 44px); gap: 6px; }
-        .act-btn { background: #8b5cf6; color: #fff; border: none; height: 44px; border-radius: 50%; font-weight: bold; font-size: 11px; display: flex; justify-content: center; align-items: center; box-shadow: 0 3px 6px rgba(139,92,246,0.4); cursor: pointer; }
-        .act-btn:active { background: #7c3aed; }
+        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: #1e293b; padding: 20px; border-radius: 14px; width: 100%; max-width: 750px; text-align: center; position: relative; border: 1px solid #334155; }
+        .close-btn { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; }
+        iframe { width: 100%; height: 430px; border: none; border-radius: 8px; margin-top: 12px; background: #000; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🕹️ منصة فلامينجو (النسخة الآمنة والمضمونة)</h1>
-        <span style="font-size: 9px; color: #10b981; font-weight: bold;">● شغال 100%</span>
+        <h1>مصنع الألعاب السحابي الذكي</h1>
+        <p>مكتبة فريدة ومتباينة تماماً - بلا أجزاء مكررة أو متشابهة</p>
     </header>
 
-    <div id="game-container"></div>
+    <div class="stats-bar" id="statsBar">عدد الألعاب الفريدة المعروضة: 0</div>
 
-    <div class="controls-deck">
-        <div class="action-pad">
-            <div class="act-btn" id="jumpBtn">نط</div>
-            <div class="act-btn" id="boostBtn" style="background:#10b981;">سرعة</div>
-        </div>
-        <div class="d-pad">
-            <div></div><div class="d-btn" id="upBtn">⬆️</div><div></div>
-            <div class="d-btn" id="leftBtn">⬅️</div>
-            <div class="d-btn" id="fireBtn">⚡</div>
-            <div class="d-btn" id="rightBtn">➡️</div>
-            <div></div><div class="d-btn" id="downBtn">⬇️</div><div></div>
+    <div class="controls">
+        <select id="platformSelect" onchange="resetAndLoad()">
+            <option value="nes">ألعاب نينتندو وسيجا الكلاسيكية</option>
+            <option value="arcade">ألعاب الآركيد والصالات القديمة</option>
+            <option value="softwarelibrary">مكتبة البرمجيات العامة للأرشيف</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="ابحث في الألعاب..." oninput="filterCatalog()">
+    </div>
+
+    <div class="grid-container" id="gamesGrid"></div>
+    <div id="loading">جاري جلب ألعاب جديدة ومتنوعة...</div>
+
+    <div id="playerModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closePlayer()">&times;</button>
+            <h2 id="modalGameTitle" style="color: #38bdf8; margin-bottom: 8px; font-size: 1.2rem;">تشغيل اللعبة</h2>
+            <iframe id="gameFrame" src=""></iframe>
         </div>
     </div>
 
     <script>
-        class SafeGameScene extends Phaser.Scene {
-            constructor() {
-                super('SafeGameScene');
-            }
+        let uniqueMap = new Map();
+        let seenTitles = new Set(); // سجل لمنع تكرار الأسماء المتشابهة أو الأجزاء المكررة
+        let currentPage = 1;
+        let isLoading = false;
+        let currentPlatform = "nes";
 
-            preload() {
-                // توليد الرسوميات مباشرة لتجنب أخطاء مسارات الصور والأسماء الفارغة
-                let g = this.make.graphics({ x: 0, y: 0, add: false });
+        // دالة تنظيف اسم اللعبة لإزالة الزيادات والنسخ المتشابهة
+        function cleanGameTitle(title) {
+            return title.toLowerCase()
+                .replace(/\(.*?\)/g, '') // حذف ما بين الأقواس (مثل [USA], (Rev A))
+                .replace(/\[.*?\]/g, '')
+                .replace(/v\d+(\.\d+)?/g, '') // حذف رقم النسخة
+                .replace(/revision.*|rev.*/g, '')
+                .trim();
+        }
 
-                // رسم شخصية بطل واضحة (ماريو بقبعة حمراء ولبس أزرق)
-                g.fillStyle(0xdc2626); g.fillRect(2, 0, 20, 8); // القبعة
-                g.fillStyle(0xfde047); g.fillRect(4, 8, 16, 10); // الوجه
-                g.fillStyle(0x2563eb); g.fillRect(2, 18, 20, 14); // الجسم
-                g.generateTexture('hero', 24, 32);
-                g.clear();
+        async function resetAndLoad() {
+            currentPlatform = document.getElementById('platformSelect').value;
+            uniqueMap.clear();
+            seenTitles.clear();
+            currentPage = 1;
+            document.getElementById('gamesGrid').innerHTML = '';
+            
+            await loadPriorityGames();
+            await loadMoreGames();
+        }
 
-                // رسم بلاطة أرضية كلاسيكية
-                g.fillStyle(0xb91c1c); g.fillRect(0, 0, 32, 32);
-                g.fillStyle(0xfbbf24); g.strokeRect(0, 0, 32, 32);
-                g.generateTexture('tile', 32, 32);
-                g.clear();
+        async function loadPriorityGames() {
+            try {
+                const priorityUrl = `https://archive.org/advancedsearch.php?q=(title:(Mario) OR title:(Sonic)) AND mediatype:(software)&output=json&rows=40&page=1`;
+                const response = await fetch(priorityUrl);
+                const data = await response.json();
+                const docs = data.response.docs;
 
-                // رسم عملة ذهبية
-                g.fillStyle(0xfacc15); g.fillCircle(10, 10, 10);
-                g.generateTexture('coin', 20, 20);
-            }
-
-            create() {
-                this.cameras.main.setBackgroundColor('#1e1b4b');
-
-                // بناء الأرضية
-                this.platforms = this.physics.add.staticGroup();
-                for (let x = 0; x < 800; x += 32) {
-                    this.platforms.create(x, 190, 'tile');
+                if (docs && docs.length > 0) {
+                    docs.forEach(game => {
+                        if (game.identifier && game.title) {
+                            const cleanName = cleanGameTitle(game.title);
+                            // منع تكرار نفس اللعبة أو الأجزاء المتشابهة تماماً
+                            if (!uniqueMap.has(game.identifier) && !seenTitles.has(cleanName)) {
+                                seenTitles.add(cleanName);
+                                uniqueMap.set(game.identifier, {
+                                    identifier: game.identifier,
+                                    title: game.title,
+                                    platform: "RETRO CLASSIC",
+                                    isFeatured: true
+                                });
+                            }
+                        }
+                    });
+                    renderGrid();
                 }
-
-                // البطل
-                this.player = this.physics.add.sprite(100, 100, 'hero');
-                this.player.setBounce(0.2);
-                this.player.setCollideWorldBounds(true);
-                this.physics.add.collider(this.player, this.platforms);
-
-                // العملات
-                this.coins = this.physics.add.group({
-                    key: 'coin',
-                    repeat: 5,
-                    setXY: { x: 80, y: 60, stepX: 50 }
-                });
-
-                this.physics.add.collider(this.coins, this.platforms);
-                this.physics.add.overlap(this.player, this.coins, (pl, coin) => {
-                    coin.disableBody(true, true);
-                    this.score += 10;
-                    this.scoreText.setText('النقاط: ' + this.score);
-                }, null, this);
-
-                this.score = 0;
-                this.scoreText = this.add.text(12, 12, 'النقاط: 0', { fontSize: '13px', fill: '#fff', fontStyle: 'bold' });
-
-                // أزرار الحركة
-                window.moveState = { left: false, right: false };
-
-                document.getElementById('leftBtn').addEventListener('touchstart', () => { window.moveState.left = true; });
-                document.getElementById('leftBtn').addEventListener('touchend', () => { window.moveState.left = false; });
-                document.getElementById('rightBtn').addEventListener('touchstart', () => { window.moveState.right = true; });
-                document.getElementById('rightBtn').addEventListener('touchend', () => { window.moveState.right = false; });
-                
-                document.getElementById('jumpBtn').addEventListener('touchstart', () => {
-                    if (this.player.body.touching.down) {
-                        this.player.setVelocityY(-280);
-                    }
-                });
-            }
-
-            update() {
-                if (window.moveState.left) {
-                    this.player.setVelocityX(-150);
-                } else if (window.moveState.right) {
-                    this.player.setVelocityX(150);
-                } else {
-                    this.player.setVelocityX(0);
-                }
+            } catch (error) {
+                console.error("خطأ في جلب الألعاب المميزة", error);
             }
         }
 
-        const config = {
-            type: Phaser.AUTO,
-            width: 340,
-            height: 210,
-            parent: 'game-container',
-            physics: {
-                default: 'arcade',
-                arcade: { gravity: { y: 500 }, debug: false }
-            },
-            scene: SafeGameScene
-        };
+        async function loadMoreGames() {
+            if (isLoading) return;
+            isLoading = true;
+            document.getElementById('loading').style.display = 'block';
 
-        const game = new Phaser.Game(config);
+            let query = "";
+            if (currentPlatform === 'nes') query = "collection:(nes) AND mediatype:(software)";
+            else if (currentPlatform === 'arcade') query = "collection:(arcade) AND mediatype:(software)";
+            else query = "collection:(softwarelibrary) AND mediatype:(software)";
+
+            try {
+                const apiUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&output=json&rows=60&page=${currentPage}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const docs = data.response.docs;
+
+                if (docs && docs.length > 0) {
+                    docs.forEach(game => {
+                        if (game.identifier && game.title) {
+                            const cleanName = cleanGameTitle(game.title);
+                            // الفحص الصارم: التأكد أن المعرف والاسم التنظيفي غير موجودين مسبقاً
+                            if (!uniqueMap.has(game.identifier) && !seenTitles.has(cleanName)) {
+                                seenTitles.add(cleanName);
+                                uniqueMap.set(game.identifier, {
+                                    identifier: game.identifier,
+                                    title: game.title,
+                                    platform: currentPlatform.toUpperCase(),
+                                    isFeatured: false
+                                });
+                            }
+                        }
+                    });
+                    currentPage++;
+                    renderGrid();
+                }
+            } catch (error) {
+                console.error("خطأ في جلب الألعاب", error);
+            } finally {
+                isLoading = false;
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('gamesGrid');
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            grid.innerHTML = '';
+
+            let count = 0;
+            uniqueMap.forEach(game => {
+                if (!query || game.title.toLowerCase().includes(query)) {
+                    count++;
+                    const playUrl = `https://archive.org/embed/${game.identifier}`;
+                    const card = document.createElement('div');
+                    
+                    card.className = game.isFeatured ? 'game-card featured' : 'game-card';
+                    
+                    card.innerHTML = `
+                        <div class="game-info">
+                            ${game.isFeatured ? '<span class="featured-tag">★ أصلية مميزة</span>' : ''}
+                            <h3>${game.title}</h3>
+                            <span>${game.platform}</span>
+                        </div>
+                        <button class="play-btn" onclick="playGame('${game.title.replace(/'/g, "")}', '${playUrl}')">تشغيل فوري</button>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
+
+            document.getElementById('statsBar').innerText = `عدد الألعاب الفريدة المعروضة: ${count}`;
+        }
+
+        function filterCatalog() {
+            renderGrid();
+        }
+
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+                loadMoreGames();
+            }
+        });
+
+        function playGame(title, url) {
+            document.getElementById('modalGameTitle').innerText = title;
+            document.getElementById('gameFrame').src = url;
+            document.getElementById('playerModal').style.display = 'flex';
+        }
+
+        function closePlayer() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('gameFrame').src = '';
+        }
+
+        window.onload = resetAndLoad;
     </script>
 </body>
 </html>
