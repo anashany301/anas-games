@@ -10,10 +10,12 @@
         header { text-align: center; margin-bottom: 15px; width: 100%; max-width: 900px; }
         h1 { font-size: 2rem; color: #38bdf8; margin-bottom: 5px; }
         
-        .stats-bar { background: #1e293b; border: 1px solid #334155; padding: 8px 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #38bdf8; font-size: 0.95rem; width: 100%; max-width: 900px; text-align: center; }
+        .stats-bar { background: #1e293b; border: 1px solid #334155; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #38bdf8; font-size: 1.05rem; width: 100%; max-width: 900px; text-align: center; }
 
-        .controls { width: 100%; max-width: 900px; display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        select { padding: 10px 14px; font-size: 0.95rem; border-radius: 8px; border: 2px solid #334155; background-color: #1e293b; color: #fff; outline: none; cursor: pointer; }
+        .controls { width: 100%; max-width: 900px; display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+        select, input { padding: 10px 14px; font-size: 0.95rem; border-radius: 8px; border: 2px solid #334155; background-color: #1e293b; color: #fff; outline: none; }
+        select { cursor: pointer; }
+        input { flex: 1; min-width: 220px; }
         
         .grid-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
         .game-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -24,10 +26,9 @@
         .play-btn { background: #0284c7; color: white; border: none; padding: 9px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; text-align: center; width: 100%; }
         .play-btn:hover { background: #0ea5e9; }
 
-        /* نافذة التشغيل الداخلي (Embed Modal) */
         #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; padding: 10px; flex-direction: column; }
         .modal-content { background: #1e293b; padding: 12px; border-radius: 14px; width: 100%; max-width: 700px; text-align: center; position: relative; border: 1px solid #334155; }
-        .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; z-index: 10; }
+        .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
         
         .emulator-container { width: 100%; height: 400px; background: #000; border-radius: 8px; margin-top: 10px; overflow: hidden; border: 2px solid #334155; }
         iframe { width: 100%; height: 100%; border: none; }
@@ -39,24 +40,24 @@
 
     <header>
         <h1>منصة الألعاب الكلاسيكية الشاملة</h1>
-        <p>مكتبات ضخمة ومحدثة لكل منصة تعمل بالكامل داخل الموقع</p>
+        <p>مكتبة خفيفة وسريعة التصفح</p>
     </header>
 
-    <div class="stats-bar" id="statsBar">عدد الألعاب المتاحة: 0</div>
+    <div class="stats-bar" id="statsBar">جاري تحميل الألعاب...</div>
 
     <div class="controls">
-        <select id="platformSelect" onchange="loadCatalog()">
-            <option value="nes">ألعاب نينتندو (NES) - مكتبة كاملة</option>
-            <option value="segaMD">ألعاب سيجا جينسيس (Sega Genesis)</option>
-            <option value="snes">ألعاب سوبر نينتندو (SNES)</option>
-            <option value="arcade">ألعاب الآركيد الكلاسيكية (Arcade)</option>
+        <select id="platformSelect" onchange="loadPlatformCatalog()">
+            <option value="nes">نينتندو (NES)</option>
+            <option value="segaMD">سيجا جينسيس (Sega Genesis)</option>
+            <option value="snes">سوبر نينتندو (SNES)</option>
+            <option value="arcade">آركيد (Arcade)</option>
         </select>
+        <input type="text" id="searchInput" placeholder="ابحث عن اسم اللعبة..." oninput="filterGames()">
     </div>
 
-    <div id="loading">جاري سحب المكتبة الضخمة...</div>
+    <div id="loading">جاري تحميل المكتبة...</div>
     <div class="grid-container" id="gamesGrid"></div>
 
-    <!-- نافذة تشغيل الألعاب -->
     <div id="playerModal">
         <div class="modal-content">
             <button class="close-btn" onclick="closePlayer()">&times;</button>
@@ -68,70 +69,70 @@
     </div>
 
     <script>
-        // قواعد بيانات رسمية ومستقرة تضم آلاف الألعاب لكل منصة
-        const databases = {
-            nes: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/nes/games.json",
-            segaMD: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/segaMD/games.json",
-            snes: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/snes/games.json",
-            arcade: "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/arcade/games.json"
-        };
+        let currentPlatformGames = [];
 
-        async function loadCatalog() {
+        async function loadPlatformCatalog() {
             const platform = document.getElementById('platformSelect').value;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('gamesGrid').innerHTML = '';
-            document.getElementById('statsBar').innerText = 'جاري تحميل الألعاب...';
-
-            const jsonUrl = databases[platform];
+            document.getElementById('statsBar').innerText = 'جاري جلب البيانات...';
 
             try {
-                const response = await fetch(jsonUrl);
-                const games = await response.json();
-                
-                renderGrid(games, platform);
+                const response = await fetch(`data/${platform}.json`);
+                currentPlatformGames = await response.json();
+                filterGames();
             } catch (e) {
-                console.error("خطأ في جلب بيانات الألعاب", e);
-                document.getElementById('statsBar').innerText = 'تعذر تحميل المكتبة، حاول مرة أخرى';
+                console.error("خطأ في التحميل", e);
+                document.getElementById('statsBar').innerText = 'تعذر تحميل بيانات هذه المنصة حالياً';
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
+        }
+
+        function filterGames() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const platform = document.getElementById('platformSelect').value;
+
+            let filtered = currentPlatformGames.filter(game => game.title.toLowerCase().includes(query));
+
+            renderGrid(filtered, platform);
         }
 
         function renderGrid(games, platform) {
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = '';
 
-            if(!games || games.length === 0) {
-                document.getElementById('statsBar').innerText = 'عدد الألعاب المتاحة: 0';
+            document.getElementById('statsBar').innerText = `عدد الألعاب المتاحة: ${games.length} لعبة`;
+
+            if (games.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">لا توجد ألعاب مطابقة</p>';
                 return;
             }
 
-            // عرض الألعاب (نحدد عرض أول 200 لعبة لضمان سرعة التصفح، مع إمكانية زيادة العدد)
-            const displayGames = games.slice(0, 300);
+            // عرض أول 300 لعبة لضمان خفة وسرعة التصفح للمستخدم
+            const displayList = games.slice(0, 300);
 
-            displayGames.forEach(game => {
+            displayList.forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 
-                // رابط التشغيل الداخلي المباشر للمحاكي
-                const embedUrl = `https://play.emulatorjs.com/emulatorv2/index.html?system=${platform}&game=${encodeURIComponent(game.url || game.file)}`;
-
                 card.innerHTML = `
                     <div class="game-info">
-                        <h3>${game.name || game.title}</h3>
+                        <h3>${game.title}</h3>
                         <span>${platform.toUpperCase()}</span>
                     </div>
-                    <button class="play-btn" onclick="playGame('${(game.name || game.title).replace(/'/g, "")}', '${embedUrl}')">تشغيل مباشر</button>
+                    <button class="play-btn" onclick="playGame('${platform}', '${game.file}', '${game.title.replace(/'/g, "")}')">تشغيل مباشر</button>
                 `;
                 grid.appendChild(card);
             });
-
-            document.getElementById('statsBar').innerText = `عدد الألعاب المعروضة: ${displayGames.length} (من أصل ${games.length} لعبة)`;
         }
 
-        function playGame(title, url) {
+        function playGame(platform, file, title) {
+            // توليد رابط الـ Embed لحظياً عند الضغط فقط بدون إجهاد التخزين
+            const embedUrl = `https://play.emulatorjs.com/emulatorv2/index.html?system=${platform}&game=${encodeURIComponent(file)}`;
+
             document.getElementById('modalGameTitle').innerText = title;
-            document.getElementById('emulatorFrame').src = url;
+            document.getElementById('emulatorFrame').src = embedUrl;
             document.getElementById('playerModal').style.display = 'flex';
         }
 
@@ -140,9 +141,7 @@
             document.getElementById('emulatorFrame').src = '';
         }
 
-        window.onload = function() {
-            loadCatalog();
-        };
+        window.onload = loadPlatformCatalog;
     </script>
 </body>
 </html>
