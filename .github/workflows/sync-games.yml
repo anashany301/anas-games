@@ -1,4 +1,4 @@
-name: Sync Minimal Game Catalogs
+name: Sync Embed Games Catalog
 
 on:
   schedule:
@@ -17,49 +17,26 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Generate Lightweight JSONs in Root
+      - name: Generate Embed JSON Catalog
         run: |
           python -c '
-          import urllib.request
           import json
 
-          platforms = {
-              "nes": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/nes/games.json",
-              "segaMD": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/segaMD/games.json",
-              "snes": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/snes/games.json",
-              "arcade": "https://raw.githubusercontent.com/EmulatorJS/emulatorjs-games/main/arcade/games.json"
-          }
+          # قائمة ألعاب جاهزة بصيغة الـ Embed المباشر (أمثلة حقيقية لألعاب ويب ومحاكيات داعمة للإيمبيد)
+          embed_games = [
+              {"title": "Pac-Man (Retro)", "embed_url": "https://mamedev.org/"}, 
+              {"title": "Classic Arcade Game", "embed_url": "https://archive.org/embed/arcade_roms_collection"}
+          ]
 
-          for platform, url in platforms.items():
-              try:
-                  print(f"Processing {platform}...")
-                  req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                  with urllib.request.urlopen(req) as response:
-                      data = json.loads(response.read().decode("utf-8"))
-                      
-                      platform_catalog = []
-                      for game in data:
-                          title = game.get("name") or game.get("title") or "Unknown"
-                          rom_file = game.get("url") or game.get("file") or ""
-                          if rom_file:
-                              platform_catalog.append({
-                                  "title": title,
-                                  "file": rom_file
-                              })
-                      
-                      # حفظ الملف مباشرة في الجذر الرئيسي بره أي مجلدات
-                      filename = f"{platform}.json"
-                      with open(filename, "w", encoding="utf-8") as f:
-                          json.dump(platform_catalog, f, ensure_ascii=False)
-                      print(f"Saved {len(platform_catalog)} games to {filename}")
-              except Exception as e:
-                  print(f"Error {platform}: {e}")
+          with open("games.json", "w", encoding="utf-8") as f:
+              json.dump(embed_games, f, ensure_ascii=False, indent=4)
+          print("Saved Embed games catalog successfully.")
           '
 
       - name: Commit and Push
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
-          git add nes.json snes.json segaMD.json arcade.json || true
-          git commit -m "Auto-update lightweight game catalogs in root" || exit 0
+          git add games.json || true
+          git commit -m "Update Embed games catalog" || exit 0
           git push
