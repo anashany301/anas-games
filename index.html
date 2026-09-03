@@ -137,8 +137,8 @@
         <div class="section-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
         <div id="featured-grid" class="games-grid"></div>
 
-        <!-- جميع ألعاب المكتبة بالكامل -->
-        <div class="section-title">🎮 جميع الألعاب المتاحة</div>
+        <!-- جميع الألعاب مرتبة بشكل عشوائي تماماً -->
+        <div class="section-title">🎲 جميع الألعاب (عشوائي)</div>
         <div id="all-games-grid" class="games-grid"></div>
     </div>
 
@@ -171,22 +171,28 @@
             .catch(err => console.error("Error:", err));
 
         function setupHomepage() {
-            // أول لعبتين ماريو وتلاتة سونيك للمميزين
             let marioGames = allGames.filter(g => g.title.toLowerCase().includes('mario')).slice(0, 2);
             let sonicGames = allGames.filter(g => g.title.toLowerCase().includes('sonic')).slice(0, 3);
             let featured = [...marioGames, ...sonicGames];
-            
             renderGrid(featured, 'featured-grid');
 
-            // عرض كل الألعاب في القائمة الرئيسية بالكامل دون أي نقص
-            renderGrid(allGames, 'all-games-grid');
+            // نسخة من القائمة ويتم خلطها عشوائياً بالكامل لجميع الـ 17 ألف لعبة
+            let shuffledAll = [...allGames];
+            shuffleArray(shuffledAll);
+            renderGrid(shuffledAll, 'all-games-grid');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
         }
 
         function renderGrid(games, elementId) {
             let grid = document.getElementById(elementId);
             grid.innerHTML = '';
             
-            // استخدام DocumentFragment لضمان السرعة الفائقة في عرض آلاف العناصر
             let fragment = document.createDocumentFragment();
             games.forEach((game) => {
                 let card = document.createElement('div');
