@@ -41,7 +41,6 @@
             outline: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        /* شبكة عرض الألعاب */
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -71,7 +70,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        /* شاشة تشغيل اللعبة (Overlay) */
         #player-overlay {
             display: none;
             position: fixed;
@@ -131,26 +129,26 @@
     <header>
         <h1>flamingo games 🕹️</h1>
         <p style="color: #94a3b8; margin-bottom: 20px;">إجمالي الألعاب المتاحة: <span id="count">0</span></p>
-        <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGames()">
+        <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة من بين آلاف الألعاب..." onkeyup="filterGames()">
     </header>
 
     <div id="main-content">
-        <!-- قسم الألعاب المميزة (2 ماريو + 3 سونيك) -->
+        <!-- ألعاب ماريو وسونيك المميزة في المقدمة -->
         <div class="section-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
         <div id="featured-grid" class="games-grid"></div>
 
-        <!-- قسم الألعاب العشوائية -->
-        <div class="section-title">🎲 ألعاب عشوائية مقترحة</div>
-        <div id="random-grid" class="games-grid"></div>
+        <!-- جميع ألعاب المكتبة بالكامل -->
+        <div class="section-title">🎮 جميع الألعاب المتاحة</div>
+        <div id="all-games-grid" class="games-grid"></div>
     </div>
 
-    <!-- شاشة البحث (تظهر عند البحث فقط) -->
+    <!-- شاشة نتائج البحث -->
     <div id="search-results-section" style="display:none;">
         <div class="section-title">🔍 نتائج البحث</div>
         <div id="search-grid" class="games-grid"></div>
     </div>
 
-    <!-- شاشة اللعب الكاملة -->
+    <!-- شاشة اللعب -->
     <div id="player-overlay">
         <div id="top-bar">
             <span id="game-name-title"></span>
@@ -173,43 +171,31 @@
             .catch(err => console.error("Error:", err));
 
         function setupHomepage() {
-            // استخراج أول لعبتين ماريو
+            // أول لعبتين ماريو وتلاتة سونيك للمميزين
             let marioGames = allGames.filter(g => g.title.toLowerCase().includes('mario')).slice(0, 2);
-            
-            // استخراج أول 3 ألعاب سونيك
             let sonicGames = allGames.filter(g => g.title.toLowerCase().includes('sonic')).slice(0, 3);
-            
-            // دمجهم في قسم المميزين
             let featured = [...marioGames, ...sonicGames];
+            
             renderGrid(featured, 'featured-grid');
 
-            // اختيار بقية الألعاب بشكل عشوائي (مثلا 20 لعبة عشوائية)
-            let featuredTitles = new Set(featured.map(g => g.title));
-            let remainingGames = allGames.filter(g => !featuredTitles.has(g.title));
-            
-            // خلط عشوائي للألعاب المتبقية
-            shuffleArray(remainingGames);
-            let randomSelection = remainingGames.slice(0, 24); // عرض 24 لعبة عشوائية في الصفحة الرئيسية
-            renderGrid(randomSelection, 'random-grid');
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
+            // عرض كل الألعاب في القائمة الرئيسية بالكامل دون أي نقص
+            renderGrid(allGames, 'all-games-grid');
         }
 
         function renderGrid(games, elementId) {
             let grid = document.getElementById(elementId);
             grid.innerHTML = '';
+            
+            // استخدام DocumentFragment لضمان السرعة الفائقة في عرض آلاف العناصر
+            let fragment = document.createDocumentFragment();
             games.forEach((game) => {
                 let card = document.createElement('div');
                 card.className = 'game-card';
                 card.innerHTML = `<div class="game-title">${game.title}</div>`;
                 card.onclick = () => openGame(game);
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
+            grid.appendChild(fragment);
         }
 
         function openGame(game) {
