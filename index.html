@@ -21,6 +21,14 @@
             color: #38bdf8;
             margin: 0 0 10px 0;
         }
+        .section-title {
+            max-width: 1400px;
+            margin: 20px auto 10px auto;
+            color: #38bdf8;
+            font-size: 20px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 5px;
+        }
         #search-box {
             width: 100%;
             max-width: 500px;
@@ -34,12 +42,12 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         /* شبكة عرض الألعاب */
-        #games-grid {
+        .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 15px;
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 0 auto 30px auto;
         }
         .game-card {
             background-color: #1e293b;
@@ -126,9 +134,20 @@
         <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGames()">
     </header>
 
-    <!-- شبكة الألعاب -->
-    <div id="games-grid">
-        <div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; margin-top: 50px;">جاري تحميل المكتبة...</div>
+    <div id="main-content">
+        <!-- قسم الألعاب المميزة (2 ماريو + 3 سونيك) -->
+        <div class="section-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
+        <div id="featured-grid" class="games-grid"></div>
+
+        <!-- قسم الألعاب العشوائية -->
+        <div class="section-title">🎲 ألعاب عشوائية مقترحة</div>
+        <div id="random-grid" class="games-grid"></div>
+    </div>
+
+    <!-- شاشة البحث (تظهر عند البحث فقط) -->
+    <div id="search-results-section" style="display:none;">
+        <div class="section-title">🔍 نتائج البحث</div>
+        <div id="search-grid" class="games-grid"></div>
     </div>
 
     <!-- شاشة اللعب الكاملة -->
@@ -137,9 +156,7 @@
             <span id="game-name-title"></span>
             <button class="exit-btn" onclick="closeGame()">✖ خروج للقائمة</button>
         </div>
-        <div id="iframe-wrapper">
-            <!-- الـ iframe هيتحط هنا -->
-        </div>
+        <div id="iframe-wrapper"></div>
     </div>
 
     <script>
@@ -150,23 +167,42 @@
             .then(data => {
                 allGames = data;
                 document.getElementById('count').innerText = data.length;
-                displayGames(data);
+                setupHomepage();
                 checkUrlParam();
             })
-            .catch(err => {
-                console.error("Error:", err);
-                document.getElementById('games-grid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">حدث خطأ أثناء تحميل الملفات!</div>';
-            });
+            .catch(err => console.error("Error:", err));
 
-        function displayGames(games) {
-            let grid = document.getElementById('games-grid');
-            grid.innerHTML = '';
+        function setupHomepage() {
+            // استخراج أول لعبتين ماريو
+            let marioGames = allGames.filter(g => g.title.toLowerCase().includes('mario')).slice(0, 2);
+            
+            // استخراج أول 3 ألعاب سونيك
+            let sonicGames = allGames.filter(g => g.title.toLowerCase().includes('sonic')).slice(0, 3);
+            
+            // دمجهم في قسم المميزين
+            let featured = [...marioGames, ...sonicGames];
+            renderGrid(featured, 'featured-grid');
 
-            if (games.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; margin-top: 50px;">لا توجد ألعاب مطابقة لبحثك</div>';
-                return;
+            // اختيار بقية الألعاب بشكل عشوائي (مثلا 20 لعبة عشوائية)
+            let featuredTitles = new Set(featured.map(g => g.title));
+            let remainingGames = allGames.filter(g => !featuredTitles.has(g.title));
+            
+            // خلط عشوائي للألعاب المتبقية
+            shuffleArray(remainingGames);
+            let randomSelection = remainingGames.slice(0, 24); // عرض 24 لعبة عشوائية في الصفحة الرئيسية
+            renderGrid(randomSelection, 'random-grid');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
+        }
 
+        function renderGrid(games, elementId) {
+            let grid = document.getElementById(elementId);
+            grid.innerHTML = '';
             games.forEach((game) => {
                 let card = document.createElement('div');
                 card.className = 'game-card';
@@ -177,7 +213,6 @@
         }
 
         function openGame(game) {
-            document.getElementById('game-name-titleinnerText', game.title); // Fallback
             document.getElementById('game-name-title').innerText = game.title;
             document.getElementById('iframe-wrapper').innerHTML = game.embed;
             document.getElementById('player-overlay').style.display = 'flex';
@@ -188,14 +223,26 @@
 
         function closeGame() {
             document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('iframe-wrapper').innerHTML = ''; // إيقاف اللعبة تماماً عند الخروج
+            document.getElementById('iframe-wrapper').innerHTML = '';
             window.history.pushState({}, '', window.location.pathname);
         }
 
         function filterGames() {
-            let query = document.getElementById('search-box').value.toLowerCase();
+            let query = document.getElementById('search-box').value.toLowerCase().trim();
+            let mainContent = document.getElementById('main-content');
+            let searchSection = document.getElementById('search-results-section');
+
+            if (query === '') {
+                mainContent.style.display = 'block';
+                searchSection.style.display = 'none';
+                return;
+            }
+
+            mainContent.style.display = 'none';
+            searchSection.style.display = 'block';
+
             let filtered = allGames.filter(g => g.title.toLowerCase().includes(query));
-            displayGames(filtered);
+            renderGrid(filtered, 'search-grid');
         }
 
         function checkUrlParam() {
