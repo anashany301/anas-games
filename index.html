@@ -8,173 +8,203 @@
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
+            background-color: #0b0f19;
             color: #f8fafc;
             margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-        /* الشريط الجانبي (القائمة) */
-        #sidebar {
-            width: 320px;
-            background-color: #1e293b;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #334155;
-        }
-        .header {
             padding: 20px;
-            background-color: #0f172a;
-            border-bottom: 1px solid #334155;
-            text-align: center;
         }
-        .header h2 {
-            margin: 0 0 10px 0;
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
             color: #38bdf8;
+            margin: 0 0 10px 0;
         }
         #search-box {
             width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #475569;
-            background-color: #0f172a;
+            max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 1px solid #334155;
+            background-color: #1e293b;
             color: #fff;
+            font-size: 16px;
             outline: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        #games-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
+        /* شبكة عرض الألعاب */
+        #games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .game-item {
-            padding: 12px 15px;
-            margin-bottom: 6px;
-            background-color: #334155;
-            border-radius: 6px;
+        .game-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
             cursor: pointer;
             transition: 0.2s;
-            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .game-card:hover {
+            background-color: #0284c7;
+            transform: translateY(-3px);
+            border-color: #38bdf8;
+        }
+        .game-title {
+            font-size: 15px;
+            font-weight: bold;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .game-item:hover {
-            background-color: #0284c7;
-            color: #fff;
-        }
-        /* منطقة عرض اللعبة */
-        #content {
-            flex: 1;
-            display: flex;
+        /* شاشة تشغيل اللعبة (Overlay) */
+        #player-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 15, 25, 0.95);
+            z-index: 1000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #0b0f19;
-            padding: 20px;
         }
-        #game-container {
+        #top-bar {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #game-name-title {
+            color: #38bdf8;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .exit-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .exit-btn:hover { background-color: #dc2626; }
+        #iframe-wrapper {
             width: 100%;
-            height: 100%;
+            height: 85vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .welcome-msg {
-            text-align: center;
-            color: #64748b;
-        }
-        .welcome-msg h1 { color: #cbd5e1; margin-bottom: 10px; }
-        /* تخصيص الـ iframe داخل العرض */
-        #game-container iframe {
+        #iframe-wrapper iframe {
             max-width: 100%;
             max-height: 100%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <div class="header">
-            <h2> flamingogames 🎮</h2>
-            <p style="margin: 0 0 12px 0; font-size: 13px; color: #94a3b8;">إجمالي الألعاب: <span id="count">0</span></p>
-            <input type="text" id="search-box" placeholder="ابحث عن لعبة..." onkeyup="filterGames()">
-        </div>
-        <div id="games-list">
-            <div style="text-align: center; color: #94a3b8; margin-top: 20px;">جاري تحميل القائمة...</div>
-        </div>
+    <header>
+        <h1>flamingo games 🕹️</h1>
+        <p style="color: #94a3b8; margin-bottom: 20px;">إجمالي الألعاب المتاحة: <span id="count">0</span></p>
+        <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGames()">
+    </header>
+
+    <!-- شبكة الألعاب -->
+    <div id="games-grid">
+        <div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; margin-top: 50px;">جاري تحميل المكتبة...</div>
     </div>
 
-    <div id="content">
-        <div id="game-container">
-            <div class="welcome-msg">
-                <h1>مرحباً بك في مكتبة ألعاب فلامينجو</h1>
-                <p>اختر لعبة من القائمة الجانبية أو ابحث عنها للبدء باللعب فوراً!</p>
-            </div>
+    <!-- شاشة اللعب الكاملة -->
+    <div id="player-overlay">
+        <div id="top-bar">
+            <span id="game-name-title"></span>
+            <button class="exit-btn" onclick="closeGame()">✖ خروج للقائمة</button>
+        </div>
+        <div id="iframe-wrapper">
+            <!-- الـ iframe هيتحط هنا -->
         </div>
     </div>
 
     <script>
         let allGames = [];
 
-        // جلب ملف flamingo.json من نفس المستودع
         fetch('flamingo.json')
             .then(res => res.json())
             .then(data => {
                 allGames = data;
                 document.getElementById('count').innerText = data.length;
                 displayGames(data);
-                checkUrlParam(); // لفتح اللعبة لو فيه رابط مباشر في المتصفح
+                checkUrlParam();
             })
             .catch(err => {
-                console.error("Error loading flamingo.json:", err);
-                document.getElementById('games-list').innerHTML = '<div style="color: #ef4444; text-align: center;">خطأ في تحميل ملف الألعاب!</div>';
+                console.error("Error:", err);
+                document.getElementById('games-grid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">حدث خطأ أثناء تحميل الملفات!</div>';
             });
 
         function displayGames(games) {
-            let listDiv = document.getElementById('games-list');
-            listDiv.innerHTML = '';
+            let grid = document.getElementById('games-grid');
+            grid.innerHTML = '';
 
             if (games.length === 0) {
-                listDiv.innerHTML = '<div style="text-align: center; color: #94a3b8; margin-top: 20px;">لا توجد نتائج مطابقة</div>';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; margin-top: 50px;">لا توجد ألعاب مطابقة لبحثك</div>';
                 return;
             }
 
             games.forEach((game) => {
-                let div = document.createElement('div');
-                div.className = 'game-item';
-                div.innerText = game.title;
-                div.title = game.title; // عرض الاسم كاملاً عند الوقوف عليه بالماوس
-                div.onclick = () => loadGame(game);
-                listDiv.appendChild(div);
+                let card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `<div class="game-title">${game.title}</div>`;
+                card.onclick = () => openGame(game);
+                grid.appendChild(card);
             });
         }
 
-        function loadGame(game) {
-            document.getElementById('game-container').innerHTML = game.embed;
-            
-            // تغيير رابط المتصفح ديناميكياً باسم اللعبة بدون إعادة تحميل الصفحة
+        function openGame(game) {
+            document.getElementById('game-name-titleinnerText', game.title); // Fallback
+            document.getElementById('game-name-title').innerText = game.title;
+            document.getElementById('iframe-wrapper').innerHTML = game.embed;
+            document.getElementById('player-overlay').style.display = 'flex';
+
             let slug = game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
             window.history.pushState({}, '', `?game=${slug}`);
         }
 
-        // خاصية البحث السريع في القائمة
+        function closeGame() {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('iframe-wrapper').innerHTML = ''; // إيقاف اللعبة تماماً عند الخروج
+            window.history.pushState({}, '', window.location.pathname);
+        }
+
         function filterGames() {
             let query = document.getElementById('search-box').value.toLowerCase();
             let filtered = allGames.filter(g => g.title.toLowerCase().includes(query));
             displayGames(filtered);
         }
 
-        // التحقق لو اليوزر فاتح برابط لعبة مباشر
         function checkUrlParam() {
             const params = new URLSearchParams(window.location.search);
             const gameQuery = params.get('game');
             if (gameQuery && allGames.length > 0) {
                 let found = allGames.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === gameQuery);
                 if (found) {
-                    loadGame(found);
+                    openGame(found);
                 }
             }
         }
