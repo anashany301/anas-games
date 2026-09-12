@@ -12,7 +12,7 @@
             color: #f8fafc;
             margin: 0;
             padding: 20px;
-            padding-bottom: 70px; /* مساحة للشريط السفلي للإعلان */
+            padding-bottom: 80px; /* مساحة فارغة لضمان عدم تغطية الشريط السفلي للألعاب */
         }
         header {
             text-align: center;
@@ -83,6 +83,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding-bottom: 60px; /* مساحة للشريط أثناء فتح اللعبة */
         }
         #top-bar {
             position: absolute;
@@ -112,7 +113,7 @@
         .exit-btn:hover { background-color: #dc2626; }
         #iframe-wrapper {
             width: 100%;
-            height: 85vh;
+            height: 80vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -134,22 +135,18 @@
     </header>
 
     <div id="main-content">
-        <!-- ألعاب مميزة -->
         <div class="section-title" id="txt-featured-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
         <div id="featured-grid" class="games-grid"></div>
 
-        <!-- جميع الألعاب -->
         <div class="section-title" id="txt-all-title">🎲 جميع الألعاب (عشوائي)</div>
         <div id="all-games-grid" class="games-grid"></div>
     </div>
 
-    <!-- شاشة نتائج البحث -->
     <div id="search-results-section" style="display:none;">
         <div class="section-title" id="txt-search-title">🔍 نتائج البحث</div>
         <div id="search-grid" class="games-grid"></div>
     </div>
 
-    <!-- شاشة اللعب -->
     <div id="player-overlay">
         <div id="top-bar">
             <span id="game-name-title"></span>
@@ -158,10 +155,14 @@
         <div id="iframe-wrapper"></div>
     </div>
 
+    <!-- حاوية الشريط الإعلاني السفلي الثابت -->
+    <div id="sticky-bottom-banner" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; z-index: 999999; background: #0f172a; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+        <script>(function(s){s.dataset.zone='11783836',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    </div>
+
     <script>
         let allGames = [];
 
-        // نصوص اللغتين العربية والإنجليزية
         const translations = {
             ar: {
                 title: "مكتبة ألعاب فلامينجو",
@@ -183,7 +184,6 @@
             }
         };
 
-        // فحص لغة متصفح الزائر وتطبيقها
         function applyLanguage() {
             const userLang = navigator.language || navigator.userLanguage;
             const isArabic = userLang.startsWith('ar');
@@ -290,8 +290,5 @@
             }
         }
     </script>
-
-    <!-- Monetag In-Page Push Banner Code -->
-    <script>(function(s){s.dataset.zone='11783836',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
