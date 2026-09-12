@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة ألعاب فلامينجو</title>
+    <title id="page-title">مكتبة ألعاب فلامينجو</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -12,6 +12,7 @@
             color: #f8fafc;
             margin: 0;
             padding: 20px;
+            padding-bottom: 70px; /* مساحة للشريط السفلي للإعلان */
         }
         header {
             text-align: center;
@@ -128,23 +129,23 @@
 
     <header>
         <h1>flamingo games 🕹️</h1>
-        <p style="color: #94a3b8; margin-bottom: 20px;">إجمالي الألعاب المتاحة: <span id="count">0</span></p>
-        <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة من بين آلاف الألعاب..." onkeyup="filterGames()">
+        <p style="color: #94a3b8; margin-bottom: 20px;"><span id="txt-count-prefix">إجمالي الألعاب المتاحة:</span> <span id="count">0</span></p>
+        <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGames()">
     </header>
 
     <div id="main-content">
-        <!-- ألعاب ماريو وسونيك المميزة في المقدمة -->
-        <div class="section-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
+        <!-- ألعاب مميزة -->
+        <div class="section-title" id="txt-featured-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
         <div id="featured-grid" class="games-grid"></div>
 
-        <!-- جميع الألعاب مرتبة بشكل عشوائي تماماً -->
-        <div class="section-title">🎲 جميع الألعاب (عشوائي)</div>
+        <!-- جميع الألعاب -->
+        <div class="section-title" id="txt-all-title">🎲 جميع الألعاب (عشوائي)</div>
         <div id="all-games-grid" class="games-grid"></div>
     </div>
 
     <!-- شاشة نتائج البحث -->
     <div id="search-results-section" style="display:none;">
-        <div class="section-title">🔍 نتائج البحث</div>
+        <div class="section-title" id="txt-search-title">🔍 نتائج البحث</div>
         <div id="search-grid" class="games-grid"></div>
     </div>
 
@@ -152,13 +153,55 @@
     <div id="player-overlay">
         <div id="top-bar">
             <span id="game-name-title"></span>
-            <button class="exit-btn" onclick="closeGame()">✖ خروج للقائمة</button>
+            <button class="exit-btn" id="txt-exit-btn" onclick="closeGame()">✖ خروج للقائمة</button>
         </div>
         <div id="iframe-wrapper"></div>
     </div>
 
     <script>
         let allGames = [];
+
+        // نصوص اللغتين العربية والإنجليزية
+        const translations = {
+            ar: {
+                title: "مكتبة ألعاب فلامينجو",
+                countPrefix: "إجمالي الألعاب المتاحة:",
+                searchPlaceholder: "ابحث عن لعبتك المفضلة من بين آلاف الألعاب...",
+                featuredTitle: "⭐ ألعاب مميزة (ماريو وسونيك)",
+                allTitle: "🎲 جميع الألعاب (عشوائي)",
+                searchTitle: "🔍 نتائج البحث",
+                exitBtn: "✖ خروج للقائمة"
+            },
+            en: {
+                title: "Flamingo Games Library",
+                countPrefix: "Total Games Available:",
+                searchPlaceholder: "Search for your favorite game among thousands...",
+                featuredTitle: "⭐ Featured Games (Mario & Sonic)",
+                allTitle: "🎲 All Games (Random)",
+                searchTitle: "🔍 Search Results",
+                exitBtn: "✖ Back to Menu"
+            }
+        };
+
+        // فحص لغة متصفح الزائر وتطبيقها
+        function applyLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            const isArabic = userLang.startsWith('ar');
+            const lang = isArabic ? 'ar' : 'en';
+
+            document.getElementById('html-root').dir = isArabic ? 'rtl' : 'ltr';
+            document.getElementById('html-root').lang = lang;
+
+            document.getElementById('page-title').innerText = translations[lang].title;
+            document.getElementById('txt-count-prefix').innerText = translations[lang].countPrefix;
+            document.getElementById('search-box').placeholder = translations[lang].searchPlaceholder;
+            document.getElementById('txt-featured-title').innerText = translations[lang].featuredTitle;
+            document.getElementById('txt-all-title').innerText = translations[lang].allTitle;
+            document.getElementById('txt-search-title').innerText = translations[lang].searchTitle;
+            document.getElementById('txt-exit-btn').innerText = translations[lang].exitBtn;
+        }
+
+        applyLanguage();
 
         fetch('flamingo.json')
             .then(res => res.json())
@@ -176,7 +219,6 @@
             let featured = [...marioGames, ...sonicGames];
             renderGrid(featured, 'featured-grid');
 
-            // نسخة من القائمة ويتم خلطها عشوائياً بالكامل لجميع الـ 17 ألف لعبة
             let shuffledAll = [...allGames];
             shuffleArray(shuffledAll);
             renderGrid(shuffledAll, 'all-games-grid');
@@ -248,5 +290,8 @@
             }
         }
     </script>
+
+    <!-- Monetag In-Page Push Banner Code -->
+    <script>(function(s){s.dataset.zone='11783836',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
