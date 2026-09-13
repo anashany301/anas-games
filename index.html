@@ -250,13 +250,13 @@
             document.getElementById('game-name-title').innerText = game.title;
             let wrapper = document.getElementById('iframe-wrapper');
 
-            // فتح اللعبة: إذا كانت نفس اللعبة المفتوحة سابقاً يتم إظهارها فقط دون إعادة تحميل الإطار
+            // إذا أُريد تشغيل لعبة جديدة مختلفة، يتم تحميل الإطار وإعطاؤه كامل صلاحيات التخزين
             if (activeGameTitle !== game.title) {
                 wrapper.innerHTML = game.embed;
                 let iframe = wrapper.querySelector('iframe');
                 if (iframe) {
-                    iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad');
-                    iframe.removeAttribute('sandbox'); // لفتح الصلاحيات بالكامل للتخزين
+                    iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad; storage-access');
+                    iframe.removeAttribute('sandbox'); // إزالة القيود ليعمل IndexedDB والحفظ التلقائي
                 }
                 activeGameTitle = game.title;
             }
@@ -268,7 +268,6 @@
         }
 
         function closeGame() {
-            // إخفاء الواجهة فقط بدلاً من حذف الـ iframe للحفاظ على وضع ومرحلة اللعبة شغالة
             document.getElementById('player-overlay').style.display = 'none';
             window.history.pushState({}, '', window.location.pathname);
         }
