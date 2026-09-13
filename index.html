@@ -159,7 +159,7 @@
 
     <script>
         let allGames = [];
-        let currentLoadedGame = null;
+        let activeGameTitle = null;
 
         const translations = {
             ar: {
@@ -169,8 +169,7 @@
                 featuredTitle: "⭐ ألعاب مميزة (ماريو وسونيك)",
                 allTitle: "🎲 جميع الألعاب (عشوائي)",
                 searchTitle: "🔍 نتائج البحث",
-                exitBtn: "✖ خروج للقائمة",
-                saveWarning: "هل قمت بعمل Save State داخل اللعبة؟\nاضغط 'إلغاء' للعودة وللحفظ من شاشة اللعبة، أو 'موافق' للخروج."
+                exitBtn: "✖ خروج للقائمة"
             },
             en: {
                 title: "Flamingo Games Library",
@@ -179,8 +178,7 @@
                 featuredTitle: "⭐ Featured Games (Mario & Sonic)",
                 allTitle: "🎲 All Games (Random)",
                 searchTitle: "🔍 Search Results",
-                exitBtn: "✖ Back to Menu",
-                saveWarning: "Did you use Save State in the game?\nClick 'Cancel' to go back and save, or 'OK' to exit."
+                exitBtn: "✖ Back to Menu"
             }
         };
 
@@ -252,34 +250,27 @@
             document.getElementById('game-name-title').innerText = game.title;
             let wrapper = document.getElementById('iframe-wrapper');
 
-            if (currentLoadedGame !== game.title) {
+            // فتح اللعبة: إذا كانت نفس اللعبة المفتوحة سابقاً يتم إظهارها فقط دون إعادة تحميل الإطار
+            if (activeGameTitle !== game.title) {
                 wrapper.innerHTML = game.embed;
                 let iframe = wrapper.querySelector('iframe');
                 if (iframe) {
                     iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad');
-                    iframe.removeAttribute('sandbox');
+                    iframe.removeAttribute('sandbox'); // لفتح الصلاحيات بالكامل للتخزين
                 }
-                currentLoadedGame = game.title;
+                activeGameTitle = game.title;
             }
 
             document.getElementById('player-overlay').style.display = 'flex';
 
             let slug = game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
             window.history.pushState({}, '', `?game=${slug}`);
-            localStorage.setItem('last_played_game', slug);
         }
 
         function closeGame() {
-            // إظهار تنبيه تأكيدي لمنح اللاعب فرصة لحفظ مستواه أولاً
-            let confirmExit = confirm(translations[currentLang].saveWarning);
-            
-            if (confirmExit) {
-                // الانتظار ثانية واحدة لإعطاء المحاكي فرصة لكتابة الملفات في ذاكرة المتصفح
-                setTimeout(() => {
-                    document.getElementById('player-overlay').style.display = 'none';
-                    window.history.pushState({}, '', window.location.pathname);
-                }, 1000);
-            }
+            // إخفاء الواجهة فقط بدلاً من حذف الـ iframe للحفاظ على وضع ومرحلة اللعبة شغالة
+            document.getElementById('player-overlay').style.display = 'none';
+            window.history.pushState({}, '', window.location.pathname);
         }
 
         function filterGames() {
