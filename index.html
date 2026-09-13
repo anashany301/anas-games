@@ -159,6 +159,7 @@
 
     <script>
         let allGames = [];
+        let currentLoadedGame = null;
 
         const translations = {
             ar: {
@@ -168,7 +169,8 @@
                 featuredTitle: "⭐ ألعاب مميزة (ماريو وسونيك)",
                 allTitle: "🎲 جميع الألعاب (عشوائي)",
                 searchTitle: "🔍 نتائج البحث",
-                exitBtn: "✖ خروج للقائمة"
+                exitBtn: "✖ خروج للقائمة",
+                saveWarning: "هل قمت بعمل Save State داخل اللعبة؟\nاضغط 'إلغاء' للعودة وللحفظ من شاشة اللعبة، أو 'موافق' للخروج."
             },
             en: {
                 title: "Flamingo Games Library",
@@ -177,25 +179,28 @@
                 featuredTitle: "⭐ Featured Games (Mario & Sonic)",
                 allTitle: "🎲 All Games (Random)",
                 searchTitle: "🔍 Search Results",
-                exitBtn: "✖ Back to Menu"
+                exitBtn: "✖ Back to Menu",
+                saveWarning: "Did you use Save State in the game?\nClick 'Cancel' to go back and save, or 'OK' to exit."
             }
         };
+
+        let currentLang = 'ar';
 
         function applyLanguage() {
             const userLang = navigator.language || navigator.userLanguage;
             const isArabic = userLang.startsWith('ar');
-            const lang = isArabic ? 'ar' : 'en';
+            currentLang = isArabic ? 'ar' : 'en';
 
             document.getElementById('html-root').dir = isArabic ? 'rtl' : 'ltr';
-            document.getElementById('html-root').lang = lang;
+            document.getElementById('html-root').lang = currentLang;
 
-            document.getElementById('page-title').innerText = translations[lang].title;
-            document.getElementById('txt-count-prefix').innerText = translations[lang].countPrefix;
-            document.getElementById('search-box').placeholder = translations[lang].searchPlaceholder;
-            document.getElementById('txt-featured-title').innerText = translations[lang].featuredTitle;
-            document.getElementById('txt-all-title').innerText = translations[lang].allTitle;
-            document.getElementById('txt-search-title').innerText = translations[lang].searchTitle;
-            document.getElementById('txt-exit-btn').innerText = translations[lang].exitBtn;
+            document.getElementById('page-title').innerText = translations[currentLang].title;
+            document.getElementById('txt-count-prefix').innerText = translations[currentLang].countPrefix;
+            document.getElementById('search-box').placeholder = translations[currentLang].searchPlaceholder;
+            document.getElementById('txt-featured-title').innerText = translations[currentLang].featuredTitle;
+            document.getElementById('txt-all-title').innerText = translations[currentLang].allTitle;
+            document.getElementById('txt-search-title').innerText = translations[currentLang].searchTitle;
+            document.getElementById('txt-exit-btn').innerText = translations[currentLang].exitBtn;
         }
 
         applyLanguage();
@@ -245,30 +250,36 @@
 
         function openGame(game) {
             document.getElementById('game-name-title').innerText = game.title;
-            
-            // حقن الـ Iframe مع السماح بصلاحيات الحفظ التلقائي في ذاكرة المتصفح
             let wrapper = document.getElementById('iframe-wrapper');
-            wrapper.innerHTML = game.embed;
-            
-            let iframe = wrapper.querySelector('iframe');
-            if (iframe) {
-                iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad');
-                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+
+            if (currentLoadedGame !== game.title) {
+                wrapper.innerHTML = game.embed;
+                let iframe = wrapper.querySelector('iframe');
+                if (iframe) {
+                    iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad');
+                    iframe.removeAttribute('sandbox');
+                }
+                currentLoadedGame = game.title;
             }
 
             document.getElementById('player-overlay').style.display = 'flex';
 
             let slug = game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
             window.history.pushState({}, '', `?game=${slug}`);
-            
-            // حفظ اسم اللعبة الأخيرة في ذاكرة الجهاز
             localStorage.setItem('last_played_game', slug);
         }
 
         function closeGame() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('iframe-wrapper').innerHTML = '';
-            window.history.pushState({}, '', window.location.pathname);
+            // إظهار تنبيه تأكيدي لمنح اللاعب فرصة لحفظ مستواه أولاً
+            let confirmExit = confirm(translations[currentLang].saveWarning);
+            
+            if (confirmExit) {
+                // الانتظار ثانية واحدة لإعطاء المحاكي فرصة لكتابة الملفات في ذاكرة المتصفح
+                setTimeout(() => {
+                    document.getElementById('player-overlay').style.display = 'none';
+                    window.history.pushState({}, '', window.location.pathname);
+                }, 1000);
+            }
         }
 
         function filterGames() {
