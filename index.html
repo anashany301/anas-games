@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anas Games - مكتبة الألعاب</title>
-  <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #121212; color: #fff; padding: 20px; text-align: center; }
@@ -18,28 +17,26 @@
     .btn { background: #ff4757; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
     .btn:hover { background: #ff6b81; }
 
-    /* Modal overlay */
+    /* Modal */
     #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-    #modal-content { width: 95%; max-width: 850px; height: 75vh; background: #000; border-radius: 8px; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; }
+    #modal-content { width: 95%; max-width: 850px; height: 75vh; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
     #modal-content iframe { width: 100%; height: 100%; border: none; }
     .close-btn { margin-top: 15px; background: #e74c3c; padding: 10px 30px; }
-    
-    /* Ad Screen inside Modal */
-    .ad-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; width: 100%; height: 100%; background: #181818; padding: 20px; }
-    .ad-timer { font-size: 18px; color: #ffbf00; font-weight: bold; }
+
+    /* Ad Container */
+    .ad-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #181818; }
+    .ad-timer { font-size: 18px; color: #ffbf00; margin-bottom: 15px; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <h1>مكتبة الألعاب (Flamingo)</h1>
-
   <input type="text" id="search" placeholder="ابحث عن لعبة..." onkeyup="filterGames()">
 
   <div class="grid" id="games-container">
     <p>جاري تحميل الألعاب...</p>
   </div>
 
-  <!-- النافذة المنبثقة -->
   <div id="modal">
     <div id="modal-content"></div>
     <button class="btn close-btn" onclick="closeGame()">إغلاق</button>
@@ -49,7 +46,6 @@
     let gamesData = [];
     let currentAdTimer = null;
 
-    // قراءة ملف flamingo.json
     async function fetchGames() {
       const container = document.getElementById('games-container');
       try {
@@ -58,17 +54,13 @@
         gamesData = await response.json();
         renderGames(gamesData);
       } catch (error) {
-        container.innerHTML = `<p style="color:#ff4757;">فشل تحميل الألعاب! تأكد من وجود ملف flamingo.json</p>`;
+        container.innerHTML = `<p style="color:#ff4757;">فشل تحميل الألعاب!</p>`;
       }
     }
 
     function renderGames(list) {
       const container = document.getElementById('games-container');
       container.innerHTML = '';
-      if (list.length === 0) {
-        container.innerHTML = '<p>لا توجد ألعاب مطابقة</p>';
-        return;
-      }
       list.forEach((game, index) => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -82,35 +74,37 @@
 
     function filterGames() {
       const query = document.getElementById('search').value.toLowerCase();
-      const filtered = gamesData.filter(g => g.title.toLowerCase().includes(query));
-      renderGames(filtered);
+      renderGames(gamesData.filter(g => g.title.toLowerCase().includes(query)));
     }
 
-    // فتح اللعبة مع عرض الإعلان أولاً
     function playGame(index) {
       const modal = document.getElementById('modal');
       const content = document.getElementById('modal-content');
       modal.style.display = 'flex';
 
-      let timeLeft = 5; // عدد ثواني عرض الإعلان قبل فتح اللعبة
+      let timeLeft = 5;
 
-      // بناء واجهة الإعلان داخل المودال
+      // إنشاء Ad Frame مستقل عبر srcdoc لتنفيذ سكريبت ExoClick بشكل صحيح
+      const adHtml = `
+        <!DOCTYPE html>
+        <html>
+        <body style="margin:0; background:#181818; display:flex; justify-content:center; align-items:center; height:100vh;">
+          <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"><\/script>
+          <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
+          <script>(AdProvider = window.AdProvider || []).push({"serve": {}});<\/script>
+        </body>
+        </html>
+      `;
+
       content.innerHTML = `
-        <div class="ad-screen">
-          <div class="ad-timer">جاري تحميل اللعبة... سينتهي الإعلان خلال <span id="timer">${timeLeft}</span> ثوانٍ</div>
-          <div id="ad-holder">
-            <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
-          </div>
-          <button id="skip-btn" class="btn" style="display:none;" onclick="startActualGame(${index})">تخطي وبدء اللعب الآن 🎮</button>
+        <div class="ad-wrapper">
+          <div class="ad-timer">جاري تحميل اللعبة... ستعمل خلال <span id="timer">${timeLeft}</span> ثوانٍ</div>
+          <iframe id="ad-frame" style="width:100%; height:300px; border:none;"></iframe>
         </div>
       `;
 
-      // تشغيل إعلان ExoClick
-      try {
-        (window.AdProvider = window.AdProvider || []).push({"serve": {}});
-      } catch(e) {}
+      document.getElementById('ad-frame').srcdoc = adHtml;
 
-      // عد تنازلي
       currentAdTimer = setInterval(() => {
         timeLeft--;
         const timerEl = document.getElementById('timer');
@@ -123,7 +117,6 @@
       }, 1000);
     }
 
-    // تشغيل iframe اللعبة بعد الإعلان
     function startActualGame(index) {
       if (currentAdTimer) clearInterval(currentAdTimer);
       const content = document.getElementById('modal-content');
