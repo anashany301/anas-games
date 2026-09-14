@@ -83,7 +83,7 @@
 
     <div class="container">
         <div id="games-container" class="games-grid">
-            <!-- سيتم تحميل الألعاب من ملف flamingo.json تلقائياً هنا -->
+            <p style="text-align:center; width:100%; grid-column: 1/-1;">جاري تحميل الألعاب...</p>
         </div>
     </div>
 
@@ -113,7 +113,6 @@
     <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
 
     <script>
-    // 1. تحديد لغة الجهاز وعرض العنوان المناسب (عربي أم أجنبي)
     const userLang = navigator.language || navigator.userLanguage;
     const isArabic = userLang.startsWith('ar');
 
@@ -130,7 +129,7 @@
         document.documentElement.lang = "en";
     }
 
-    // 2. قراءة الألعاب من ملف flamingo.json وعرضها
+    // قراءة البيانات والتوافق مع أي مسمى داخل flamingo.json
     fetch('flamingo.json')
         .then(response => response.json())
         .then(games => {
@@ -138,23 +137,32 @@
             container.innerHTML = '';
             
             games.forEach(game => {
+                // مرونة في قراءة الحقول المختلفة داخل JSON
+                const title = game.title || game.name || game.game_name || "Retro Game";
+                const gameUrl = game.url || game.link || game.iframe || "#";
+                const imageUrl = game.image || game.img || game.thumbnail || "https://via.placeholder.com/150/1e293b/ef4444?text=Game";
+
                 const btnText = isArabic ? "تشغيل اللعبة" : "Play Game";
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                card.onclick = () => playGameWithAd(game.url);
+                card.onclick = () => playGameWithAd(gameUrl);
                 
                 card.innerHTML = `
-                    <img src="${game.image || 'https://via.placeholder.com/150'}" alt="${game.title}">
-                    <h3>${game.title}</h3>
+                    <img src="${imageUrl}" alt="${title}">
+                    <h3>${title}</h3>
                     <button class="play-btn">${btnText}</button>
                 `;
                 container.appendChild(card);
             });
         })
-        .catch(err => console.error('Error loading flamingo.json:', err));
+        .catch(err => {
+            console.error('Error loading flamingo.json:', err);
+            document.getElementById('games-container').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">عذراً، تعذر تحميل الألعاب.</p>';
+        });
 
-    // 3. تشغيل إعلان الفيديو 5 ثوانٍ ثم فتح اللعبة
     function playGameWithAd(gameUrl) {
+        if (!gameUrl || gameUrl === "#") return;
+        
         const overlay = document.getElementById('video-ad-overlay');
         const timerText = document.getElementById('ad-timer');
         
