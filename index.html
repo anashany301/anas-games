@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">مكتبة ألعاب فلامينجو</title>
+    
+    <!-- ExoClick Verification Meta Tag (ضع كود التحقق الخاص بك هنا إن وجد) -->
+    
     <style>
         * { box-sizing: border-box; }
         body {
@@ -12,7 +15,7 @@
             color: #f8fafc;
             margin: 0;
             padding: 20px;
-            padding-bottom: 20px;
+            padding-bottom: 90px; /* مساحة لضمان عدم تغطية الإعلان السفلي للمحتوى */
         }
         header {
             text-align: center;
@@ -112,7 +115,7 @@
         .exit-btn:hover { background-color: #dc2626; }
         #iframe-wrapper {
             width: 100%;
-            height: 80vh;
+            height: 75vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -132,13 +135,27 @@
 
     <header>
         <h1>flamingo games 🕹️</h1>
-        <p style="color: #94a3b8; margin-bottom: 20px;"><span id="txt-count-prefix">إجمالي الألعاب المتاحة:</span> <span id="count">0</span></p>
+        <p style="color: #94a3b8; margin-bottom: 20px;"><span id="txt-count-prefix">إجمالي الألعاب المتاحة:</span> <span id="count">17000+</span></p>
         <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGames()">
     </header>
 
     <div id="main-content">
         <div class="section-title" id="txt-featured-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
-        <div id="featured-grid" class="games-grid"></div>
+        <div id="featured-grid" class="games-grid">
+            <!-- ألعاب أولية ثابته تظهر فوراً قبل تحميل الملف الـ JSON كامل -->
+            <div class="game-card" onclick="openGame({title:'Super Mario Bros', embed:'<iframe src=\'https://retrogame.cc/embed/41666-super-mario-bros.html\'></iframe>'})">
+                <div class="game-title">Super Mario Bros</div>
+            </div>
+            <div class="game-card" onclick="openGame({title:'Sonic The Hedgehog', embed:'<iframe src=\'https://retrogame.cc/embed/40608-sonic-the-hedgehog.html\'></iframe>'})">
+                <div class="game-title">Sonic The Hedgehog</div>
+            </div>
+            <div class="game-card" onclick="openGame({title:'Super Mario World', embed:'<iframe src=\'https://retrogame.cc/embed/41671-super-mario-world.html\'></iframe>'})">
+                <div class="game-title">Super Mario World</div>
+            </div>
+            <div class="game-card" onclick="openGame({title:'Sonic & Knuckles', embed:'<iframe src=\'https://retrogame.cc/embed/40605-sonic-knuckles.html\'></iframe>'})">
+                <div class="game-title">Sonic & Knuckles</div>
+            </div>
+        </div>
 
         <div class="section-title" id="txt-all-title">🎲 جميع الألعاب (عشوائي)</div>
         <div id="all-games-grid" class="games-grid"></div>
@@ -155,6 +172,16 @@
             <button class="exit-btn" id="txt-exit-btn" onclick="closeGame()">✖ خروج للقائمة</button>
         </div>
         <div id="iframe-wrapper"></div>
+        <div style="color: #facc15; font-size: 13px; margin-top: 8px; text-align: center;">
+            ⚠️ Note: Use the emulator's <b>Save State</b> option inside the game to save your progress!
+        </div>
+    </div>
+
+    <!-- ExoClick Sticky Banner Container -->
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; z-index: 99999; background: #0b0f19; text-align: center; padding: 4px 0; border-top: 1px solid #334155;">
+        <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
+        <ins class="eas6a97888e17" data-zoneid="6028846"></ins> 
+        <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
     </div>
 
     <script>
@@ -211,13 +238,13 @@
                 setupHomepage();
                 checkUrlParam();
             })
-            .catch(err => console.error("Error:", err));
+            .catch(err => console.error("Error loading JSON:", err));
 
         function setupHomepage() {
             let marioGames = allGames.filter(g => g.title.toLowerCase().includes('mario')).slice(0, 2);
             let sonicGames = allGames.filter(g => g.title.toLowerCase().includes('sonic')).slice(0, 3);
             let featured = [...marioGames, ...sonicGames];
-            renderGrid(featured, 'featured-grid');
+            if(featured.length > 0) renderGrid(featured, 'featured-grid');
 
             let shuffledAll = [...allGames];
             shuffleArray(shuffledAll);
@@ -250,13 +277,12 @@
             document.getElementById('game-name-title').innerText = game.title;
             let wrapper = document.getElementById('iframe-wrapper');
 
-            // إذا أُريد تشغيل لعبة جديدة مختلفة، يتم تحميل الإطار وإعطاؤه كامل صلاحيات التخزين
             if (activeGameTitle !== game.title) {
                 wrapper.innerHTML = game.embed;
                 let iframe = wrapper.querySelector('iframe');
                 if (iframe) {
-                    iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad; storage-access');
-                    iframe.removeAttribute('sandbox'); // إزالة القيود ليعمل IndexedDB والحفظ التلقائي
+                    iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad');
+                    iframe.removeAttribute('sandbox');
                 }
                 activeGameTitle = game.title;
             }
