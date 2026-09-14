@@ -4,14 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anas Games - مكتبة الألعاب</title>
-  
-  <!-- سكريبت ExoClick الإعلاني الرئيسي -->
-  <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
-  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #121212; color: #fff; padding: 20px; text-align: center; }
-    h1 { margin-bottom: 15px; color: #ff4757; }
+    h1 { margin-bottom: 20px; color: #ff4757; }
     #search { width: 100%; max-width: 500px; padding: 12px 20px; border-radius: 25px; border: 2px solid #ff4757; background: #1e1e1e; color: #fff; font-size: 16px; margin-bottom: 25px; outline: none; }
     
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -21,18 +17,11 @@
     .btn { background: #ff4757; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
     .btn:hover { background: #ff6b81; }
 
-    /* Modal */
+    /* النافذة المنبثقة للعبة */
     #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-    #modal-container { width: 95%; max-width: 850px; height: 85vh; background: #181818; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 10px; }
-    
-    /* مكان الإعلان المباشر داخل شاشة اللعبة */
-    .modal-ad-box { width: 100%; min-height: 100px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; background: #121212; border-radius: 6px; }
-    
-    /* مكان اللعبة */
-    #game-frame-box { width: 100%; flex-grow: 1; background: #000; border-radius: 6px; overflow: hidden; }
-    #game-frame-box iframe { width: 100%; height: 100%; border: none; }
-
-    .close-btn { margin-top: 10px; background: #e74c3c; padding: 8px 25px; }
+    #modal-content { width: 95%; max-width: 850px; height: 75vh; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
+    #modal-content iframe { width: 100%; height: 100%; border: none; }
+    .close-btn { margin-top: 15px; background: #e74c3c; padding: 10px 30px; }
   </style>
 </head>
 <body>
@@ -44,25 +33,16 @@
     <p>جاري تحميل الألعاب...</p>
   </div>
 
-  <!-- شاشة اللعب والواجهة المنبثقة -->
   <div id="modal">
-    <div id="modal-container">
-      
-      <!-- الإعلان ثابت هنا ويشتغل أوتوماتيك أول ما النافذة تفتح -->
-      <div class="modal-ad-box">
-        <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
-        <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
-      </div>
-
-      <!-- اللعبة بتفتح هنا على طول -->
-      <div id="game-frame-box"></div>
-
-      <button class="btn close-btn" onclick="closeGame()">إغلاق اللعبة</button>
-    </div>
+    <div id="modal-content"></div>
+    <button class="btn close-btn" onclick="closeGame()">إغلاق اللعبة</button>
   </div>
 
   <script>
     let gamesData = [];
+
+    // 🔗 رابط Monetag Direct Link الخاص بك
+    const monetagDirectLink = "https://omg10.com/4/11798311";
 
     async function fetchGames() {
       const container = document.getElementById('games-container');
@@ -95,21 +75,21 @@
       renderGames(gamesData.filter(g => g.title.toLowerCase().includes(query)));
     }
 
-    // فتح اللعبة مباشرة مع إظهار النافذة اللي فيها الإعلان
     function playGame(index) {
+      // 1. فتح الإعلان المباشر في تبويب جديد للحصول على الأرباح
+      window.open(monetagDirectLink, '_blank');
+
+      // 2. تشغيل اللعبة فوراً في النافذة الرئيسية
       const modal = document.getElementById('modal');
-      const gameBox = document.getElementById('game-frame-box');
-      
-      // فتح iframe اللعبة فورا
-      gameBox.innerHTML = gamesData[index].embed;
+      const content = document.getElementById('modal-content');
+      content.innerHTML = gamesData[index].embed;
       modal.style.display = 'flex';
     }
 
-    // إغلاق اللعبة
     function closeGame() {
       const modal = document.getElementById('modal');
-      const gameBox = document.getElementById('game-frame-box');
-      gameBox.innerHTML = '';
+      const content = document.getElementById('modal-content');
+      content.innerHTML = '';
       modal.style.display = 'none';
     }
 
