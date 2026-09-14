@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anas Games - مكتبة الألعاب</title>
+  
+  <!-- سكريبت ExoClick الإعلاني الرئيسي -->
+  <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #121212; color: #fff; padding: 20px; text-align: center; }
@@ -19,13 +23,16 @@
 
     /* Modal */
     #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-    #modal-content { width: 95%; max-width: 850px; height: 75vh; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
-    #modal-content iframe { width: 100%; height: 100%; border: none; }
-    .close-btn { margin-top: 15px; background: #e74c3c; padding: 10px 30px; }
+    #modal-container { width: 95%; max-width: 850px; height: 85vh; background: #181818; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+    
+    /* مكان الإعلان المباشر داخل شاشة اللعبة */
+    .modal-ad-box { width: 100%; min-height: 100px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; background: #121212; border-radius: 6px; }
+    
+    /* مكان اللعبة */
+    #game-frame-box { width: 100%; flex-grow: 1; background: #000; border-radius: 6px; overflow: hidden; }
+    #game-frame-box iframe { width: 100%; height: 100%; border: none; }
 
-    /* Ad Container */
-    .ad-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #181818; }
-    .ad-timer { font-size: 18px; color: #ffbf00; margin-bottom: 15px; font-weight: bold; }
+    .close-btn { margin-top: 10px; background: #e74c3c; padding: 8px 25px; }
   </style>
 </head>
 <body>
@@ -37,14 +44,25 @@
     <p>جاري تحميل الألعاب...</p>
   </div>
 
+  <!-- شاشة اللعب والواجهة المنبثقة -->
   <div id="modal">
-    <div id="modal-content"></div>
-    <button class="btn close-btn" onclick="closeGame()">إغلاق</button>
+    <div id="modal-container">
+      
+      <!-- الإعلان ثابت هنا ويشتغل أوتوماتيك أول ما النافذة تفتح -->
+      <div class="modal-ad-box">
+        <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
+        <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+      </div>
+
+      <!-- اللعبة بتفتح هنا على طول -->
+      <div id="game-frame-box"></div>
+
+      <button class="btn close-btn" onclick="closeGame()">إغلاق اللعبة</button>
+    </div>
   </div>
 
   <script>
     let gamesData = [];
-    let currentAdTimer = null;
 
     async function fetchGames() {
       const container = document.getElementById('games-container');
@@ -77,57 +95,21 @@
       renderGames(gamesData.filter(g => g.title.toLowerCase().includes(query)));
     }
 
+    // فتح اللعبة مباشرة مع إظهار النافذة اللي فيها الإعلان
     function playGame(index) {
       const modal = document.getElementById('modal');
-      const content = document.getElementById('modal-content');
+      const gameBox = document.getElementById('game-frame-box');
+      
+      // فتح iframe اللعبة فورا
+      gameBox.innerHTML = gamesData[index].embed;
       modal.style.display = 'flex';
-
-      let timeLeft = 5;
-
-      // إنشاء Ad Frame مستقل عبر srcdoc لتنفيذ سكريبت ExoClick بشكل صحيح
-      const adHtml = `
-        <!DOCTYPE html>
-        <html>
-        <body style="margin:0; background:#181818; display:flex; justify-content:center; align-items:center; height:100vh;">
-          <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"><\/script>
-          <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
-          <script>(AdProvider = window.AdProvider || []).push({"serve": {}});<\/script>
-        </body>
-        </html>
-      `;
-
-      content.innerHTML = `
-        <div class="ad-wrapper">
-          <div class="ad-timer">جاري تحميل اللعبة... ستعمل خلال <span id="timer">${timeLeft}</span> ثوانٍ</div>
-          <iframe id="ad-frame" style="width:100%; height:300px; border:none;"></iframe>
-        </div>
-      `;
-
-      document.getElementById('ad-frame').srcdoc = adHtml;
-
-      currentAdTimer = setInterval(() => {
-        timeLeft--;
-        const timerEl = document.getElementById('timer');
-        if (timerEl) timerEl.innerText = timeLeft;
-
-        if (timeLeft <= 0) {
-          clearInterval(currentAdTimer);
-          startActualGame(index);
-        }
-      }, 1000);
     }
 
-    function startActualGame(index) {
-      if (currentAdTimer) clearInterval(currentAdTimer);
-      const content = document.getElementById('modal-content');
-      content.innerHTML = gamesData[index].embed;
-    }
-
+    // إغلاق اللعبة
     function closeGame() {
-      if (currentAdTimer) clearInterval(currentAdTimer);
       const modal = document.getElementById('modal');
-      const content = document.getElementById('modal-content');
-      content.innerHTML = '';
+      const gameBox = document.getElementById('game-frame-box');
+      gameBox.innerHTML = '';
       modal.style.display = 'none';
     }
 
