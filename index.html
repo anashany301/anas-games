@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="html-root">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anas Games - مكتبة الألعاب</title>
+  <title id="page-title">Anas Games - مكتبة الألعاب</title>
+
+  <!-- meta verification for SEO -->
+  <meta name="google-site-verification" content="googlecae08424b" />
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #121212; color: #fff; padding: 20px; text-align: center; }
@@ -26,16 +30,16 @@
 </head>
 <body>
 
-  <h1>مكتبة الألعاب (Flamingo)</h1>
+  <h1 id="main-heading">مكتبة الألعاب (Flamingo)</h1>
   <input type="text" id="search" placeholder="ابحث عن لعبة..." onkeyup="filterGames()">
 
   <div class="grid" id="games-container">
-    <p>جاري تحميل الألعاب...</p>
+    <p id="loading-text">جاري تحميل الألعاب...</p>
   </div>
 
   <div id="modal">
     <div id="modal-content"></div>
-    <button class="btn close-btn" onclick="closeGame()">إغلاق اللعبة</button>
+    <button class="btn close-btn" id="close-btn" onclick="closeGame()">إغلاق اللعبة</button>
   </div>
 
   <script>
@@ -44,15 +48,55 @@
     // 🔗 رابط Monetag Direct Link الخاص بك
     const monetagDirectLink = "https://omg10.com/4/11798311";
 
+    // 🌍 قاموس اللغات للواجهة
+    const translations = {
+      ar: {
+        title: "Anas Games - مكتبة الألعاب",
+        heading: "مكتبة الألعاب (Flamingo)",
+        searchPlaceholder: "ابحث عن لعبة...",
+        loading: "جاري تحميل الألعاب...",
+        error: "فشل تحميل الألعاب!",
+        playBtn: "تشغيل اللعبة 🎮",
+        closeBtn: "إغلاق اللعبة",
+        dir: "rtl"
+      },
+      en: {
+        title: "Anas Games - Game Library",
+        heading: "Flamingo Game Library",
+        searchPlaceholder: "Search for a game...",
+        loading: "Loading games...",
+        error: "Failed to load games!",
+        playBtn: "Play Game 🎮",
+        closeBtn: "Close Game",
+        dir: "ltr"
+      }
+    };
+
+    // فحص لغة متصفح الزائر
+    const userLang = navigator.language || navigator.userLanguage;
+    const isArabic = userLang.startsWith('ar');
+    const lang = isArabic ? translations.ar : translations.en;
+
+    // تطبيق لغة الواجهة والاتجاه فور تحميل الصفحة
+    function applyLanguage() {
+      document.getElementById('html-root').lang = isArabic ? 'ar' : 'en';
+      document.getElementById('html-root').dir = lang.dir;
+      document.getElementById('page-title').innerText = lang.title;
+      document.getElementById('main-heading').innerText = lang.heading;
+      document.getElementById('search').placeholder = lang.searchPlaceholder;
+      document.getElementById('loading-text').innerText = lang.loading;
+      document.getElementById('close-btn').innerText = lang.closeBtn;
+    }
+
     async function fetchGames() {
       const container = document.getElementById('games-container');
       try {
         const response = await fetch('./flamingo.json');
-        if (!response.ok) throw new Error('لم يتم العثور على الملف');
+        if (!response.ok) throw new Error('File not found');
         gamesData = await response.json();
         renderGames(gamesData);
       } catch (error) {
-        container.innerHTML = `<p style="color:#ff4757;">فشل تحميل الألعاب!</p>`;
+        container.innerHTML = `<p style="color:#ff4757;">${lang.error}</p>`;
       }
     }
 
@@ -64,7 +108,7 @@
         card.className = 'card';
         card.innerHTML = `
           <h3>${game.title}</h3>
-          <button class="btn" onclick="playGame(${index})">تشغيل اللعبة 🎮</button>
+          <button class="btn" onclick="playGame(${index})">${lang.playBtn}</button>
         `;
         container.appendChild(card);
       });
@@ -76,10 +120,7 @@
     }
 
     function playGame(index) {
-      // 1. فتح الإعلان المباشر في تبويب جديد للحصول على الأرباح
       window.open(monetagDirectLink, '_blank');
-
-      // 2. تشغيل اللعبة فوراً في النافذة الرئيسية
       const modal = document.getElementById('modal');
       const content = document.getElementById('modal-content');
       content.innerHTML = gamesData[index].embed;
@@ -93,6 +134,8 @@
       modal.style.display = 'none';
     }
 
+    // تشغيل اللغة والتحميل عند البداية
+    applyLanguage();
     fetchGames();
   </script>
 </body>
