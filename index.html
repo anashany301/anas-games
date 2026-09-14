@@ -57,7 +57,7 @@
             height: 90px;
             object-fit: cover;
             border-radius: 6px;
-            background-color: #0f172a;
+            background-color: #1e293b;
         }
         .game-card h3 {
             font-size: 13px;
@@ -79,7 +79,6 @@
             width: 100%;
             cursor: pointer;
         }
-        /* تصميم زر التقليب (Pagination) */
         .pagination {
             display: flex;
             justify-content: center;
@@ -118,7 +117,6 @@
             <p style="text-align:center; grid-column: 1/-1;">جاري تحميل الألعاب...</p>
         </div>
 
-        <!-- أزرار التقليب الصفحات -->
         <div class="pagination">
             <button id="prev-btn" class="page-btn" onclick="changePage(-1)">السابق / Prev</button>
             <span id="page-info">1</span>
@@ -147,14 +145,13 @@
         </div>
     </div>
 
-    <!-- سكريبت ExoClick -->
     <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
     <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
 
     <script>
     let allGames = [];
     let currentPage = 1;
-    const gamesPerPage = 24; // عرض 24 لعبة في كل صفحة
+    const gamesPerPage = 24;
 
     const userLang = navigator.language || navigator.userLanguage;
     const isArabic = userLang.startsWith('ar');
@@ -172,7 +169,6 @@
         document.documentElement.lang = "en";
     }
 
-    // جلب ملف JSON
     fetch('flamingo.json')
         .then(response => response.json())
         .then(data => {
@@ -184,7 +180,6 @@
             document.getElementById('games-container').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">عذراً، تعذر تحميل الألعاب.</p>';
         });
 
-    // عرض الألعاب الخاصة بالصفحة الحالية
     function renderPage(page) {
         const container = document.getElementById('games-container');
         container.innerHTML = '';
@@ -194,50 +189,55 @@
         const pageGames = allGames.slice(startIndex, endIndex);
 
         pageGames.forEach(game => {
+            // قراءة اسم اللعبة
             const title = game.title || game.name || game.game_name || "Retro Game";
             
-            // قراءة الرابط بجميع الاحتمالات الممكنة في ملف JSON
-            let rawUrl = game.url || game.link || game.iframe || game.file || game.path || game.id || "";
+            // قراءة الرابط بجميع الأسماء المحتملة
+            let targetUrl = game.url || game.link || game.iframe || game.embed || game.file || game.path || game.id || "";
             
-            // إذا كان المفتاح مجرد اسم اللعبة بدون html أو رابط
-            let gameUrl = rawUrl;
-            if (rawUrl && !rawUrl.startsWith('http') && !rawUrl.endsWith('.html')) {
-                gameUrl = rawUrl + '.html';
+            // معالجة صيغة الرابط
+            if (targetUrl && typeof targetUrl === 'string') {
+                targetUrl = targetUrl.trim();
+                if (!targetUrl.startsWith('http') && !targetUrl.endsWith('.html') && !targetUrl.includes('?')) {
+                    targetUrl = targetUrl + '.html';
+                }
             }
 
-            const imageUrl = game.image || game.img || game.thumbnail || "https://via.placeholder.com/150/1e293b/ef4444?text=Retro+Game";
+            // التعامل مع الصور غير المتاحة
+            const fallbackImage = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="90" viewBox="0 0 150 90"><rect width="100%" height="100%" fill="%231e293b"/><text x="50%" y="50%" fill="%23ef4444" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14">🎮 Game</text></svg>';
+            const imageUrl = game.image || game.img || game.thumbnail || fallbackImage;
+
             const btnText = isArabic ? "تشغيل اللعبة" : "Play Game";
 
             const card = document.createElement('div');
-                card.className = 'game-card';
-                card.onclick = () => playGameWithAd(gameUrl);
-                
-                card.innerHTML = `
-                    <img src="${imageUrl}" alt="${title}">
-                    <h3>${title}</h3>
-                    <button class="play-btn">${btnText}</button>
-                `;
-                container.appendChild(card);
+            card.className = 'game-card';
+            card.onclick = () => playGameWithAd(targetUrl);
+            
+            card.innerHTML = `
+                <img src="${imageUrl}" onerror="this.src='${fallbackImage}'" alt="${title}">
+                <h3>${title}</h3>
+                <button class="play-btn">${btnText}</button>
+            `;
+            container.appendChild(card);
         });
 
-        // تحديث أزرار التقليب
         document.getElementById('page-info').innerText = `${page} / ${Math.ceil(allGames.length / gamesPerPage)}`;
         document.getElementById('prev-btn').disabled = (page === 1);
         document.getElementById('next-btn').disabled = (endIndex >= allGames.length);
 
-        // التمرير لأعلى الصفحة عند التغيير
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // تغيير الصفحة
     function changePage(step) {
         currentPage += step;
         renderPage(currentPage);
     }
 
-    // تشغيل الإعلانات عند ضغط الزر
     function playGameWithAd(gameUrl) {
-        if (!gameUrl) return;
+        if (!gameUrl) {
+            alert(isArabic ? "رابط اللعبة غير متاح حالياً" : "Game link not available");
+            return;
+        }
         
         const overlay = document.getElementById('video-ad-overlay');
         const timerText = document.getElementById('ad-timer');
