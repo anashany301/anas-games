@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anas Games - منصة الألعاب</title>
+    <title id="site-title">مكتبة ألعاب فلامينجو</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,57 +14,60 @@
             background-color: #0f172a;
             color: #ffffff;
             font-family: system-ui, -apple-system, sans-serif;
-            padding-bottom: 20px;
+            padding-bottom: 30px;
         }
         header {
             background: #1e293b;
             padding: 15px;
             text-align: center;
-            border-bottom: 2px solid #38bdf8;
+            border-bottom: 2px solid #ef4444;
         }
         h1 {
             font-size: 22px;
-            color: #38bdf8;
+            color: #ef4444;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 20px auto;
             padding: 0 10px;
         }
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
         }
         .game-card {
             background: #1e293b;
             border: 1px solid #334155;
             border-radius: 8px;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
             cursor: pointer;
             transition: transform 0.2s;
         }
         .game-card:hover {
             transform: translateY(-3px);
-            border-color: #38bdf8;
+            border-color: #ef4444;
         }
         .game-card img {
             width: 100%;
-            height: 100px;
+            height: 90px;
             object-fit: cover;
             border-radius: 6px;
         }
         .game-card h3 {
-            font-size: 14px;
-            margin: 8px 0;
+            font-size: 13px;
+            margin: 6px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .play-btn {
-            background: #0284c7;
+            background: #ef4444;
             color: #fff;
             border: none;
-            padding: 6px 12px;
-            font-size: 12px;
+            padding: 5px 10px;
+            font-size: 11px;
             font-weight: bold;
             border-radius: 4px;
             width: 100%;
@@ -75,28 +78,16 @@
 <body>
 
     <header>
-        <h1>Anas Games 🎮</h1>
+        <h1 id="header-title">🦩 مكتبة ألعاب فلامينجو</h1>
     </header>
 
     <div class="container">
-        <div class="games-grid">
-            <!-- لعبة ماريو -->
-            <div class="game-card" onclick="playGameWithAd('game-mario.html')">
-                <img src="https://via.placeholder.com/150/ff0000/ffffff?text=Super+Mario" alt="Super Mario">
-                <h3>Super Mario</h3>
-                <button class="play-btn">تشغيل اللعبة</button>
-            </div>
-            
-            <!-- لعبة سونيك -->
-            <div class="game-card" onclick="playGameWithAd('game-sonic.html')">
-                <img src="https://via.placeholder.com/150/0000ff/ffffff?text=Sonic" alt="Sonic">
-                <h3>Sonic Classic</h3>
-                <button class="play-btn">تشغيل اللعبة</button>
-            </div>
+        <div id="games-container" class="games-grid">
+            <!-- سيتم تحميل الألعاب من ملف flamingo.json تلقائياً هنا -->
         </div>
     </div>
 
-    <!-- شاشة إعلان الفيديو قبل فتح اللعبة (ExoClick Video Only) -->
+    <!-- شاشة إعلان الفيديو (ExoClick Video) -->
     <div id="video-ad-overlay" style="
         display: none; 
         position: fixed; 
@@ -110,21 +101,59 @@
         justify-content: center;
     ">
         <div style="text-align: center; color: white; width: 90%; max-width: 400px;">
-            <!-- كود ExoClick Outstream Video -->
             <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
-            
             <div style="margin-top: 15px;">
-                <span id="ad-timer" style="font-size: 14px; font-weight: bold; color: #38bdf8;">ستبدأ اللعبة خلال 5 ثوانٍ...</span>
+                <span id="ad-timer" style="font-size: 14px; font-weight: bold; color: #ef4444;">ستبدأ اللعبة خلال 5 ثوانٍ...</span>
             </div>
         </div>
     </div>
 
-    <!-- ملفات سكريبت ExoClick والتحكم -->
+    <!-- سكريبت إعلانات ExoClick -->
     <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
     <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
 
     <script>
-    // تشغيل إعلان الفيديو والعداد عند الضغط على أي لعبة
+    // 1. تحديد لغة الجهاز وعرض العنوان المناسب (عربي أم أجنبي)
+    const userLang = navigator.language || navigator.userLanguage;
+    const isArabic = userLang.startsWith('ar');
+
+    const titleEl = document.getElementById('header-title');
+    const docTitle = document.getElementById('site-title');
+
+    if (isArabic) {
+        titleEl.innerText = "🦩 مكتبة ألعاب فلامينجو";
+        docTitle.innerText = "مكتبة ألعاب فلامينجو";
+    } else {
+        titleEl.innerText = "🦩 Flamingo Games";
+        docTitle.innerText = "Flamingo Games";
+        document.documentElement.dir = "ltr";
+        document.documentElement.lang = "en";
+    }
+
+    // 2. قراءة الألعاب من ملف flamingo.json وعرضها
+    fetch('flamingo.json')
+        .then(response => response.json())
+        .then(games => {
+            const container = document.getElementById('games-container');
+            container.innerHTML = '';
+            
+            games.forEach(game => {
+                const btnText = isArabic ? "تشغيل اللعبة" : "Play Game";
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => playGameWithAd(game.url);
+                
+                card.innerHTML = `
+                    <img src="${game.image || 'https://via.placeholder.com/150'}" alt="${game.title}">
+                    <h3>${game.title}</h3>
+                    <button class="play-btn">${btnText}</button>
+                `;
+                container.appendChild(card);
+            });
+        })
+        .catch(err => console.error('Error loading flamingo.json:', err));
+
+    // 3. تشغيل إعلان الفيديو 5 ثوانٍ ثم فتح اللعبة
     function playGameWithAd(gameUrl) {
         const overlay = document.getElementById('video-ad-overlay');
         const timerText = document.getElementById('ad-timer');
@@ -135,7 +164,9 @@
         const interval = setInterval(() => {
             secondsLeft--;
             if (secondsLeft > 0) {
-                timerText.innerText = "ستبدأ اللعبة خلال " + secondsLeft + " ثوانٍ...";
+                timerText.innerText = isArabic ? 
+                    `ستبدأ اللعبة خلال ${secondsLeft} ثوانٍ...` : 
+                    `Game starts in ${secondsLeft}s...`;
             } else {
                 clearInterval(interval);
                 overlay.style.display = 'none';
