@@ -1,331 +1,148 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-root">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">مكتبة ألعاب فلامينجو</title>
-    
-    <!-- ExoClick Verification Meta Tag (ضع كود التحقق الخاص بك هنا إن وجد) -->
-    
+    <title>Anas Games - منصة الألعاب</title>
     <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0b0f19;
-            color: #f8fafc;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            padding-bottom: 90px; /* مساحة لضمان عدم تغطية الإعلان السفلي للمحتوى */
+            padding: 0;
+        }
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding-bottom: 20px;
         }
         header {
+            background: #1e293b;
+            padding: 15px;
             text-align: center;
-            margin-bottom: 30px;
+            border-bottom: 2px solid #38bdf8;
         }
-        header h1 {
+        h1 {
+            font-size: 22px;
             color: #38bdf8;
-            margin: 0 0 10px 0;
         }
-        .section-title {
-            max-width: 1400px;
-            margin: 20px auto 10px auto;
-            color: #38bdf8;
-            font-size: 20px;
-            border-bottom: 2px solid #1e293b;
-            padding-bottom: 5px;
-        }
-        #search-box {
-            width: 100%;
-            max-width: 500px;
-            padding: 12px 20px;
-            border-radius: 30px;
-            border: 1px solid #334155;
-            background-color: #1e293b;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 10px;
         }
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            max-width: 1400px;
-            margin: 0 auto 30px auto;
         }
         .game-card {
-            background-color: #1e293b;
+            background: #1e293b;
             border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: 8px;
+            padding: 10px;
             text-align: center;
             cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
         }
         .game-card:hover {
-            background-color: #0284c7;
             transform: translateY(-3px);
             border-color: #38bdf8;
         }
-        .game-title {
-            font-size: 15px;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        #player-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        .game-card img {
             width: 100%;
-            height: 100%;
-            background-color: rgba(11, 15, 25, 0.95);
-            z-index: 1000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        #top-bar {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #game-name-title {
-            color: #38bdf8;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .exit-btn {
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+            height: 100px;
+            object-fit: cover;
             border-radius: 6px;
-            cursor: pointer;
+        }
+        .game-card h3 {
             font-size: 14px;
-            font-weight: bold;
-            transition: 0.2s;
+            margin: 8px 0;
         }
-        .exit-btn:hover { background-color: #dc2626; }
-        #iframe-wrapper {
-            width: 100%;
-            height: 75vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #iframe-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            max-height: 100%;
+        .play-btn {
+            background: #0284c7;
+            color: #fff;
             border: none;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>flamingo games 🕹️</h1>
-        <p style="color: #94a3b8; margin-bottom: 20px;"><span id="txt-count-prefix">إجمالي الألعاب المتاحة:</span> <span id="count">17000+</span></p>
-        <input type="text" id="search-box" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGames()">
+        <h1>Anas Games 🎮</h1>
     </header>
 
-    <div id="main-content">
-        <div class="section-title" id="txt-featured-title">⭐ ألعاب مميزة (ماريو وسونيك)</div>
-        <div id="featured-grid" class="games-grid">
-            <!-- ألعاب أولية ثابته تظهر فوراً قبل تحميل الملف الـ JSON كامل -->
-            <div class="game-card" onclick="openGame({title:'Super Mario Bros', embed:'<iframe src=\'https://retrogame.cc/embed/41666-super-mario-bros.html\'></iframe>'})">
-                <div class="game-title">Super Mario Bros</div>
+    <div class="container">
+        <div class="games-grid">
+            <!-- لعبة ماريو -->
+            <div class="game-card" onclick="playGameWithAd('game-mario.html')">
+                <img src="https://via.placeholder.com/150/ff0000/ffffff?text=Super+Mario" alt="Super Mario">
+                <h3>Super Mario</h3>
+                <button class="play-btn">تشغيل اللعبة</button>
             </div>
-            <div class="game-card" onclick="openGame({title:'Sonic The Hedgehog', embed:'<iframe src=\'https://retrogame.cc/embed/40608-sonic-the-hedgehog.html\'></iframe>'})">
-                <div class="game-title">Sonic The Hedgehog</div>
+            
+            <!-- لعبة سونيك -->
+            <div class="game-card" onclick="playGameWithAd('game-sonic.html')">
+                <img src="https://via.placeholder.com/150/0000ff/ffffff?text=Sonic" alt="Sonic">
+                <h3>Sonic Classic</h3>
+                <button class="play-btn">تشغيل اللعبة</button>
             </div>
-            <div class="game-card" onclick="openGame({title:'Super Mario World', embed:'<iframe src=\'https://retrogame.cc/embed/41671-super-mario-world.html\'></iframe>'})">
-                <div class="game-title">Super Mario World</div>
-            </div>
-            <div class="game-card" onclick="openGame({title:'Sonic & Knuckles', embed:'<iframe src=\'https://retrogame.cc/embed/40605-sonic-knuckles.html\'></iframe>'})">
-                <div class="game-title">Sonic & Knuckles</div>
-            </div>
-        </div>
-
-        <div class="section-title" id="txt-all-title">🎲 جميع الألعاب (عشوائي)</div>
-        <div id="all-games-grid" class="games-grid"></div>
-    </div>
-
-    <div id="search-results-section" style="display:none;">
-        <div class="section-title" id="txt-search-title">🔍 نتائج البحث</div>
-        <div id="search-grid" class="games-grid"></div>
-    </div>
-
-    <div id="player-overlay">
-        <div id="top-bar">
-            <span id="game-name-title"></span>
-            <button class="exit-btn" id="txt-exit-btn" onclick="closeGame()">✖ خروج للقائمة</button>
-        </div>
-        <div id="iframe-wrapper"></div>
-        <div style="color: #facc15; font-size: 13px; margin-top: 8px; text-align: center;">
-            ⚠️ Note: Use the emulator's <b>Save State</b> option inside the game to save your progress!
         </div>
     </div>
 
-    <!-- ExoClick Sticky Banner Container -->
-    <div style="position: fixed; bottom: 0; left: 0; width: 100%; z-index: 99999; background: #0b0f19; text-align: center; padding: 4px 0; border-top: 1px solid #334155;">
-        <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
-        <ins class="eas6a97888e17" data-zoneid="6028846"></ins> 
-        <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+    <!-- شاشة إعلان الفيديو قبل فتح اللعبة (ExoClick Video Only) -->
+    <div id="video-ad-overlay" style="
+        display: none; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background: rgba(0, 0, 0, 0.95); 
+        z-index: 999999; 
+        align-items: center; 
+        justify-content: center;
+    ">
+        <div style="text-align: center; color: white; width: 90%; max-width: 400px;">
+            <!-- كود ExoClick Outstream Video -->
+            <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
+            
+            <div style="margin-top: 15px;">
+                <span id="ad-timer" style="font-size: 14px; font-weight: bold; color: #38bdf8;">ستبدأ اللعبة خلال 5 ثوانٍ...</span>
+            </div>
+        </div>
     </div>
+
+    <!-- ملفات سكريبت ExoClick والتحكم -->
+    <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+    <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
 
     <script>
-        let allGames = [];
-        let activeGameTitle = null;
-
-        const translations = {
-            ar: {
-                title: "مكتبة ألعاب فلامينجو",
-                countPrefix: "إجمالي الألعاب المتاحة:",
-                searchPlaceholder: "ابحث عن لعبتك المفضلة من بين آلاف الألعاب...",
-                featuredTitle: "⭐ ألعاب مميزة (ماريو وسونيك)",
-                allTitle: "🎲 جميع الألعاب (عشوائي)",
-                searchTitle: "🔍 نتائج البحث",
-                exitBtn: "✖ خروج للقائمة"
-            },
-            en: {
-                title: "Flamingo Games Library",
-                countPrefix: "Total Games Available:",
-                searchPlaceholder: "Search for your favorite game among thousands...",
-                featuredTitle: "⭐ Featured Games (Mario & Sonic)",
-                allTitle: "🎲 All Games (Random)",
-                searchTitle: "🔍 Search Results",
-                exitBtn: "✖ Back to Menu"
+    // تشغيل إعلان الفيديو والعداد عند الضغط على أي لعبة
+    function playGameWithAd(gameUrl) {
+        const overlay = document.getElementById('video-ad-overlay');
+        const timerText = document.getElementById('ad-timer');
+        
+        overlay.style.display = 'flex';
+        let secondsLeft = 5;
+        
+        const interval = setInterval(() => {
+            secondsLeft--;
+            if (secondsLeft > 0) {
+                timerText.innerText = "ستبدأ اللعبة خلال " + secondsLeft + " ثوانٍ...";
+            } else {
+                clearInterval(interval);
+                overlay.style.display = 'none';
+                window.location.href = gameUrl;
             }
-        };
-
-        let currentLang = 'ar';
-
-        function applyLanguage() {
-            const userLang = navigator.language || navigator.userLanguage;
-            const isArabic = userLang.startsWith('ar');
-            currentLang = isArabic ? 'ar' : 'en';
-
-            document.getElementById('html-root').dir = isArabic ? 'rtl' : 'ltr';
-            document.getElementById('html-root').lang = currentLang;
-
-            document.getElementById('page-title').innerText = translations[currentLang].title;
-            document.getElementById('txt-count-prefix').innerText = translations[currentLang].countPrefix;
-            document.getElementById('search-box').placeholder = translations[currentLang].searchPlaceholder;
-            document.getElementById('txt-featured-title').innerText = translations[currentLang].featuredTitle;
-            document.getElementById('txt-all-title').innerText = translations[currentLang].allTitle;
-            document.getElementById('txt-search-title').innerText = translations[currentLang].searchTitle;
-            document.getElementById('txt-exit-btn').innerText = translations[currentLang].exitBtn;
-        }
-
-        applyLanguage();
-
-        fetch('flamingo.json')
-            .then(res => res.json())
-            .then(data => {
-                allGames = data;
-                document.getElementById('count').innerText = data.length;
-                setupHomepage();
-                checkUrlParam();
-            })
-            .catch(err => console.error("Error loading JSON:", err));
-
-        function setupHomepage() {
-            let marioGames = allGames.filter(g => g.title.toLowerCase().includes('mario')).slice(0, 2);
-            let sonicGames = allGames.filter(g => g.title.toLowerCase().includes('sonic')).slice(0, 3);
-            let featured = [...marioGames, ...sonicGames];
-            if(featured.length > 0) renderGrid(featured, 'featured-grid');
-
-            let shuffledAll = [...allGames];
-            shuffleArray(shuffledAll);
-            renderGrid(shuffledAll, 'all-games-grid');
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function renderGrid(games, elementId) {
-            let grid = document.getElementById(elementId);
-            grid.innerHTML = '';
-            
-            let fragment = document.createDocumentFragment();
-            games.forEach((game) => {
-                let card = document.createElement('div');
-                card.className = 'game-card';
-                card.innerHTML = `<div class="game-title">${game.title}</div>`;
-                card.onclick = () => openGame(game);
-                fragment.appendChild(card);
-            });
-            grid.appendChild(fragment);
-        }
-
-        function openGame(game) {
-            document.getElementById('game-name-title').innerText = game.title;
-            let wrapper = document.getElementById('iframe-wrapper');
-
-            if (activeGameTitle !== game.title) {
-                wrapper.innerHTML = game.embed;
-                let iframe = wrapper.querySelector('iframe');
-                if (iframe) {
-                    iframe.setAttribute('allow', 'autoplay; fullscreen; keyboard; gamepad');
-                    iframe.removeAttribute('sandbox');
-                }
-                activeGameTitle = game.title;
-            }
-
-            document.getElementById('player-overlay').style.display = 'flex';
-
-            let slug = game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            window.history.pushState({}, '', `?game=${slug}`);
-        }
-
-        function closeGame() {
-            document.getElementById('player-overlay').style.display = 'none';
-            window.history.pushState({}, '', window.location.pathname);
-        }
-
-        function filterGames() {
-            let query = document.getElementById('search-box').value.toLowerCase().trim();
-            let mainContent = document.getElementById('main-content');
-            let searchSection = document.getElementById('search-results-section');
-
-            if (query === '') {
-                mainContent.style.display = 'block';
-                searchSection.style.display = 'none';
-                return;
-            }
-
-            mainContent.style.display = 'none';
-            searchSection.style.display = 'block';
-
-            let filtered = allGames.filter(g => g.title.toLowerCase().includes(query));
-            renderGrid(filtered, 'search-grid');
-        }
-
-        function checkUrlParam() {
-            const params = new URLSearchParams(window.location.search);
-            const gameQuery = params.get('game');
-            if (gameQuery && allGames.length > 0) {
-                let found = allGames.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === gameQuery);
-                if (found) {
-                    openGame(found);
-                }
-            }
-        }
+        }, 1000);
+    }
     </script>
 </body>
 </html>
