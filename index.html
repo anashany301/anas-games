@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anas Games - مكتبة الألعاب</title>
+  <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #121212; color: #fff; padding: 20px; text-align: center; }
@@ -19,24 +20,18 @@
 
     /* Modal overlay */
     #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-    #modal-content { width: 95%; max-width: 850px; height: 75vh; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
+    #modal-content { width: 95%; max-width: 850px; height: 75vh; background: #000; border-radius: 8px; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; }
     #modal-content iframe { width: 100%; height: 100%; border: none; }
     .close-btn { margin-top: 15px; background: #e74c3c; padding: 10px 30px; }
     
-    /* ExoClick Container Styling */
-    .ad-box { margin: 15px auto 25px auto; display: flex; justify-content: center; align-items: center; min-height: 90px; }
+    /* Ad Screen inside Modal */
+    .ad-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; width: 100%; height: 100%; background: #181818; padding: 20px; }
+    .ad-timer { font-size: 18px; color: #ffbf00; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <h1>مكتبة الألعاب (Flamingo)</h1>
-
-  <!-- كود إعلان ExoClick -->
-  <div class="ad-box">
-    <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
-    <ins class="eas6a97888e37" data-zoneid="6028854"></ins> 
-    <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
-  </div>
 
   <input type="text" id="search" placeholder="ابحث عن لعبة..." onkeyup="filterGames()">
 
@@ -44,43 +39,36 @@
     <p>جاري تحميل الألعاب...</p>
   </div>
 
-  <!-- الشاشة المنبثقة للعب -->
+  <!-- النافذة المنبثقة -->
   <div id="modal">
     <div id="modal-content"></div>
-    <button class="btn close-btn" onclick="closeGame()">إغلاق اللعبة</button>
+    <button class="btn close-btn" onclick="closeGame()">إغلاق</button>
   </div>
 
   <script>
     let gamesData = [];
+    let currentAdTimer = null;
 
     // قراءة ملف flamingo.json
     async function fetchGames() {
       const container = document.getElementById('games-container');
       try {
         const response = await fetch('./flamingo.json');
-        
-        if (!response.ok) {
-          throw new Error('لم يتم العثور على ملف flamingo.json');
-        }
-
+        if (!response.ok) throw new Error('لم يتم العثور على الملف');
         gamesData = await response.json();
         renderGames(gamesData);
       } catch (error) {
-        console.error("خطأ:", error);
-        container.innerHTML = `<p style="color:#ff4757;">فشل تحميل الألعاب! تأكد أن ملف flamingo.json مرفوع بجانب index.html بنفس المجلد</p>`;
+        container.innerHTML = `<p style="color:#ff4757;">فشل تحميل الألعاب! تأكد من وجود ملف flamingo.json</p>`;
       }
     }
 
-    // عرض الألعاب
     function renderGames(list) {
       const container = document.getElementById('games-container');
       container.innerHTML = '';
-
       if (list.length === 0) {
-        container.innerHTML = '<p>لا توجد ألعاب مطابقة للبحث</p>';
+        container.innerHTML = '<p>لا توجد ألعاب مطابقة</p>';
         return;
       }
-
       list.forEach((game, index) => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -92,23 +80,58 @@
       });
     }
 
-    // فلترة البحث
     function filterGames() {
       const query = document.getElementById('search').value.toLowerCase();
       const filtered = gamesData.filter(g => g.title.toLowerCase().includes(query));
       renderGames(filtered);
     }
 
-    // فتح اللعبة
+    // فتح اللعبة مع عرض الإعلان أولاً
     function playGame(index) {
       const modal = document.getElementById('modal');
       const content = document.getElementById('modal-content');
-      content.innerHTML = gamesData[index].embed;
       modal.style.display = 'flex';
+
+      let timeLeft = 5; // عدد ثواني عرض الإعلان قبل فتح اللعبة
+
+      // بناء واجهة الإعلان داخل المودال
+      content.innerHTML = `
+        <div class="ad-screen">
+          <div class="ad-timer">جاري تحميل اللعبة... سينتهي الإعلان خلال <span id="timer">${timeLeft}</span> ثوانٍ</div>
+          <div id="ad-holder">
+            <ins class="eas6a97888e37" data-zoneid="6028854"></ins>
+          </div>
+          <button id="skip-btn" class="btn" style="display:none;" onclick="startActualGame(${index})">تخطي وبدء اللعب الآن 🎮</button>
+        </div>
+      `;
+
+      // تشغيل إعلان ExoClick
+      try {
+        (window.AdProvider = window.AdProvider || []).push({"serve": {}});
+      } catch(e) {}
+
+      // عد تنازلي
+      currentAdTimer = setInterval(() => {
+        timeLeft--;
+        const timerEl = document.getElementById('timer');
+        if (timerEl) timerEl.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(currentAdTimer);
+          startActualGame(index);
+        }
+      }, 1000);
     }
 
-    // إغلاق اللعبة
+    // تشغيل iframe اللعبة بعد الإعلان
+    function startActualGame(index) {
+      if (currentAdTimer) clearInterval(currentAdTimer);
+      const content = document.getElementById('modal-content');
+      content.innerHTML = gamesData[index].embed;
+    }
+
     function closeGame() {
+      if (currentAdTimer) clearInterval(currentAdTimer);
       const modal = document.getElementById('modal');
       const content = document.getElementById('modal-content');
       content.innerHTML = '';
