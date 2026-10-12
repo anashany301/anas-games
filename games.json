@@ -84,6 +84,10 @@
         "embed_url": "https://www.freetogame.com/open/war-thunder"
     },
     {
+        "title": "Delta Force",
+        "embed_url": "https://www.freetogame.com/open/delta-force"
+    },
+    {
         "title": "Aion 2",
         "embed_url": "https://www.freetogame.com/open/aion-2"
     },
@@ -98,6 +102,10 @@
     {
         "title": "Foundation: Galactic Frontier",
         "embed_url": "https://www.freetogame.com/open/foundation-galactic-frontier"
+    },
+    {
+        "title": "Arena Breakout: Infinite",
+        "embed_url": "https://www.freetogame.com/open/arena-breakout-infinite"
     },
     {
         "title": "Marvel Rivals",
@@ -200,6 +208,10 @@
         "embed_url": "https://www.freetogame.com/open/honkai-star-rail"
     },
     {
+        "title": "SPAM",
+        "embed_url": "https://www.freetogame.com/open/spam"
+    },
+    {
         "title": "Tyr",
         "embed_url": "https://www.freetogame.com/open/tyr"
     },
@@ -250,10 +262,6 @@
     {
         "title": "Superball",
         "embed_url": "https://www.freetogame.com/open/superball"
-    },
-    {
-        "title": "Arena Breakout: Infinite",
-        "embed_url": "https://www.freetogame.com/open/arena-breakout-infinite"
     },
     {
         "title": "Warborne Above Ashes",
@@ -322,10 +330,6 @@
     {
         "title": "FragPunk",
         "embed_url": "https://www.freetogame.com/open/fragpunk"
-    },
-    {
-        "title": "Delta Force",
-        "embed_url": "https://www.freetogame.com/open/delta-force"
     },
     {
         "title": "Strinova",
