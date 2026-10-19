@@ -84,10 +84,6 @@
         "embed_url": "https://www.freetogame.com/open/war-thunder"
     },
     {
-        "title": "Delta Force",
-        "embed_url": "https://www.freetogame.com/open/delta-force"
-    },
-    {
         "title": "Aion 2",
         "embed_url": "https://www.freetogame.com/open/aion-2"
     },
@@ -330,6 +326,10 @@
     {
         "title": "FragPunk",
         "embed_url": "https://www.freetogame.com/open/fragpunk"
+    },
+    {
+        "title": "Delta Force",
+        "embed_url": "https://www.freetogame.com/open/delta-force"
     },
     {
         "title": "Strinova",
