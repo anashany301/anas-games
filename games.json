@@ -12,10 +12,6 @@
         "embed_url": "https://www.freetogame.com/open/enlisted"
     },
     {
-        "title": "World of Tanks: HEAT",
-        "embed_url": "https://www.freetogame.com/open/world-of-tanks-heat"
-    },
-    {
         "title": "Neverness to Everness",
         "embed_url": "https://www.freetogame.com/open/nte"
     },
@@ -208,6 +204,14 @@
         "embed_url": "https://www.freetogame.com/open/spam"
     },
     {
+        "title": "Vampir",
+        "embed_url": "https://www.freetogame.com/open/vampir"
+    },
+    {
+        "title": "Steel Aces",
+        "embed_url": "https://www.freetogame.com/open/steel-aces"
+    },
+    {
         "title": "Tyr",
         "embed_url": "https://www.freetogame.com/open/tyr"
     },
@@ -226,6 +230,10 @@
     {
         "title": "RF Online Next",
         "embed_url": "https://www.freetogame.com/open/rf-online-next"
+    },
+    {
+        "title": "World of Tanks: HEAT",
+        "embed_url": "https://www.freetogame.com/open/world-of-tanks-heat"
     },
     {
         "title": "The Division Resurgence",
