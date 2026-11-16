@@ -16,10 +16,6 @@
         "embed_url": "https://www.freetogame.com/open/nte"
     },
     {
-        "title": "Throne And Liberty",
-        "embed_url": "https://www.freetogame.com/open/throne-and-liberty"
-    },
-    {
         "title": "Fall Guys",
         "embed_url": "https://www.freetogame.com/open/fall-guys"
     },
@@ -82,10 +78,6 @@
     {
         "title": "Aion 2",
         "embed_url": "https://www.freetogame.com/open/aion-2"
-    },
-    {
-        "title": "Ragnarok: The New World",
-        "embed_url": "https://www.freetogame.com/open/ragnarok-the-new-world"
     },
     {
         "title": "Battlefield REDSEC",
@@ -342,6 +334,10 @@
     {
         "title": "SUPERVIVE",
         "embed_url": "https://www.freetogame.com/open/supervive"
+    },
+    {
+        "title": "Throne And Liberty",
+        "embed_url": "https://www.freetogame.com/open/throne-and-liberty"
     },
     {
         "title": "Starborne: Frontiers",
